@@ -1,9 +1,10 @@
 package net.jockx.model;
 
-import java.awt.*;
+import javafx.scene.paint.Color;
 
 /**
  * Created by Mateusz on 2014-05-09.
+ *
  */
 public class Ball {
 	private final Color color;

@@ -1,16 +1,16 @@
 package net.jockx.model;
 
+import javafx.scene.paint.Color;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.awt.*;
 import java.util.*;
 
 public class BoardTest {
 
 	@Test
 	public void testCreateCellArray() throws Exception {
-		Board.Cell[][] cells = Board.Cell.createCellArray(10, 10);
+		Cell[][] cells = Cell.createCellArray(10, 10);
 		for (int i = 0; i < 10; i++){
 			for (int j = 0; j < 10; j++){
 				Assert.assertNotNull(cells[i][j], "Cell at x:" + i + " y: " + j);
@@ -38,23 +38,24 @@ public class BoardTest {
 	public void testGetMatchingLine() throws Exception {
 		Board board = getSmallBoard();
 
-		Set<Board.Cell> horizontal = new HashSet<Board.Cell>();
-		Set<Board.Cell> vertical = new HashSet<Board.Cell>();
-		Set<Board.Cell> mainDiagonal = new HashSet<Board.Cell>();
-		Set<Board.Cell> antiDiagonal = new HashSet<Board.Cell>();
-		Set<Board.Cell> noneHorizontal = new HashSet<Board.Cell>();
-		Set<Board.Cell> noneVertical = new HashSet<Board.Cell>();
-		Set<Board.Cell> noneMainDiagonal = new HashSet<Board.Cell>();
-		Set<Board.Cell> noneAntiDiagonal = new HashSet<Board.Cell>();
+		Set<Cell> horizontal = new HashSet<Cell>();
+		Set<Cell> vertical = new HashSet<Cell>();
+		Set<Cell> mainDiagonal = new HashSet<Cell>();
+		Set<Cell> antiDiagonal = new HashSet<Cell>();
+		Set<Cell> noneHorizontal = new HashSet<Cell>();
+		Set<Cell> noneVertical = new HashSet<Cell>();
+		Set<Cell> noneMainDiagonal = new HashSet<Cell>();
+		Set<Cell> noneAntiDiagonal = new HashSet<Cell>();
 
-		horizontal = board.getMatchingLine(horizontal, board.getCell(1,0), Board.MatchDirection.HORIZONTAL);
-		vertical = board.getMatchingLine(vertical, board.getCell(0,2), Board.MatchDirection.VERTICAL);
-		mainDiagonal = board.getMatchingLine(mainDiagonal, board.getCell(2,2), Board.MatchDirection.MAIN_DIAGONAL);
-		antiDiagonal = board.getMatchingLine(antiDiagonal, board.getCell(2,1),Board.MatchDirection.ANTI_DIAGONAL);
-		noneHorizontal = board.getMatchingLine(noneHorizontal, board.getCell(1,1), Board.MatchDirection.HORIZONTAL);
-		noneVertical = board.getMatchingLine(noneVertical, board.getCell(1,1), Board.MatchDirection.VERTICAL);
-		noneMainDiagonal = board.getMatchingLine(noneMainDiagonal, board.getCell(1,1), Board.MatchDirection.MAIN_DIAGONAL);
-		noneAntiDiagonal = board.getMatchingLine(noneAntiDiagonal, board.getCell(1,1), Board.MatchDirection.ANTI_DIAGONAL);
+		MatchFinder matchFinder = new MatchFinder(board);
+		horizontal = matchFinder.getMatchingLine(horizontal, board.getCell(1,0), MatchFinder.MatchDirection.HORIZONTAL);
+		vertical = matchFinder.getMatchingLine(vertical, board.getCell(0,2), MatchFinder.MatchDirection.VERTICAL);
+		mainDiagonal = matchFinder.getMatchingLine(mainDiagonal, board.getCell(2,2), MatchFinder.MatchDirection.MAIN_DIAGONAL);
+		antiDiagonal = matchFinder.getMatchingLine(antiDiagonal, board.getCell(2,1), MatchFinder.MatchDirection.ANTI_DIAGONAL);
+		noneHorizontal = matchFinder.getMatchingLine(noneHorizontal, board.getCell(1,1), MatchFinder.MatchDirection.HORIZONTAL);
+		noneVertical = matchFinder.getMatchingLine(noneVertical, board.getCell(1,1), MatchFinder.MatchDirection.VERTICAL);
+		noneMainDiagonal = matchFinder.getMatchingLine(noneMainDiagonal, board.getCell(1,1), MatchFinder.MatchDirection.MAIN_DIAGONAL);
+		noneAntiDiagonal = matchFinder.getMatchingLine(noneAntiDiagonal, board.getCell(1,1), MatchFinder.MatchDirection.ANTI_DIAGONAL);
 
 		printSet("- [1:0]", horizontal);
 		printSet("| [0:2]", vertical);
@@ -79,12 +80,12 @@ public class BoardTest {
 	public void testGetAllMatchingLines() throws Exception {
 		Board board = getSmallBoard();
 
-		Set<Board.Cell> match0_0 = board.getAllMatchingLines(board.getCell(0,0));
-		Set<Board.Cell> match1_1 = board.getAllMatchingLines(board.getCell(1,1));
-		Set<Board.Cell> match0_2 = board.getAllMatchingLines(board.getCell(0,2));
-		Set<Board.Cell> match2_1 = board.getAllMatchingLines(board.getCell(2,1));
-		Set<Board.Cell> match3_1 = board.getAllMatchingLines(board.getCell(3,1));
-		Set<Board.Cell> match1_3 = board.getAllMatchingLines(board.getCell(1,3));
+		Set<Cell> match0_0 = board.getAllMatchingLines(board.getCell(0,0));
+		Set<Cell> match1_1 = board.getAllMatchingLines(board.getCell(1,1));
+		Set<Cell> match0_2 = board.getAllMatchingLines(board.getCell(0,2));
+		Set<Cell> match2_1 = board.getAllMatchingLines(board.getCell(2,1));
+		Set<Cell> match3_1 = board.getAllMatchingLines(board.getCell(3,1));
+		Set<Cell> match1_3 = board.getAllMatchingLines(board.getCell(1,3));
 		printSet("0:0", match0_0);
 		printSet("1:1", match1_1);
 		printSet("0:2", match0_2);
@@ -102,23 +103,25 @@ public class BoardTest {
 	@Test
 	public void testFindPathToCell() throws Exception {
 		Board board = getMazeBoard();
-		Board.Cell from = board.getCell(7,6);
-		Board.Cell to1 = board.getCell(2,5);
-		Board.Cell to2 = board.getCell(5,3);
-		Board.Cell to3 = board.getCell(6,5);
-		Board.Cell to4 = board.getCell(0,0); // Unaccessible
-		Board.Cell to5 = board.getCell(0,1); // Taken
+		Cell from = board.getCell(7,6);
+		Cell to1 = board.getCell(2,5);
+		Cell to2 = board.getCell(5,3);
+		Cell to3 = board.getCell(6,5);
+		Cell to4 = board.getCell(0,0); // Unaccessible
+		Cell to5 = board.getCell(0,1); // Taken
 
-		LinkedList<Board.Cell> path1 = new LinkedList<Board.Cell>();
-		LinkedList<Board.Cell> path2 = new LinkedList<Board.Cell>();
-		LinkedList<Board.Cell> path3 = new LinkedList<Board.Cell>();
-		LinkedList<Board.Cell> path4 = new LinkedList<Board.Cell>();
-		LinkedList<Board.Cell> path5 = new LinkedList<Board.Cell>();
-		path1 = board.findPathToCell(from, to1, path1, null);
-		path2 = board.findPathToCell(from, to2, path2, null);
-		path3 = board.findPathToCell(from, to3, path3, null);
-		path4 = board.findPathToCell(from, to4, path4, null);
-		path5 = board.findPathToCell(from, to5, path5, null);
+		LinkedList<Cell> path1 = new LinkedList<Cell>();
+		LinkedList<Cell> path2 = new LinkedList<Cell>();
+		LinkedList<Cell> path3 = new LinkedList<Cell>();
+		LinkedList<Cell> path4 = new LinkedList<Cell>();
+		LinkedList<Cell> path5 = new LinkedList<Cell>();
+
+		PathFinder pathFinder = new PathFinder(board);
+		path1 = pathFinder.findPathToCell(from, to1, path1, null);
+		path2 = pathFinder.findPathToCell(from, to2, path2, null);
+		path3 = pathFinder.findPathToCell(from, to3, path3, null);
+		path4 = pathFinder.findPathToCell(from, to4, path4, null);
+		path5 = pathFinder.findPathToCell(from, to5, path5, null);
 		printPath(path1, board);
 		printPath(path2, board);
 		printPath(path3, board);
@@ -135,18 +138,18 @@ public class BoardTest {
 	@Test
 	public void testFindShortestPathToCell() throws Exception {
 		Board board = getMazeBoard();
-		Board.Cell from = board.getCell(7,6);
-		Board.Cell to1 = board.getCell(2,5);
-		Board.Cell to2 = board.getCell(5,3);
-		Board.Cell to3 = board.getCell(6,5);
-		Board.Cell to4 = board.getCell(0,0); // Unaccessible
-		Board.Cell to5 = board.getCell(0,1); // Taken
+		Cell from = board.getCell(7,6);
+		Cell to1 = board.getCell(2,5);
+		Cell to2 = board.getCell(5,3);
+		Cell to3 = board.getCell(6,5);
+		Cell to4 = board.getCell(0,0); // Unaccessible
+		Cell to5 = board.getCell(0,1); // Taken
 
-		LinkedList<Board.Cell> path1 = board.findShortestPathToCell(from, to1);
-		LinkedList<Board.Cell> path2 = board.findShortestPathToCell(from, to2);
-		LinkedList<Board.Cell> path3 = board.findShortestPathToCell(from, to3);
-		LinkedList<Board.Cell> path4 = board.findShortestPathToCell(from, to4);
-		LinkedList<Board.Cell> path5 = board.findShortestPathToCell(from, to5);
+		LinkedList<Cell> path1 = board.findShortestPathToCell(from, to1);
+		LinkedList<Cell> path2 = board.findShortestPathToCell(from, to2);
+		LinkedList<Cell> path3 = board.findShortestPathToCell(from, to3);
+		LinkedList<Cell> path4 = board.findShortestPathToCell(from, to4);
+		LinkedList<Cell> path5 = board.findShortestPathToCell(from, to5);
 		printPath(path1, board);
 		printPath(path2, board);
 		printPath(path3, board);
@@ -161,11 +164,11 @@ public class BoardTest {
 	}
 
 
-	public void printSet(String message, Collection<Board.Cell> set){
+	public void printSet(String message, Collection<Cell> set){
 		System.out.print(message + ": ");
-		Iterator<Board.Cell> it = set.iterator();
+		Iterator<Cell> it = set.iterator();
 		while (it.hasNext()){
-			Board.Cell c = it.next();
+			Cell c = it.next();
 			printCell(c);
 		}
 		System.out.println();
@@ -181,7 +184,7 @@ public class BoardTest {
 		System.out.println();
 	}
 
-	public void printCell(Board.Cell c){
+	public void printCell(Cell c){
 		String color = " ";
 		if (c.getBall() != null && c.getBall().getColor().equals(Color.BLUE)){
 			color = "B";
@@ -249,13 +252,13 @@ public class BoardTest {
 		return board;
 	}
 
-	public void printPath(LinkedList<Board.Cell> path, Board board){
+	public void printPath(LinkedList<Cell> path, Board board){
 		System.out.println("\nPath: ");
 		if(path == null)
 			return;
 		for (int i = 0; i < board.height; i++){
 			for (int j = 0; j < board.width; j++){
-				Board.Cell c = board.getCell(j, i);
+				Cell c = board.getCell(j, i);
 				if (path.contains(c)){
 					int n = path.indexOf(c);
 					String s = Integer.toString(n);
