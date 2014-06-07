@@ -25,7 +25,7 @@ public class PathFinder {
 			verified.add(from);
 
 			// Uncomment to see the visual
-			//PathFinderPrint.printPath(verified, board, 300);
+			// net.jockx.model.debugUtils.PathFinderPrint.printPath(verified, board, 300);
 		}
 
 		Cell[] neighbours = getSmartNeighbours(from, to);
