@@ -4,7 +4,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import net.jockx.model.Ball;
 import net.jockx.model.Cell;
 import net.jockx.model.Game;
@@ -39,7 +38,6 @@ public class GameController implements Initializable{
 		return instance;
 	}
 
-
 	@Override
 	public void initialize(URL url, ResourceBundle resourceBundle) {
 
@@ -49,8 +47,8 @@ public class GameController implements Initializable{
 		RuleSet ruleSet = new RuleSet()
 				.setMinimalMatch(3)
 				.setBoardSize(9, 9)
-				.setNewBallCount(8)
-				.setNumberOfColors(8);
+				.setNewBallCount(20)
+				.setNumberOfColors(12);
 
 		game = new Game(ruleSet);
 		game.start();
@@ -109,27 +107,28 @@ public class GameController implements Initializable{
 	public void highlightPath() {
 		CellNode targetCell = getTargetCell();
 		CellNode sourceCell = getSourceCell();
-		if(sourceCell == null || targetCell == null) {
+		if( sourceCell == null || targetCell == null ||	sourceCell.isFree() ) {
 			return;
 		}
 		List<CellNode> path =  getPath(sourceCell, targetCell);
 		for(int i = 0; i < game.getBoard().height; i++){
 			for (int j = 0; j < game.getBoard().width; j++){
 				CellNode c = cellNodes[j][i];
-				if (path.contains(c)){
-					c.setFill(Color.BURLYWOOD);
-				} else {
-					c.setFill(Color.CORNFLOWERBLUE);
+
+				if (path.contains(c) && !path.get(0).equals(c)){
+					c.markHovered();
+
+				} else if(!c.equals(sourceCell)) {
+					c.unMarkHovered();
 				}
 			}
-
 		}
 	}
 
 	public void unHighlightPath(){
 		for(int i = 0; i < game.getBoard().height; i++) {
 			for (int j = 0; j < game.getBoard().width; j++) {
-				cellNodes[j][i].setFill(Color.CORNFLOWERBLUE);
+				cellNodes[j][i].unMarkHovered();
 			}
 		}
 	}

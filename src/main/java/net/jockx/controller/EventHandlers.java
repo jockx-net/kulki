@@ -2,10 +2,8 @@ package net.jockx.controller;
 
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import net.jockx.view.BallShape;
 import net.jockx.view.CellNode;
-import net.jockx.view.utils.CellNodeUtils;
 
 import java.util.List;
 
@@ -24,10 +22,8 @@ public class EventHandlers {
 		public void handle(MouseEvent event) {
 			CellNode source = ((CellNode) event.getSource());
 			GameController.getInstance().setTargetCell(source);
-			if( !source.equals(GameController.getInstance().getSourceCell()) ) {
-				((CellNode) event.getSource()).setFill(Color.BURLYWOOD);
-			}
 
+			source.markHovered();
 			GameController.getInstance().highlightPath();
 		}
 	};
@@ -35,13 +31,10 @@ public class EventHandlers {
 	public static EventHandler<MouseEvent> onMouseAway = new EventHandler<MouseEvent>() {
 		@Override
 		public void handle(MouseEvent event) {
-			CellNode source = ((CellNode) event.getSource());
-
 			GameController.getInstance().setTargetCell(null);
 
-			if( !source.equals(GameController.getInstance().getSourceCell()) ) {
-				source.setFill(Color.CORNFLOWERBLUE);
-			}
+			CellNode source = ((CellNode) event.getSource());
+			source.unMarkHovered();
 		}
 	};
 
@@ -53,13 +46,13 @@ public class EventHandlers {
 
 			// First click
 			if(cellClickedBefore == null){
-				CellNodeUtils.markAsSelected(cellClicked);
+				cellClicked.markAsSelected();
 				return;
 			}
 
 			// Second click on the same node
 			if (cellClicked.equals(cellClickedBefore) ){
-				CellNodeUtils.unMarkAsSelected(cellClicked);
+				cellClicked.unMarkAsSelected();
 			}
 
 			// Second click on different node
@@ -71,15 +64,15 @@ public class EventHandlers {
 		private void handleSecondClick(CellNode cellClickedBefore, CellNode cellClicked) {
 			// Move selection from empty cell
 			if(cellClickedBefore.isFree()){
-				CellNodeUtils.unMarkAsSelected(cellClickedBefore);
-				CellNodeUtils.markAsSelected(cellClicked);
+				cellClickedBefore.unMarkAsSelected();
+				cellClicked.markAsSelected();
 				return;
 			}
 
 			// Move selection to different occupied cell
 			if(!cellClicked.isFree()) {
-				CellNodeUtils.unMarkAsSelected(cellClickedBefore);
-				CellNodeUtils.markAsSelected(cellClicked);
+				cellClickedBefore.unMarkAsSelected();
+				cellClicked.markAsSelected();
 				return;
 			}
 
@@ -95,8 +88,8 @@ public class EventHandlers {
 				GameController.getInstance().unHighlightPath();
 
 				ball.moveTo(path);
-				CellNodeUtils.unMarkAsSelected(cellFrom);
-				CellNodeUtils.unMarkAsSelected(cellTo);
+				cellFrom.unMarkAsSelected();
+				cellTo.unMarkAsSelected();
 				cellTo.setBall(ball);
 				cellFrom.setBall(null);
 			}

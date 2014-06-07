@@ -6,6 +6,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.Rectangle;
 import net.jockx.controller.EventHandlers;
+import net.jockx.controller.GameController;
 
 /**
  * Created by JockX on 2014-05-12.
@@ -35,6 +36,39 @@ public class CellNode extends Group {
 
 	}
 
+	public void unMarkHovered() {
+		if( !equals(GameController.getInstance().getSourceCell()) ) {
+			setFill(Color.CORNFLOWERBLUE);
+		}
+	}
+
+	public void markHovered() {
+		if( !equals(GameController.getInstance().getSourceCell()) ) {
+			setFill(Color.BURLYWOOD);
+		}
+	}
+
+	public void unMarkAsSelected(){
+		CellNode sourceCell = GameController.getInstance().getSourceCell();
+		if(sourceCell != null && sourceCell.equals(this)){
+			GameController.getInstance().setSourceCell(null);
+		}
+		setFill(Color.CORNFLOWERBLUE);
+		resizeBall(25.0);
+	}
+
+	public void markAsSelected(){
+		GameController.getInstance().setSourceCell(this);
+		setFill(Color.CORAL);
+		resizeBall(28.0);
+	}
+
+	public void resizeBall(double radius) {
+		if(!isFree()){
+			getBall().setRadius(radius);
+		}
+	}
+
 	public boolean isFree() {
 		return (ball == null);
 	}
@@ -55,12 +89,6 @@ public class CellNode extends Group {
 		ball.setLayoutX(moveToPosition.getX());
 		ball.setLayoutY(moveToPosition.getY());
 		setBall(ball);
-	}
-
-	public BallShape releaseBallShape() {
-		BallShape ballShape = this.ball;
-		this.ball = null;
-		return ballShape;
 	}
 
 	public void setFill(Color color){
