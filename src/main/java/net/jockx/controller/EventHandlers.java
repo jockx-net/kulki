@@ -1,5 +1,6 @@
 package net.jockx.controller;
 
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import net.jockx.view.BallShape;
@@ -12,7 +13,6 @@ import java.util.List;
  *
  */
 public class EventHandlers {
-
 
 	/*
 	 * Event handlers for CellShape
@@ -33,6 +33,22 @@ public class EventHandlers {
 		public void handle(MouseEvent event) {
 			GameController.getInstance().setTargetCell(null);
 
+			CellNode source = ((CellNode) event.getSource());
+			source.unMarkHovered();
+		}
+	};
+
+	public static EventHandler<MouseEvent> onMouseOverNext = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent event) {
+			CellNode source = ((CellNode) event.getSource());
+			source.markHovered();
+		}
+	};
+
+	public static EventHandler<MouseEvent> onMouseAwayNext = new EventHandler<MouseEvent>() {
+		@Override
+		public void handle(MouseEvent event) {
 			CellNode source = ((CellNode) event.getSource());
 			source.unMarkHovered();
 		}
@@ -92,9 +108,24 @@ public class EventHandlers {
 				cellTo.unMarkAsSelected();
 				cellTo.setBall(ball);
 				cellFrom.setBall(null);
+				endMovecellTo = cellTo;
 			}
 		}
 
 	};
 
+	public static EventHandler<ActionEvent> onRandomBallsPlaced = new EventHandler<ActionEvent>() {
+		@Override
+		public void handle(ActionEvent event) {
+			GameController.getInstance().handleRandomlyAddedMatches();
+		}
+	};
+
+	static CellNode endMovecellTo;
+	public static EventHandler<ActionEvent> onMoveFinished = new EventHandler<ActionEvent>() {
+		@Override
+		public void handle(ActionEvent event) {
+			GameController.getInstance().endTurn(endMovecellTo.getColumn(), endMovecellTo.getRow());
+		}
+	};
 }

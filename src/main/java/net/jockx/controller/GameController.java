@@ -1,7 +1,10 @@
 package net.jockx.controller;
 
+import javafx.beans.property.IntegerProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import net.jockx.model.Ball;
@@ -12,9 +15,7 @@ import net.jockx.view.BallShape;
 import net.jockx.view.CellNode;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Created by JockX on 2014-05-11.
@@ -25,11 +26,15 @@ public class GameController implements Initializable{
 
 //	@FXML private AnchorPane rootPane;
 	@FXML private GridPane boardPane;
-//	@FXML private GridPane nextBallsPane;
+	@FXML private FlowPane nextBallsPane;
 	@FXML private Pane topPane;
+
+	@FXML private Label scoreLabel;
+	private IntegerProperty scoreValue;
 
 	private Game game;
 	private CellNode[][] cellNodes;
+	private CellNode[] nextCellNodes;
 
 	private CellNode sourceCell;
 	private CellNode targetCell;
@@ -42,15 +47,27 @@ public class GameController implements Initializable{
 	public void initialize(URL url, ResourceBundle resourceBundle) {
 
 		instance = this;
-		BallShape.pane = topPane;
+		BallShape.mainBoardPane = topPane;
+		BallShape.nextBallsPane = nextBallsPane;
+
 
 		RuleSet ruleSet = new RuleSet()
-				.setMinimalMatch(3)
-				.setBoardSize(9, 9)
-				.setNewBallCount(20)
-				.setNumberOfColors(12);
+				.setMinimalMatch(2)
+				.setBoardSize(3, 3)
+				.setNewBallCount(5)
+				.setNumberOfColors(7)
+				.setPerBallScore(1);
 
 		game = new Game(ruleSet);
+		startGame();
+
+		//StringProperty sp = new SimpleStringProperty("Hello");
+		//scoreLabel.textProperty().bind(String.valueOf(game.getScore()));
+	}
+
+	private void startGame() {
+		boardPane.getChildren().clear();
+		nextBallsPane.getChildren().clear();
 		game.start();
 
 		int x = game.getBoard().width;
@@ -66,24 +83,95 @@ public class GameController implements Initializable{
 			}
 		}
 
+		nextCellNodes = new CellNode[game.getRuleSet().getNewBallCount()];
+		for (int i = 0; i < nextCellNodes.length; i++){
+			CellNode nextCellNode = new CellNode(60.0, 60.0);
+			nextCellNodes[i] = nextCellNode;
+			nextBallsPane.getChildren().add(nextCellNode);
+		}
+		addBalls();
+	}
 
-		for (int i = 0; i < ruleSet.getNewBallCount(); i++) {
-			Ball ball = game.getNextBalls().get(i);
-			Cell randomCell = game.getNextRandomCell();
-			randomCell.setBall(ball);
+	private void updateNextBallsArea() {
+		List<BallShape> nextBallShapes = createNextBallShapes();
+		for (int i = 0; i < nextCellNodes.length; i++){
+			nextBallShapes.get(i).setLayoutX(nextCellNodes[i].getCellShape().getWidth() / 2);
+			nextBallShapes.get(i).setLayoutY(nextCellNodes[i].getCellShape().getHeight() / 2);
+		}
+		BallShape.appearNext(nextBallShapes);
 
-			BallShape ballShape = new BallShape(ball);
-			addBallShapeAt(ballShape, randomCell);
+	}
+
+	public void endTurn(int x, int y){
+		boolean goodMove = game.validateMove(game.getBoard().getCell(x, y));
+		if (goodMove){
+			removeBalls();
+		}
+		if (!goodMove || game.getBoard().getBalls().isEmpty()){
+			boolean gameOver = addBalls();
+			if(gameOver){
+				System.out.println("Game over - restart not yet implemented");
+			}
 		}
 	}
 
+	private boolean addBalls() {
+		game.createNextCells();
+
+		List<BallShape> ballShapes = createNextBallShapes();
+		for (int i = 0; i < game.getNextCells().size(); i++) {
+			Ball ball = game.getNextBalls().get(i);
+			Cell randomCell = game.getNextCells().get(i);
+
+			BallShape ballShape = ballShapes.get(i);
+
+			randomCell.setBall(ball);
+			addBallShapeAt(ballShape, randomCell);
+		}
+		game.createNextBalls();
+		updateNextBallsArea();
+		BallShape.appear(ballShapes, game.getNextCells().size());
+
+		return game.isGameOver();
+	}
+
+	private List<BallShape> createNextBallShapes(){
+		List<BallShape> ballShapes = new ArrayList<BallShape>();
+		for (int i = 0; i < game.getNextBalls().size(); i++) {
+			Ball ball = game.getNextBalls().get(i);
+			BallShape ballShape = new BallShape(ball);
+			ballShapes.add(ballShape);
+		}
+		return ballShapes;
+	}
+
+	public void handleRandomlyAddedMatches(){
+		if(game.validateAddedBalls()){
+			removeBalls();
+		}
+	}
+
+
+	private void removeBalls() {
+		Set<Cell> ballsToRemove = game.getBallsToRemove();
+		Set<BallShape> ballShapes = new HashSet<BallShape>();
+		for (Cell c : ballsToRemove){
+			game.getBoard().removeBall(c);
+
+			BallShape ballShape = cellNodes[c.x][c.y].getBall();
+			if(ballShape != null){
+				ballShapes.add(ballShape);
+			}
+			cellNodes[c.x][c.y].removeBall();
+		}
+
+		BallShape.remove(ballShapes);
+	}
 
 	private void addBallShapeAt(BallShape ball, Cell cell){
 		int x = cell.x;
 		int y = cell.y;
 		cellNodes[x][y].setBallFirstTime(ball);
-		topPane.getChildren().add(ball);
-
 	}
 
 
@@ -148,6 +236,7 @@ public class GameController implements Initializable{
 
 		return nodePath;
 	}
+
 	public List<CellNode> getPath(CellNode pathStart, CellNode pathEnd) {
 		Cell from = game.getBoard().getCell(pathStart.getColumn(), pathStart.getRow());
 		Cell to   = game.getBoard().getCell(pathEnd.getColumn(), pathEnd.getRow());
@@ -160,8 +249,11 @@ public class GameController implements Initializable{
 		for (Cell c : cellPath){
 			nodePath.add(cellNodes[c.x][c.y]);
 		}
-
 		return nodePath;
+	}
+
+	public void updateScore() {
+		scoreLabel.textProperty().setValue(String.valueOf(game.getScore()));
 	}
 }
 

@@ -1,6 +1,12 @@
 package net.jockx.view;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.PathTransition;
+import javafx.animation.ScaleTransition;
+import javafx.animation.SequentialTransition;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
@@ -11,8 +17,11 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
+import net.jockx.controller.EventHandlers;
+import net.jockx.controller.GameController;
 import net.jockx.model.Ball;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -21,7 +30,9 @@ import java.util.List;
  */
 public class BallShape  extends Circle{
 
-	public static Pane pane;
+	public static Pane mainBoardPane;
+	public static Pane nextBallsPane;
+	static private int transitionDuration = 0;
 
 	public BallShape(Ball ball){
 		super(25.0);
@@ -54,12 +65,130 @@ public class BallShape  extends Circle{
 		}
 
 		PathTransition pathTransition = new PathTransition();
-		pathTransition.setDuration(Duration.millis(200 * cellsInPath.size()));
+		transitionDuration = 200 * cellsInPath.size();
+		pathTransition.setDuration(Duration.millis(transitionDuration));
 		pathTransition.setPath(path);
 
 		pathTransition.setNode(this);
 		pathTransition.setOrientation(PathTransition.OrientationType.NONE);
+		pathTransition.setOnFinished(EventHandlers.onMoveFinished);
 		pathTransition.play();
 	}
 
+	public static int remove(Collection<BallShape> balls) {
+		int duration = 500;
+		for (final BallShape ball : balls){
+			ScaleTransition st = new ScaleTransition(Duration.millis(duration), ball);
+			st.setByX(-0.5f);
+			st.setByY(-0.5f);
+
+			FadeTransition ft = new FadeTransition(Duration.millis(duration), ball);
+			ft.setFromValue(1.0);
+			ft.setToValue(0.0);
+
+			st.play();
+			ft.play();
+			ft.setOnFinished(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent event) {
+					mainBoardPane.getChildren().remove(ball);
+					GameController.getInstance().updateScore();
+				}
+			});
+		}
+		return duration;
+	}
+
+	public static void appear(List<BallShape> balls, int actuallyShown){
+		int duration = 300;
+		SequentialTransition sequentialFade = new SequentialTransition();
+		SequentialTransition sequentialScale = new SequentialTransition();
+
+		sequentialFade.setOnFinished(EventHandlers.onRandomBallsPlaced);
+
+		for(int i = 0; i < actuallyShown; i++){
+			BallShape ball = balls.get(i);
+			mainBoardPane.getChildren().add(ball);
+			ball.setScaleX(0.01f);
+			ball.setScaleY(0.01f);
+
+			FadeTransition hide = new FadeTransition(Duration.millis(0), ball);
+			hide.setFromValue(0.0);
+			hide.setToValue(0.0);
+			hide.play();
+
+			FadeTransition ft = new FadeTransition(Duration.millis(duration + 10), ball);
+			ft.setFromValue(0.01);
+			ft.setToValue(1.0);
+
+			ScaleTransition st = new ScaleTransition(Duration.millis(duration), ball);
+			st.setByX(1.0f);
+			st.setByY(1.0f);
+
+			sequentialScale.getChildren().add(st);
+			sequentialFade.getChildren().add(ft);
+		}
+		sequentialFade.play();
+		sequentialScale.play();
+	}
+
+	public static void appearNext(List<BallShape> nextBalls) {
+
+		int duration = 300;
+		SequentialTransition sequentialFade = new SequentialTransition();
+		SequentialTransition sequentialScale = new SequentialTransition();
+
+		for (int i = 0; i < nextBallsPane.getChildren().size(); i++){
+			final CellNode node = (CellNode) nextBallsPane.getChildren().get(i);
+
+			if(node.getChildren().size() < 2) {
+				continue;
+			}
+			Node ball = node.getChildren().get(1);
+			ScaleTransition st = new ScaleTransition(Duration.millis(duration), ball);
+			st.setByX(-0.5f);
+			st.setByY(-0.5f);
+
+			FadeTransition ft = new FadeTransition(Duration.millis(duration), ball);
+			ft.setFromValue(1.0);
+			ft.setToValue(0.0);
+
+			ft.setOnFinished(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent event) {
+					node.getChildren().remove(1);
+				}
+			});
+			sequentialScale.getChildren().add(st);
+			sequentialFade.getChildren().add(ft);
+			node.getChildren().removeAll();
+		}
+
+		for(int i = 0; i < nextBalls.size(); i++){
+			BallShape ball = nextBalls.get(i);
+			CellNode node = (CellNode) nextBallsPane.getChildren().get(i);
+			node.getChildren().add(ball);
+			ball.setVisible(true);
+			ball.setScaleX(0.01f);
+			ball.setScaleY(0.01f);
+
+			FadeTransition hide = new FadeTransition(Duration.millis(0), ball);
+			hide.setFromValue(0.0);
+			hide.setToValue(0.0);
+			hide.play();
+
+			FadeTransition ft = new FadeTransition(Duration.millis(100), ball);
+			ft.setFromValue(0.01);
+			ft.setToValue(1.0);
+
+			ScaleTransition st = new ScaleTransition(Duration.millis(100), ball);
+			st.setByX(1.0f);
+			st.setByY(1.0f);
+
+			sequentialScale.getChildren().add(st);
+			sequentialFade.getChildren().add(ft);
+		}
+		sequentialFade.play();
+		sequentialScale.play();
+	}
 }

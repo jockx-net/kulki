@@ -4,41 +4,37 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<AnchorPane fx:id="pane" fx:controller="net.jockx.controller.GameController"
-            minHeight="-Infinity" minWidth="-Infinity" prefHeight="410.0" prefWidth="665.0"
-            xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-    <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0" /></padding>
-    <children>
-        <GridPane fx:id="nextBallsPane" layoutX="446.0" layoutY="75.0"
-                  prefHeight="70.0" prefWidth="190.0" styleClass="next-cell-box"
-                  AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="65.0">
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" minWidth="60.0" prefWidth="60.0" />
-                <ColumnConstraints hgrow="NEVER" minWidth="60.0" prefWidth="60.0" />
-                <ColumnConstraints hgrow="NEVER" minWidth="60.0" prefWidth="60.0" />
-            </columnConstraints>
-            <rowConstraints>
-                <RowConstraints minHeight="60.0" prefHeight="60.0" vgrow="NEVER" />
-            </rowConstraints>
-              </GridPane>
-        <Pane fx:id="topPane" layoutX="20.0" layoutY="20.0"
-              minHeight="-Infinity" minWidth="-Infinity" styleClass="cell-box"
-              AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
-            <GridPane fx:id="boardPane"  hgap="5" vgap="5" />
-        </Pane>
+<FlowPane fx:controller="net.jockx.controller.GameController"
 
-        <Label alignment="CENTER" contentDisplay="CENTER" layoutX="446.0" layoutY="25.0" prefHeight="36.0" prefWidth="190.0" text="Next" textOverrun="CLIP" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="19.0">
-            <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0" /></padding>
-            <font><Font name="System Bold" size="19.0" /></font>
+            xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+    <padding>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+    </padding>
+    <Pane fx:id="topPane" layoutX="20.0" layoutY="20.0"
+          minHeight="-Infinity" minWidth="-Infinity" styleClass="cell-box"
+          AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
+        <GridPane fx:id="boardPane" hgap="5" vgap="5"/>
+    </Pane>
+    <VBox AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0"  >
+
+        <Label text="Next" alignment="CENTER" contentDisplay="CENTER" textOverrun="CLIP" >
+            <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
+            <font><Font name="System Bold" size="19.0"/></font>
         </Label>
-        <Label alignment="CENTER" layoutX="446.0" layoutY="140.0" prefHeight="38.0" prefWidth="190.0" text="Score" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="140.0">
-            <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0" /></padding>
-            <font><Font name="System Bold" size="18.0" /></font>
+        <FlowPane fx:id="nextBallsPane" styleClass="next-cell-box" hgap="5" vgap="5" />
+
+        <Label text="Score" alignment="CENTER" >
+            <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
+            <font><Font name="System Bold" size="18.0"/></font>
         </Label>
-        <Label fx:id="score" alignment="CENTER_RIGHT" layoutX="446.0" layoutY="186.0" prefHeight="38.0" prefWidth="190.0" style="-fx-border-style: solid; -fx-border-width: 3; -fx-border-color: grey;" styleClass=".borderd" text="0" textAlignment="RIGHT" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="180.0">
-            <font><Font name="System Bold" size="18.0" /></font>
-             <opaqueInsets><Insets bottom="5.0" left="5.0" right="5.0" top="5.0" /></opaqueInsets>
-             <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0" /></padding>
-        </Label>
-    </children>
-</AnchorPane>
+
+        <Label fx:id="scoreLabel" text="0" alignment="CENTER_RIGHT"
+               style="-fx-border-style: solid; -fx-border-width: 3; -fx-border-color: grey;"
+               styleClass=".borderd"
+               textAlignment="RIGHT" >
+            <font><Font name="System Bold" size="18.0"/></font>
+            <opaqueInsets><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></opaqueInsets>
+            <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
+       </Label>
+       </VBox>
+</FlowPane>

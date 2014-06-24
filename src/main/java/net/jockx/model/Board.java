@@ -1,5 +1,6 @@
 package net.jockx.model;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -49,6 +50,10 @@ public class Board {
 		placeBall(ball, cells[x][y]);
 	}
 
+	public void removeBall(Cell cell) {
+		cell.setBall(null);
+	}
+
 	public List<Cell> getFreeCells() {
 		List<Cell> freeCells = new LinkedList<Cell>();
 		for (int i = 0; i < height; i++){
@@ -83,8 +88,46 @@ public class Board {
 		} else {
 			return null;
 		}
+	}
 
+	public List<Ball> getBalls() {
+		List<Ball> balls = new ArrayList<Ball>();
+		for (Cell c : getCells() ){
+			Ball b = c.getBall();
+			if ( b != null){
+				balls.add(b);
+			}
+		}
+		return balls;
+	}
+
+	public List<Cell> getCells() {
+		List<Cell> cellList = new ArrayList<Cell>();
+		for (int i = 0; i < height; i++){
+			for (int j = 0; j < width; j++){
+				cellList.add(getCell(j, i));
+			}
+		}
+		return cellList;
 	}
 
 
+	@Override
+	public String toString(){
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < height; i ++){
+			sb.append('|');
+			for (int j = 0; j < width; j++){
+				if (cells[j][i] != null && cells[j][i].isFree()){
+					sb.append(" .");
+				}
+				if (cells[j][i] != null && !cells[j][i].isFree()){
+					sb.append(" X");
+				}
+			}
+			sb.append("|\n");
+		}
+		sb.append('\n');
+		return sb.toString();
+	}
 }

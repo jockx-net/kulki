@@ -9,11 +9,11 @@ import java.util.LinkedList;
  * Created by JockX on 2014-06-02.
  *
  */
-public class PathFinderPrint {
+@SuppressWarnings("UnusedDeclaration")
+public class DebugUtils {
 	/**
 	 * Uncomment to see the progress in real time
-	 * @param path
-	 * @param board
+	 *
 	 * */
 	public static void printPath(LinkedList<Cell> path, Board board, int delay) {
 		System.out.println("\nPath: ");
@@ -41,6 +41,21 @@ public class PathFinderPrint {
 			Thread.sleep(delay);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public static void  printBoard(Board board){
+		for (int i = 0; i < board.height; i++){
+			for (int j = 0; j < board.width; j++){
+				String c;
+				if (board.getCell(j, i).isFree()){
+					c = " .";
+				} else {
+					c = " X";
+				}
+				System.out.print(c);
+			}
+			System.out.println();
 		}
 	}
 }

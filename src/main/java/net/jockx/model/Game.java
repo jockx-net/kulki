@@ -2,10 +2,7 @@ package net.jockx.model;
 
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by JockX on 2014-05-11.
@@ -17,10 +14,13 @@ public class Game {
 	Board board;
 	int score;
 	int highScore;
-	boolean gameOver = true;
 
+	List<Cell> nextCells;
 	List<Ball> nextBalls;
 	List<Color> colorList;
+	Set<Cell> cellsToRemove;
+
+
 
 
 
@@ -28,25 +28,59 @@ public class Game {
 		this.ruleSet = ruleSet;
 	}
 
-	public Game (){
-		this.ruleSet = new RuleSet();
-	}
+//	public Game (){
+//		this.ruleSet = new RuleSet();
+//	}
 
 	public void start (){
-		board = new Board(ruleSet);
 		score = 0;
+		board = new Board(ruleSet);
 		selectColors();
 		createNextBalls();
-		gameOver = false;
+		createNextCells();
 	}
 
-	public Cell getNextRandomCell() {
-		if(nextBalls.isEmpty())
-			return null;
+	public void createNextBalls() {
+		nextBalls = new LinkedList<Ball>();
+
+		for(int i = 0; i < ruleSet.newBallCount; i++){
+			int color = new Random().nextInt(ruleSet.numberOfColors);
+			nextBalls.add( new Ball( colorList.get(color)) );
+		}
+	}
+
+	public void createNextCells() {
 		List<Cell> emptyCells = board.getFreeCells();
-		int random = new Random().nextInt(emptyCells.size());
-		Cell randomCell = emptyCells.remove(random);
-		return randomCell;
+		List<Cell> randomCells = new ArrayList<Cell>();
+		for (int i = 0; i < ruleSet.newBallCount; i++){
+			if(emptyCells.isEmpty()){
+				break;
+			}
+			int random = new Random().nextInt(emptyCells.size());
+			randomCells.add(emptyCells.remove(random));
+		}
+		nextCells = randomCells;
+	}
+
+	public boolean validateMove(Cell cell){
+		cellsToRemove = board.getAllMatchingLines(cell);
+		score += ruleSet.perBallScore * cellsToRemove.size();
+		return !(cellsToRemove == null ||
+				cellsToRemove.isEmpty());
+	}
+
+	public boolean validateAddedBalls(){
+		cellsToRemove = new HashSet<Cell>();
+		for (Cell cell: board.getCells()){
+			Set<Cell> matches = board.getAllMatchingLines(cell);
+			if(matches != null) {
+				cellsToRemove.addAll(matches);
+			}
+		}
+
+		score += ruleSet.perBallScore * cellsToRemove.size();
+		return !(cellsToRemove == null ||
+				cellsToRemove.isEmpty());
 	}
 
 	private void selectColors() {
@@ -56,17 +90,6 @@ public class Game {
 		int limit = ruleSet.numberOfColors;
 		for (int i = 0; i < limit; i++){
 			colorList.add(RuleSet.getColor(i));
-		}
-	}
-
-	private void createNextBalls() {
-		if(nextBalls == null){
-			nextBalls = new LinkedList<Ball>();
-		}
-
-		for(int i = 0; i < ruleSet.newBallCount; i++){
-			int color = new Random().nextInt(ruleSet.numberOfColors);
-			nextBalls.add( new Ball( colorList.get(color)) );
 		}
 	}
 
@@ -99,15 +122,15 @@ public class Game {
 	}
 
 	public boolean isGameOver() {
-		return gameOver;
-	}
-
-	public void setGameOver(boolean gameOver) {
-		this.gameOver = gameOver;
+		return board.getFreeCells().isEmpty();
 	}
 
 	public List<Ball> getNextBalls() {
 		return nextBalls;
+	}
+
+	public List<Cell> getNextCells() {
+		return nextCells;
 	}
 
 	public List<Color> getColorList() {
@@ -123,4 +146,7 @@ public class Game {
 	}
 
 
+	public Set<Cell> getBallsToRemove() {
+		return cellsToRemove;
+	}
 }

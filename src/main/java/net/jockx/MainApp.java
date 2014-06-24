@@ -25,9 +25,9 @@ public class MainApp extends Application {
         log.debug("Showing JFX scene");
 
 
-        Scene scene = new Scene(rootNode, 800, 640);
+        Scene scene = new Scene(rootNode);
         //scene.getStylesheets().add("/styles/styles.css");
-		stage.setResizable(false);
+		//stage.setResizable(false);
         stage.setTitle("FX Kulki");
         stage.setScene(scene);
         stage.show();

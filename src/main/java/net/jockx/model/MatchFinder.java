@@ -15,11 +15,9 @@ public class MatchFinder {
 		HORIZONTAL, VERTICAL, MAIN_DIAGONAL, ANTI_DIAGONAL
 	}
 
-	private final Board board;
 	private final RuleSet ruleSet;
 
 	MatchFinder (Board board){
-		this.board = board;
 		this.ruleSet = board.getRuleSet();
 	}
 
@@ -86,6 +84,9 @@ public class MatchFinder {
 	}
 
 	public Set<Cell> getAllMatchingLines(Cell toMatch){
+		if (toMatch.getBall() == null){
+			return null;
+		}
 		Set<Cell> cellsInLines = new HashSet<Cell>();
 		for (MatchDirection direction : MatchDirection.values()) {
 

@@ -36,6 +36,19 @@ public class CellNode extends Group {
 
 	}
 
+	public CellNode (double width, double height){
+		this.CellShape = new Rectangle(width, height, Color.CORNFLOWERBLUE);
+		getChildren().add(CellShape);
+
+		addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, EventHandlers.onMouseOverNext);
+		addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, EventHandlers.onMouseAwayNext);
+
+		this.column = -1;
+		this.row = -1;
+		moveToPosition = null;
+	}
+
+
 	public void unMarkHovered() {
 		if( !equals(GameController.getInstance().getSourceCell()) ) {
 			setFill(Color.CORNFLOWERBLUE);
@@ -91,6 +104,7 @@ public class CellNode extends Group {
 		setBall(ball);
 	}
 
+
 	public void setFill(Color color){
 		CellShape.setFill(color);
 	}
@@ -102,4 +116,13 @@ public class CellNode extends Group {
 	public int getRow() {
 		return row;
 	}
+
+	public void removeBall() {
+//		if(getBall() != null) {
+//			getBall().markForRemoval();
+//		}
+		setBall(null);
+	}
+
+
 }
