@@ -30,7 +30,7 @@ public class BallShape  extends Circle{
 
 	public static Pane mainBoardPane;
 	public static Pane nextBallsPane;
-	static double radius = PropertiesReader.getDouble("ball.size");
+	public static double radius = PropertiesReader.getDouble("ball.size");
 	static double extendedRadius;
 
 	public BallShape(Ball ball){

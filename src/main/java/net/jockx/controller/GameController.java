@@ -55,7 +55,6 @@ public class GameController implements Initializable{
 	@Override
 	public void initialize(URL url, ResourceBundle resourceBundle) {
 		instance = this;
-		//showSettingsDialog();
 	}
 
 	private void scaleShapes(int boardWidth, int boardHeight) {
@@ -71,6 +70,7 @@ public class GameController implements Initializable{
 		radius = cellSide * 0.45;
 		PropertiesReader.setProperty("cell.size", String.valueOf(cellSide));
 		PropertiesReader.setProperty("ball.size", String.valueOf(radius));
+		BallShape.radius = radius;
 	}
 
 	private void startGame() {

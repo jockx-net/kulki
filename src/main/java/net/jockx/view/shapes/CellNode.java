@@ -78,7 +78,6 @@ public class CellNode extends Group {
 
 	public void resizeBall(double radius) {
 		if(!isFree()){
-			//getBall().setRadius(radius);
 			getBall().setScaleX(radius / getBall().getRadius());
 			getBall().setScaleY(radius / getBall().getRadius());
 		}
@@ -120,9 +119,6 @@ public class CellNode extends Group {
 	}
 
 	public BallShape removeBall() {
-//		if(getBall() != null) {
-//			getBall().markForRemoval();
-//		}
 		BallShape old = getBall();
 		setBall(null);
 		return old;
