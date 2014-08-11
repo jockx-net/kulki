@@ -3,8 +3,8 @@ package net.jockx.controller;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
-import net.jockx.view.BallShape;
-import net.jockx.view.CellNode;
+import net.jockx.view.shapes.BallShape;
+import net.jockx.view.shapes.CellNode;
 
 import java.util.List;
 
@@ -117,7 +117,7 @@ public class EventHandlers {
 	public static EventHandler<ActionEvent> onRandomBallsPlaced = new EventHandler<ActionEvent>() {
 		@Override
 		public void handle(ActionEvent event) {
-			GameController.getInstance().handleRandomlyAddedMatches();
+			GameController.getInstance().removeBalls();
 		}
 	};
 

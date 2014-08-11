@@ -79,8 +79,7 @@ public class Game {
 		}
 
 		score += ruleSet.perBallScore * cellsToRemove.size();
-		return !(cellsToRemove == null ||
-				cellsToRemove.isEmpty());
+		return !(cellsToRemove.isEmpty());
 	}
 
 	private void selectColors() {

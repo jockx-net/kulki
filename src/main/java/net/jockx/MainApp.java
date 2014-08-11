@@ -5,12 +5,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.jockx.controller.GameController;
+import net.jockx.controller.PropertiesReader;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 public class MainApp extends Application {
 
-    private static final Logger log = LoggerFactory.getLogger(MainApp.class);
+    private static final Logger log = LogManager.getLogger(MainApp.class);
 
     public static void main(String[] args) throws Exception {
 		launch(args);
@@ -25,12 +27,15 @@ public class MainApp extends Application {
         log.debug("Showing JFX scene");
 
 
-        Scene scene = new Scene(rootNode);
-        //scene.getStylesheets().add("/styles/styles.css");
+		int width = PropertiesReader.getInt("scene.width");
+		int height = PropertiesReader.getInt("scene.height");
+        Scene scene = new Scene(rootNode, width, height);
+        scene.getStylesheets().add("/styles/styles.css");
 		//stage.setResizable(false);
+
         stage.setTitle("FX Kulki");
         stage.setScene(scene);
         stage.show();
-
+		GameController.getInstance().showSettingsDialog();
 	}
 }

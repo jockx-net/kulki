@@ -30,11 +30,11 @@
                     <mainClass>net.jockx.MainApp</mainClass>
 
                     <!-- only required if signing the jar file -->
-                    <keyStoreAlias>example-user</keyStoreAlias>
-                    <keyStorePassword>example-password</keyStorePassword>
-                    <permissions>
-                        <permission>all-permissions</permission>
-                    </permissions>
+                    <!--<keyStoreAlias>example-user</keyStoreAlias>-->
+                    <!--<keyStorePassword>example-password</keyStorePassword>-->
+                    <!--<permissions>-->
+                        <!--<permission>all-permissions</permission>-->
+                    <!--</permissions>-->
 
                 </configuration>
             </plugin>
@@ -47,7 +47,19 @@
                         <suiteXmlFile>src\test\resources\testng.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
-
+            </plugin>
+            <plugin>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>net.jockx.MainApp</mainClass>
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
             </plugin>
         </plugins>
     </build>

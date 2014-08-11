@@ -11,6 +11,7 @@ import java.util.List;
  */
 public class PathFinder {
 
+	@SuppressWarnings({"FieldCanBeLocal", "UnusedDeclaration"})
 	private final Board board;
 
 	PathFinder(Board board){

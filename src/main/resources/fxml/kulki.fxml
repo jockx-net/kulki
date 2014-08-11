@@ -5,12 +5,12 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <FlowPane fx:controller="net.jockx.controller.GameController"
-
             xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <padding>
         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
     </padding>
-    <Pane fx:id="topPane" layoutX="20.0" layoutY="20.0"
+    <Pane fx:id="topPane"
+          layoutX="20.0" layoutY="20.0"
           minHeight="-Infinity" minWidth="-Infinity" styleClass="cell-box"
           AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
         <GridPane fx:id="boardPane" hgap="5" vgap="5"/>

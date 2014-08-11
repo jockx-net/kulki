@@ -1,4 +1,4 @@
-package net.jockx.view;
+package net.jockx.view.shapes;
 
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
@@ -67,18 +67,20 @@ public class CellNode extends Group {
 			GameController.getInstance().setSourceCell(null);
 		}
 		setFill(Color.CORNFLOWERBLUE);
-		resizeBall(25.0);
+		resizeBall(BallShape.radius);
 	}
 
 	public void markAsSelected(){
 		GameController.getInstance().setSourceCell(this);
 		setFill(Color.CORAL);
-		resizeBall(28.0);
+		resizeBall(BallShape.extendedRadius);
 	}
 
 	public void resizeBall(double radius) {
 		if(!isFree()){
-			getBall().setRadius(radius);
+			//getBall().setRadius(radius);
+			getBall().setScaleX(radius / getBall().getRadius());
+			getBall().setScaleY(radius / getBall().getRadius());
 		}
 	}
 
@@ -117,11 +119,13 @@ public class CellNode extends Group {
 		return row;
 	}
 
-	public void removeBall() {
+	public BallShape removeBall() {
 //		if(getBall() != null) {
 //			getBall().markForRemoval();
 //		}
+		BallShape old = getBall();
 		setBall(null);
+		return old;
 	}
 
 

@@ -1,9 +1,6 @@
-package net.jockx.view;
+package net.jockx.view.shapes;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.PathTransition;
-import javafx.animation.ScaleTransition;
-import javafx.animation.SequentialTransition;
+import javafx.animation.*;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Node;
@@ -19,6 +16,7 @@ import javafx.scene.shape.Path;
 import javafx.util.Duration;
 import net.jockx.controller.EventHandlers;
 import net.jockx.controller.GameController;
+import net.jockx.controller.PropertiesReader;
 import net.jockx.model.Ball;
 
 import java.util.Collection;
@@ -32,12 +30,14 @@ public class BallShape  extends Circle{
 
 	public static Pane mainBoardPane;
 	public static Pane nextBallsPane;
-	static private int transitionDuration = 0;
+	static double radius = PropertiesReader.getDouble("ball.size");
+	static double extendedRadius;
 
 	public BallShape(Ball ball){
-		super(25.0);
+		super(radius);
+		extendedRadius = radius * 1.12;
 		RadialGradient gradient = new RadialGradient(
-				0, 0.1, -10, -10, 30, false,
+				0, 0.1, -radius * 0.35, -radius * 0.35, radius * 1.2, false,
 				CycleMethod.NO_CYCLE,
 				new Stop(1,  ball.getColor().darker().darker().darker()),
 				new Stop(0.7, ball.getColor().darker()),
@@ -65,7 +65,7 @@ public class BallShape  extends Circle{
 		}
 
 		PathTransition pathTransition = new PathTransition();
-		transitionDuration = 200 * cellsInPath.size();
+		int transitionDuration = 200 * cellsInPath.size();
 		pathTransition.setDuration(Duration.millis(transitionDuration));
 		pathTransition.setPath(path);
 
@@ -75,8 +75,18 @@ public class BallShape  extends Circle{
 		pathTransition.play();
 	}
 
-	public static int remove(Collection<BallShape> balls) {
+	public static int remove(Collection<BallShape> balls, boolean gameOver) {
 		int duration = 500;
+		ParallelTransition parallelTransition = new ParallelTransition();
+		if(!gameOver) {
+			parallelTransition.setOnFinished(new EventHandler<ActionEvent>() {
+				@Override
+				public void handle(ActionEvent event) {
+					GameController.getInstance().verifyEndTurn();
+				}
+			});
+		}
+
 		for (final BallShape ball : balls){
 			ScaleTransition st = new ScaleTransition(Duration.millis(duration), ball);
 			st.setByX(-0.5f);
@@ -85,9 +95,6 @@ public class BallShape  extends Circle{
 			FadeTransition ft = new FadeTransition(Duration.millis(duration), ball);
 			ft.setFromValue(1.0);
 			ft.setToValue(0.0);
-
-			st.play();
-			ft.play();
 			ft.setOnFinished(new EventHandler<ActionEvent>() {
 				@Override
 				public void handle(ActionEvent event) {
@@ -95,16 +102,19 @@ public class BallShape  extends Circle{
 					GameController.getInstance().updateScore();
 				}
 			});
+			parallelTransition.getChildren().add(st);
+			parallelTransition.getChildren().add(ft);
 		}
+		parallelTransition.play();
 		return duration;
 	}
 
-	public static void appear(List<BallShape> balls, int actuallyShown){
+	public static void appearNewBalls(List<BallShape> balls, int actuallyShown){
 		int duration = 300;
 		SequentialTransition sequentialFade = new SequentialTransition();
 		SequentialTransition sequentialScale = new SequentialTransition();
-
 		sequentialFade.setOnFinished(EventHandlers.onRandomBallsPlaced);
+
 
 		for(int i = 0; i < actuallyShown; i++){
 			BallShape ball = balls.get(i);
