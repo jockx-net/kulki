@@ -1,10 +1,10 @@
-package net.jockx.controller;
+package net.jockx.kulki.controller;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
-import net.jockx.view.shapes.BallShape;
-import net.jockx.view.shapes.CellNode;
+import net.jockx.kulki.view.shapes.BallShape;
+import net.jockx.kulki.view.shapes.CellNode;
 
 import java.util.List;
 

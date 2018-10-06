@@ -1,4 +1,4 @@
-package net.jockx.model;
+package net.jockx.kulki.model;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -26,7 +26,7 @@ public class PathFinder {
 			verified.add(from);
 
 			// Uncomment to see the visual
-			// net.jockx.model.debugUtils.PathFinderPrint.printPath(verified, board, 300);
+			// net.jockx.kulki.model.debugUtils.PathFinderPrint.printPath(verified, board, 300);
 		}
 
 		Cell[] neighbours = getSmartNeighbours(from, to);

@@ -3,7 +3,7 @@
 <suite name="Suite1">
     <test name="test1">
         <classes>
-            <class name="net.jockx.model.BoardTest"/>
+            <class name="net.jockx.kulki.model.BoardTest"/>
         </classes>
     </test>
 </suite>

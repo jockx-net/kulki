@@ -1,4 +1,4 @@
-package net.jockx.model;
+package net.jockx.kulki.model;
 
 /**
  * A Cell is a board field that can hold single Ball and

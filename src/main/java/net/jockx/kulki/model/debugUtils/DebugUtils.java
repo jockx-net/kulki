@@ -1,7 +1,7 @@
-package net.jockx.model.debugUtils;
+package net.jockx.kulki.model.debugUtils;
 
-import net.jockx.model.Board;
-import net.jockx.model.Cell;
+import net.jockx.kulki.model.Board;
+import net.jockx.kulki.model.Cell;
 
 import java.util.LinkedList;
 

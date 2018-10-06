@@ -1,4 +1,4 @@
-package net.jockx.controller;
+package net.jockx.kulki.controller;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.event.ActionEvent;
@@ -15,12 +15,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import net.jockx.model.Ball;
-import net.jockx.model.Cell;
-import net.jockx.model.Game;
-import net.jockx.model.RuleSet;
-import net.jockx.view.shapes.BallShape;
-import net.jockx.view.shapes.CellNode;
+import net.jockx.kulki.model.Ball;
+import net.jockx.kulki.model.Cell;
+import net.jockx.kulki.model.Game;
+import net.jockx.kulki.model.RuleSet;
+import net.jockx.kulki.view.shapes.BallShape;
+import net.jockx.kulki.view.shapes.CellNode;
 
 import java.net.URL;
 import java.util.*;

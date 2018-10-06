@@ -1,4 +1,4 @@
-package net.jockx.view.shapes;
+package net.jockx.kulki.view.shapes;
 
 import javafx.animation.*;
 import javafx.event.ActionEvent;
@@ -14,10 +14,10 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
-import net.jockx.controller.EventHandlers;
-import net.jockx.controller.GameController;
-import net.jockx.controller.PropertiesReader;
-import net.jockx.model.Ball;
+import net.jockx.kulki.controller.EventHandlers;
+import net.jockx.kulki.controller.GameController;
+import net.jockx.kulki.controller.PropertiesReader;
+import net.jockx.kulki.model.Ball;
 
 import java.util.Collection;
 import java.util.List;

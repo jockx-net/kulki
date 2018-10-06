@@ -1,12 +1,12 @@
-package net.jockx.view.shapes;
+package net.jockx.kulki.view.shapes;
 
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.Rectangle;
-import net.jockx.controller.EventHandlers;
-import net.jockx.controller.GameController;
+import net.jockx.kulki.controller.EventHandlers;
+import net.jockx.kulki.controller.GameController;
 
 /**
  * Created by JockX on 2014-05-12.

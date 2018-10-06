@@ -1,12 +1,12 @@
-package net.jockx;
+package net.jockx.kulki;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import net.jockx.controller.GameController;
-import net.jockx.controller.PropertiesReader;
+import net.jockx.kulki.controller.GameController;
+import net.jockx.kulki.controller.PropertiesReader;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 

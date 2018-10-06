@@ -1,4 +1,4 @@
-package net.jockx.model;
+package net.jockx.kulki.model;
 
 import javafx.scene.paint.Color;
 

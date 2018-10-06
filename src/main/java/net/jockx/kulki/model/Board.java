@@ -1,4 +1,4 @@
-package net.jockx.model;
+package net.jockx.kulki.model;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

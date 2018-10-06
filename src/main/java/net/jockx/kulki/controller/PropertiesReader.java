@@ -1,4 +1,4 @@
-package net.jockx.controller;
+package net.jockx.kulki.controller;
 
 import java.io.IOException;
 import java.util.Properties;
