@@ -46,6 +46,10 @@ public class GameController implements Initializable{
 	private CellNode sourceCell;
 	private CellNode targetCell;
 
+	private final int BOTTOM_OFFSET = 70;
+	private final int CELL_GAP = 5;
+	private final int MIN_CELL_SIZE = 20;
+
 
 
 	public static GameController getInstance(){
@@ -57,15 +61,20 @@ public class GameController implements Initializable{
 		instance = this;
 	}
 
-	private void scaleShapes(int boardWidth, int boardHeight) {
+	private void scaleShapes() {
 		double cellSide;
 		double radius;
-		int screenX = PropertiesReader.getInt("scene.width");
-		int screenY = PropertiesReader.getInt("scene.height");
-		if(screenX < screenY){
-			cellSide = (screenX - (5 * (boardWidth + 1))) / boardWidth;
+		double screenX = PropertiesReader.getDouble("scene.width");
+		double screenY = PropertiesReader.getDouble("scene.height");
+		int boardWidth = resizeBoardIfNeeded(PropertiesReader.getInt("board.width"), screenX);
+		int boardHeight = resizeBoardIfNeeded(PropertiesReader.getInt("board.height") + 1, screenY - BOTTOM_OFFSET) -1;
+		PropertiesReader.setProperty("board.width", String.valueOf(boardWidth));
+		PropertiesReader.setProperty("board.height", String.valueOf(boardHeight));
+
+		if(scaleToWidth(boardWidth, boardHeight, screenX, screenY)){
+			cellSide = getMaxCellSize(screenX, boardWidth);
 		} else {
-			cellSide = (screenY - (5 * (boardHeight + 1) )) / (boardHeight+6);
+			cellSide = getMaxCellSize(screenY - BOTTOM_OFFSET, boardHeight + 1);
 		}
 		radius = cellSide * 0.45;
 		PropertiesReader.setProperty("cell.size", String.valueOf(cellSide));
@@ -73,16 +82,34 @@ public class GameController implements Initializable{
 		BallShape.radius = radius;
 	}
 
+	private boolean scaleToWidth(int columns, int rows, double witdh, double height) {
+		return (witdh / columns) < (height / (rows));
+	}
+
+	private int resizeBoardIfNeeded(int cells, double pixels) {
+		while (pixels < (CELL_GAP * cells) + (MIN_CELL_SIZE * cells) + CELL_GAP){
+			cells--;
+		}
+		return cells;
+	}
+
+	private double getMaxCellSize(double pixels, int cells) {
+		double size = MIN_CELL_SIZE;
+		while (pixels > (CELL_GAP * cells) + ( (size + 1) * cells) + CELL_GAP) {
+			size ++;
+		}
+		return size;
+	}
+
 	private void startGame() {
 		int minimalMatch = PropertiesReader.getInt("minimalMatch");
-		int boardWidth = PropertiesReader.getInt("board.width");
-		int boardHeight = PropertiesReader.getInt("board.height");
 		int newBallCount = PropertiesReader.getInt("newBallCount");
 		int numberOfColors = PropertiesReader.getInt("numberOfColors");
 		int ballScore = PropertiesReader.getInt("ballScore");
 
-		scaleShapes(boardWidth, boardHeight);
-
+		scaleShapes();
+		int boardWidth = PropertiesReader.getInt("board.width");
+		int boardHeight = PropertiesReader.getInt("board.height");
 		BallShape.mainBoardPane = topPane;
 		BallShape.nextBallsPane = nextBallsPane;
 
@@ -136,7 +163,8 @@ public class GameController implements Initializable{
 				new Text("Match size"),	matchField,
 				new Text("New Balls"),	newBallsField,
 				button);
-		settings.setPadding(new Insets(5));
+		settings.setFillWidth(true);
+		settings.setPadding(new Insets(CELL_GAP));
 		settings.setAlignment(Pos.CENTER);
 		topPane.getChildren().add(settings);
 
@@ -168,7 +196,7 @@ public class GameController implements Initializable{
 		final VBox gameOver = new VBox(new Text("Game Over"), button);
 		gameOver.setFillWidth(true);
 		gameOver.setAlignment(Pos.CENTER);
-		gameOver.setPadding(new Insets(5));
+		gameOver.setPadding(new Insets(CELL_GAP));
 
 		button.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
