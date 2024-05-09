@@ -16,7 +16,7 @@ public class MainApp extends Application {
 
     private static final Logger log = LogManager.getLogger(MainApp.class);
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
 		launch(args);
     }
 
@@ -29,9 +29,11 @@ public class MainApp extends Application {
         log.debug("Showing JFX scene");
 
         Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        PropertiesReader.setProperty("scene.width", Double.toString(primaryScreenBounds.getMaxX()));
-        PropertiesReader.setProperty("scene.height", Double.toString(primaryScreenBounds.getMaxY()));
-        Scene scene = new Scene(rootNode, primaryScreenBounds.getWidth(), primaryScreenBounds.getHeight());
+        double width = Double.min(primaryScreenBounds.getMaxX(), 1440);
+        double height = Double.min(primaryScreenBounds.getMaxY(), 900);
+        PropertiesReader.setProperty("scene.width", Double.toString(width));
+        PropertiesReader.setProperty("scene.height", Double.toString(height));
+        Scene scene = new Scene(rootNode, width, height);
         scene.getStylesheets().add("/styles/styles.css");
 
         stage.setTitle("Kulki");
