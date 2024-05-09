@@ -1,51 +1,51 @@
 package net.jockx.kulki.model;
 
 import javafx.scene.paint.Color;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 public class BoardTest {
 
 	@Test
-	public void testCreateCellArray() throws Exception {
+	public void testCreateCellArray() {
 		Cell[][] cells = Cell.createCellArray(10, 10);
 		for (int i = 0; i < 10; i++){
 			for (int j = 0; j < 10; j++){
-				Assert.assertNotNull(cells[i][j], "Cell at x:" + i + " y: " + j);
+				Assertions.assertNotNull(cells[i][j], "Cell at x:" + i + " y: " + j);
 			}
 		}
 	}
 
-	@Test void testRuleSetDefaultConstructor() throws Exception {
+	@Test void testRuleSetDefaultConstructor() {
 		RuleSet ruleSet = new RuleSet();
-		Assert.assertNotNull (ruleSet);
-		Assert.assertEquals(ruleSet.boardHeight, 9, "Wrong default Board height");
-		Assert.assertEquals(ruleSet.boardWidth, 9, "Wrong default Board width");
-		Assert.assertEquals(ruleSet.minimalMatch, 5, "Wrong default Board minimalMatch");
+		Assertions.assertNotNull (ruleSet);
+		Assertions.assertEquals(ruleSet.boardHeight, 9, "Wrong default Board height");
+		Assertions.assertEquals(ruleSet.boardWidth, 9, "Wrong default Board width");
+		Assertions.assertEquals(ruleSet.minimalMatch, 5, "Wrong default Board minimalMatch");
 	}
 
-	@Test void testBoardConstructor() throws Exception {
+	@Test void testBoardConstructor() {
 		Board board = new Board();
-		Assert.assertNotNull (board);
-		Assert.assertNotNull(board.getRuleSet());
-		Assert.assertEquals(board.height, 9, "Wrong default Board height");
-		Assert.assertEquals(board.width, 9, "Wrong default Board width");
+		Assertions.assertNotNull (board);
+		Assertions.assertNotNull(board.getRuleSet());
+		Assertions.assertEquals(board.height, 9, "Wrong default Board height");
+		Assertions.assertEquals(board.width, 9, "Wrong default Board width");
 	}
 
 	@Test
-	public void testGetMatchingLine() throws Exception {
+	public void testGetMatchingLine() {
 		Board board = getSmallBoard();
 
-		Set<Cell> horizontal = new HashSet<Cell>();
-		Set<Cell> vertical = new HashSet<Cell>();
-		Set<Cell> mainDiagonal = new HashSet<Cell>();
-		Set<Cell> antiDiagonal = new HashSet<Cell>();
-		Set<Cell> noneHorizontal = new HashSet<Cell>();
-		Set<Cell> noneVertical = new HashSet<Cell>();
-		Set<Cell> noneMainDiagonal = new HashSet<Cell>();
-		Set<Cell> noneAntiDiagonal = new HashSet<Cell>();
+		Set<Cell> horizontal = new HashSet<>();
+		Set<Cell> vertical = new HashSet<>();
+		Set<Cell> mainDiagonal = new HashSet<>();
+		Set<Cell> antiDiagonal = new HashSet<>();
+		Set<Cell> noneHorizontal = new HashSet<>();
+		Set<Cell> noneVertical = new HashSet<>();
+		Set<Cell> noneMainDiagonal = new HashSet<>();
+		Set<Cell> noneAntiDiagonal = new HashSet<>();
 
 		MatchFinder matchFinder = new MatchFinder(board);
 		horizontal = matchFinder.getMatchingLine(horizontal, board.getCell(1,0), MatchFinder.MatchDirection.HORIZONTAL);
@@ -66,18 +66,18 @@ public class BoardTest {
 		printSet("\\ [1:1]", noneMainDiagonal);
 		printSet("/ [1:1]", noneAntiDiagonal);
 
-		Assert.assertEquals(horizontal.size(), 4, "Horizontal [1:0] didn't match");
-		Assert.assertEquals(vertical.size(), 3, "Diagonal [0:2] didn't match");
-		Assert.assertEquals(mainDiagonal.size(), 4, "Vertical [2:2] didn't match");
-		Assert.assertEquals(antiDiagonal.size(), 3, "Anti-diagonal  [2:1] didn't match");
-		Assert.assertEquals(noneHorizontal.size(), 1, "Horizontal [1:1] is not Empty");
-		Assert.assertEquals(noneVertical.size(), 2, "Vertical [1:1] is not Empty");
-		Assert.assertEquals(noneMainDiagonal.size(), 4, "Main-Diagonal [1:1] is not Empty");
-		Assert.assertEquals(noneAntiDiagonal.size(), 2, "Anti-Diagonal [1:1] is not Empty");
+		Assertions.assertEquals(horizontal.size(), 4, "Horizontal [1:0] didn't match");
+		Assertions.assertEquals(vertical.size(), 3, "Diagonal [0:2] didn't match");
+		Assertions.assertEquals(mainDiagonal.size(), 4, "Vertical [2:2] didn't match");
+		Assertions.assertEquals(antiDiagonal.size(), 3, "Anti-diagonal  [2:1] didn't match");
+		Assertions.assertEquals(noneHorizontal.size(), 1, "Horizontal [1:1] is not Empty");
+		Assertions.assertEquals(noneVertical.size(), 2, "Vertical [1:1] is not Empty");
+		Assertions.assertEquals(noneMainDiagonal.size(), 4, "Main-Diagonal [1:1] is not Empty");
+		Assertions.assertEquals(noneAntiDiagonal.size(), 2, "Anti-Diagonal [1:1] is not Empty");
 	}
 
 	@Test
-	public void testGetAllMatchingLines() throws Exception {
+	public void testGetAllMatchingLines() {
 		Board board = getSmallBoard();
 
 		Set<Cell> match0_0 = board.getAllMatchingLines(board.getCell(0,0));
@@ -92,16 +92,16 @@ public class BoardTest {
 		printSet("2:1", match2_1);
 		printSet("1:3", match1_3);
 		printSet("3:1", match3_1);
-		Assert.assertEquals(match0_0.size(), 7, "Horizontal + diagonal [0:0] didn't match"); // 7 green matches
-		Assert.assertEquals(match1_1.size(), 4, "Diagonal [1:1] didn't match"); // 4 green matches
-		Assert.assertEquals(match0_2.size(), 3, "Vertical [0:2] didn't match"); // 3 blue matches
-		Assert.assertEquals(match2_1.size(), 3, "Anti-diagonal  [2:1] didn't match"); // 3 blue matches
-		Assert.assertEquals(match1_3.size(), 3, "Horizontal [1:3] didn't match"); // 3 blue matches
-		Assert.assertEquals(match3_1.size(), 0, "Empty [3:1] didn't match"); // 2 blue matches
+		Assertions.assertEquals(match0_0.size(), 7, "Horizontal + diagonal [0:0] didn't match"); // 7 green matches
+		Assertions.assertEquals(match1_1.size(), 4, "Diagonal [1:1] didn't match"); // 4 green matches
+		Assertions.assertEquals(match0_2.size(), 3, "Vertical [0:2] didn't match"); // 3 blue matches
+		Assertions.assertEquals(match2_1.size(), 3, "Anti-diagonal  [2:1] didn't match"); // 3 blue matches
+		Assertions.assertEquals(match1_3.size(), 3, "Horizontal [1:3] didn't match"); // 3 blue matches
+		Assertions.assertEquals(match3_1.size(), 0, "Empty [3:1] didn't match"); // 2 blue matches
 	}
 
 	@Test
-	public void testFindPathToCell() throws Exception {
+	public void testFindPathToCell() {
 		Board board = getMazeBoard();
 		Cell from = board.getCell(7,6);
 		Cell to1 = board.getCell(2,5);
@@ -110,11 +110,11 @@ public class BoardTest {
 		Cell to4 = board.getCell(0,0); // Unaccessible
 		Cell to5 = board.getCell(0,1); // Taken
 
-		LinkedList<Cell> path1 = new LinkedList<Cell>();
-		LinkedList<Cell> path2 = new LinkedList<Cell>();
-		LinkedList<Cell> path3 = new LinkedList<Cell>();
-		LinkedList<Cell> path4 = new LinkedList<Cell>();
-		LinkedList<Cell> path5 = new LinkedList<Cell>();
+		LinkedList<Cell> path1 = new LinkedList<>();
+		LinkedList<Cell> path2 = new LinkedList<>();
+		LinkedList<Cell> path3 = new LinkedList<>();
+		LinkedList<Cell> path4 = new LinkedList<>();
+		LinkedList<Cell> path5 = new LinkedList<>();
 
 		PathFinder pathFinder = new PathFinder(board);
 		path1 = pathFinder.findPathToCell(from, to1, path1, null);
@@ -127,16 +127,16 @@ public class BoardTest {
 		printPath(path3, board);
 		printPath(path4, board);
 		printPath(path5, board);
-		Assert.assertNotNull(path1, "Returned path null, populated list expected");
-		Assert.assertNotNull(path2, "Returned path null, populated list expected");
-		Assert.assertNotNull(path3, "Returned path null, populated list expected");
-		Assert.assertNull(path4, "Expected null for impossible matches");
-		Assert.assertNull(path5, "Expected null for impossible matches");
+		Assertions.assertNotNull(path1, "Returned path null, populated list expected");
+		Assertions.assertNotNull(path2, "Returned path null, populated list expected");
+		Assertions.assertNotNull(path3, "Returned path null, populated list expected");
+		Assertions.assertNull(path4, "Expected null for impossible matches");
+		Assertions.assertNull(path5, "Expected null for impossible matches");
 
 	}
 
 	@Test
-	public void testFindShortestPathToCell() throws Exception {
+	public void testFindShortestPathToCell() {
 		Board board = getMazeBoard();
 		Cell from = board.getCell(7,6);
 		Cell to1 = board.getCell(2,5);
@@ -156,21 +156,19 @@ public class BoardTest {
 		printPath(path4, board);
 		printPath(path5, board);
 
-		Assert.assertNotNull(path1, "Returned path null, populated list expected");
-		Assert.assertNotNull(path2, "Returned path null, populated list expected");
-		Assert.assertNotNull(path3, "Returned path null, populated list expected");
-		Assert.assertNotNull(path4, "Returned path null, and not empty");
-		Assert.assertNotNull(path5, "Returned path null, and not empty");
+		Assertions.assertNotNull(path1, "Returned path null, populated list expected");
+		Assertions.assertNotNull(path2, "Returned path null, populated list expected");
+		Assertions.assertNotNull(path3, "Returned path null, populated list expected");
+		Assertions.assertNotNull(path4, "Returned path null, and not empty");
+		Assertions.assertNotNull(path5, "Returned path null, and not empty");
 	}
 
 
 	public void printSet(String message, Collection<Cell> set){
 		System.out.print(message + ": ");
-		Iterator<Cell> it = set.iterator();
-		while (it.hasNext()){
-			Cell c = it.next();
-			printCell(c);
-		}
+        for (Cell c : set) {
+            printCell(c);
+        }
 		System.out.println();
 	}
 
