@@ -50,18 +50,15 @@ public class BallShape  extends Circle{
 	public void moveTo(List<CellNode> cellsInPath){
 
 		Path path = new Path();
-		CellNode lastNode = cellsInPath.get(cellsInPath.size()-1);
-		double oldLayoutX = getLayoutX();
-		double oldLayoutY = getLayoutY();
-		setLayoutX(lastNode.moveToPosition.getX());
-		setLayoutY(lastNode.moveToPosition.getY());
-
-		MoveTo start = new MoveTo(oldLayoutX - getLayoutX(), oldLayoutY - getLayoutY());
+		MoveTo start = new MoveTo(
+				cellsInPath.getFirst().getBoundsInParent().getCenterX() - getBoundsInParent().getCenterX(),
+				cellsInPath.getFirst().getBoundsInParent().getCenterY() - getBoundsInParent().getCenterY());
 		path.getElements().add(start);
 
 		for (CellNode cell : cellsInPath){
-			LineTo relativeLine = new LineTo(cell.moveToPosition.getX() -  getLayoutX(), cell.moveToPosition.getY() - getLayoutY());
-			path.getElements().add(relativeLine);
+			double x = cell.getBoundsInParent().getCenterX() - getBoundsInParent().getCenterX();
+			double y = cell.getBoundsInParent().getCenterY() - getBoundsInParent().getCenterY();
+			path.getElements().add(new LineTo(x, y));
 		}
 
 		PathTransition pathTransition = new PathTransition();

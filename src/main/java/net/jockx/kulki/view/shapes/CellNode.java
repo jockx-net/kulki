@@ -3,7 +3,6 @@ package net.jockx.kulki.view.shapes;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.LineTo;
 import javafx.scene.shape.Rectangle;
 import net.jockx.kulki.controller.EventHandlers;
 import net.jockx.kulki.controller.GameController;
@@ -15,7 +14,6 @@ import net.jockx.kulki.controller.GameController;
 public class CellNode extends Group {
 
 	private final Rectangle CellShape;
-	final LineTo moveToPosition;
 	private BallShape ball;
 
 	private final int column;
@@ -28,12 +26,15 @@ public class CellNode extends Group {
 		this.row = y;
 
 		getChildren().add(CellShape);
+		boundsInParentProperty().addListener((observable, oldValue, newValue) -> {
+			if(this.ball != null) {
+				this.ball.setLayoutX(newValue.getCenterX());
+				this.ball.setLayoutY(newValue.getCenterY());
+			}
+		});
 		addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, EventHandlers.onMouseOver);
 		addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, EventHandlers.onMouseAway);
 		addEventHandler(MouseEvent.MOUSE_CLICKED, EventHandlers.onClick);
-		moveToPosition = new LineTo(x * (width + 5) + getCellShape().getWidth() / 2,
-									y * (height + 5) + getCellShape().getHeight() / 2);
-
 	}
 
 	public CellNode (double width, double height){
@@ -45,7 +46,6 @@ public class CellNode extends Group {
 
 		this.column = -1;
 		this.row = -1;
-		moveToPosition = null;
 	}
 
 
@@ -100,8 +100,8 @@ public class CellNode extends Group {
 	}
 
 	public void setBallFirstTime(BallShape ball){
-		ball.setLayoutX(moveToPosition.getX());
-		ball.setLayoutY(moveToPosition.getY());
+		ball.setLayoutX(this.getBoundsInParent().getCenterX());
+		ball.setLayoutY(this.getBoundsInParent().getCenterY());
 		setBall(ball);
 	}
 
