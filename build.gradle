@@ -43,7 +43,7 @@ compileJava {
 }
 
 jlink {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    options = ['--strip-debug', '--no-header-files', '--no-man-pages']
     addExtraDependencies('org.slf4j')
     launcher {
         name = 'Kulki'
@@ -51,6 +51,11 @@ jlink {
 
     jpackage {
         skipInstaller = true
+        icon = 'flatpak/Kulki.png'
+        imageOptions += [
+                '--app-content', 'flatpak/Kulki.desktop',
+                '--app-content', 'flatpak/Kulki.metainfo.xml'
+        ]
     }
 
 }

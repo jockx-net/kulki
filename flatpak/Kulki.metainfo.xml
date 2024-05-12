@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>net.jockx.Kulki</id>
+
+    <name>Kulki</name>
+    <summary>A simple game of matching marbles</summary>
+
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>MIT</project_license>
+
+    <developer id="net.jockx">
+        <name>Mateusz Pietryga</name>
+    </developer>
+
+    <supports>
+        <control>pointing</control>
+        <control>keyboard</control>
+    </supports>
+    <categories>
+        <category>Game</category>
+    </categories>
+
+    <description>
+        <p>
+            Move marbles around the board and try to match the same colors until you inevitably run out of space or get
+            bored.
+        </p>
+    </description>
+
+    <screenshots>
+        <screenshot type="default">
+            <image>https://kulki.jockx.net/img/screenshot.png</image>
+        </screenshot>
+    </screenshots>
+
+    <releases>
+        <release version="1.0.0" date="2024-05-11"></release>
+    </releases>
+
+    <content_rating type="oars-1.1" />
+
+    <url type="homepage">https://kulki.jockx.net/</url>
+    <url type="vcs-browser">https://github.com/jockx-net/kulki.git</url>
+
+
+    <launchable type="desktop-id">net.jockx.Kulki.desktop</launchable>
+</component>

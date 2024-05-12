@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+
+Name=Kulki
+Comment=Simple logic game of matching marbles
+Categories=Game;LogicGame;
+
+Icon=net.jockx.Kulki
+Exec=Kulki
+Terminal=false
