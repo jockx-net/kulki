@@ -33,6 +33,11 @@
         </screenshot>
     </screenshots>
 
+    <branding>
+        <color type="primary" scheme_preference="light">#426ab7</color>
+        <color type="primary" scheme_preference="dark">#395cab</color>
+    </branding>
+
     <releases>
         <release version="1.0.0" date="2024-05-11"></release>
     </releases>
