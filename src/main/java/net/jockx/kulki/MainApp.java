@@ -2,10 +2,8 @@ package net.jockx.kulki;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 import net.jockx.kulki.controller.GameController;
 import net.jockx.kulki.controller.PropertiesReader;
@@ -28,12 +26,15 @@ public class MainApp extends Application {
 
         log.debug("Showing JFX scene");
 
-        Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-        double width = Double.min(primaryScreenBounds.getMaxX(), 1440);
-        double height = Double.min(primaryScreenBounds.getMaxY(), 900);
-        PropertiesReader.setProperty("scene.width", Double.toString(width));
-        PropertiesReader.setProperty("scene.height", Double.toString(height));
+        double width = Double.parseDouble(PropertiesReader.getProperty("scene.width"));
+        double height = Double.parseDouble(PropertiesReader.getProperty("scene.height"));
         Scene scene = new Scene(rootNode, width, height);
+
+        scene.widthProperty().addListener((obs, oldVal, newVal) ->
+                PropertiesReader.setProperty("scene.width", Double.toString(newVal.doubleValue())));
+        scene.heightProperty().addListener((obs, oldVal, newVal) ->
+                PropertiesReader.setProperty("scene.height", Double.toString(newVal.doubleValue())));
+
         scene.getStylesheets().add("/styles/styles.css");
 
         stage.setTitle("Kulki");
