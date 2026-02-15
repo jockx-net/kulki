@@ -27,7 +27,7 @@ dependencies {
     implementation 'org.openjfx:javafx-controls:17'
     implementation 'org.openjfx:javafx-fxml:17'
     implementation 'com.miglayout:miglayout-javafx:11.2'
-    implementation 'commons-lang:commons-lang:2.6'
+    implementation 'org.apache.commons:commons-lang3:3.20.0'
     implementation 'org.slf4j:slf4j-reload4j:2.0.13'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
