@@ -19,7 +19,7 @@ application {
 }
 
 group = 'net.jockx'
-version = '1.0'
+version = '1.0.2'
 
 description = """Kulki"""
 
@@ -57,5 +57,18 @@ jlink {
                 '--app-content', 'flatpak/Kulki.metainfo.xml'
         ]
     }
+}
 
+tasks.register('packageTarGz', Tar) {
+    dependsOn jpackage
+
+    from layout.buildDirectory.dir('jpackage/Kulki')
+    into 'Kulki'
+
+    archiveBaseName = 'Kulki'
+    archiveVersion = project.version
+    archiveExtension = 'tar.gz'
+    compression = Compression.GZIP
+
+    destinationDirectory = layout.buildDirectory.dir('distributions')
 }

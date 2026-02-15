@@ -39,6 +39,15 @@
     </branding>
 
     <releases>
+        <release version="1.0.2" date="2026-02-15">
+            <description>
+                <p>Release description</p>
+                <ul>
+                    <li>App now remembers last used configuration options</li>
+                    <li>App no longer targets EOL Flatpak runtime</li>
+                </ul>
+            </description>
+        </release>
         <release version="1.0.1" date="2024-06-06"></release>
         <release version="1.0.0" date="2024-05-11"></release>
     </releases>
