@@ -72,3 +72,34 @@ tasks.register('packageTarGz', Tar) {
 
     destinationDirectory = layout.buildDirectory.dir('distributions')
 }
+
+tasks.register("buildFlatpak") {
+    dependsOn jpackage
+
+    doLast {
+        def buildDirFile = layout.buildDirectory.get().asFile
+        def flatpakDir = new File(buildDirFile, 'flatpak')
+        flatpakDir.mkdirs()
+
+        copy {
+            // compiled app
+            from layout.buildDirectory.dir('jpackage/Kulki')
+            into flatpakDir
+        }
+
+        copy {
+            // flatpak manifest
+            from "flatpak/"
+            include "net.jockx.Kulki.yml"
+            into flatpakDir
+        }
+
+        // Execute command in build/flatpak
+        exec {
+            workingDir flatpakDir
+            commandLine 'flatpak', 'run', 'org.flatpak.Builder', '--force-clean', '--user',
+                    '--install-deps-from=flathub', '--repo=repo',
+                    '--install', 'output', 'net.jockx.Kulki.yml'
+        }
+    }
+}
