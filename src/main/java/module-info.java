@@ -1,7 +1,7 @@
 open module net.jockx.kulki {
     requires javafx.controls;
     requires javafx.fxml;
-    requires reload4j;
+    requires org.slf4j;
 
     exports net.jockx.kulki;
 }

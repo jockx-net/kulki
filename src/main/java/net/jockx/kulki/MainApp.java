@@ -7,12 +7,12 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import net.jockx.kulki.controller.GameController;
 import net.jockx.kulki.controller.PropertiesReader;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MainApp extends Application {
 
-    private static final Logger log = LogManager.getLogger(MainApp.class);
+    private static final Logger log = LoggerFactory.getLogger(MainApp.class);
 
     public static void main(String[] args) {
 		launch(args);
