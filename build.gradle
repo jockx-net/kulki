@@ -60,6 +60,8 @@ jlink {
 }
 
 tasks.register('packageTarGz', Tar) {
+    group = 'Distribution'
+    description = 'Creates a tar.gz archive of the jpackage image for Flatpak builds.'
     dependsOn jpackage
 
     from layout.buildDirectory.dir('jpackage/Kulki')
@@ -74,7 +76,9 @@ tasks.register('packageTarGz', Tar) {
 }
 
 tasks.register("buildFlatpak") {
-    dependsOn jpackage
+    group = 'Build'
+    description = 'Builds and installs a Flatpak package from the jpackage image.'
+    dependsOn packageTarGz
 
     doLast {
         def buildDirFile = layout.buildDirectory.get().asFile
@@ -82,24 +86,34 @@ tasks.register("buildFlatpak") {
         flatpakDir.mkdirs()
 
         copy {
-            // compiled app
-            from layout.buildDirectory.dir('jpackage/Kulki')
+            from layout.buildDirectory.dir('distributions')
+            include "Kulki-${project.version}.tar.gz"
             into flatpakDir
+            rename "Kulki-${project.version}.tar.gz", "kulki.tar.gz"
         }
 
         copy {
-            // flatpak manifest
             from "flatpak/"
             include "net.jockx.Kulki.yml"
             into flatpakDir
         }
 
-        // Execute command in build/flatpak
+        exec {
+            workingDir flatpakDir
+            commandLine 'flatpak', 'remote-add', '--if-not-exists', '--user', 'flathub',
+                    'https://dl.flathub.org/repo/flathub.flatpakrepo'
+        }
+        exec {
+            workingDir flatpakDir
+            commandLine 'flatpak', 'install', '--user', 'org.flatpak.Builder'
+        }
         exec {
             workingDir flatpakDir
             commandLine 'flatpak', 'run', 'org.flatpak.Builder', '--force-clean', '--user',
-                    '--install-deps-from=flathub', '--repo=repo',
-                    '--install', 'output', 'net.jockx.Kulki.yml'
+                    '--install-deps-from=flathub',
+                    '--state-dir=.flatpak-builder',
+                    '--repo=repo',
+                    '--install', 'builddir', 'net.jockx.Kulki.yml'
         }
     }
 }

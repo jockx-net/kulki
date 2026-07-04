@@ -17,7 +17,7 @@ modules:
       - install -D "$FLATPAK_DEST/lib/Kulki.desktop" "/app/share/applications/${FLATPAK_ID}.desktop"
       - install -D "$FLATPAK_DEST/lib/Kulki.metainfo.xml" "/app/share/metainfo/${FLATPAK_ID}.metainfo.xml"
     sources:
-      - type: dir
-        path: .
+      - type: archive
+        path: kulki.tar.gz
     only-arches:
       - x86_64
