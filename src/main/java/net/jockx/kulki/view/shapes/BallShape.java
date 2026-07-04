@@ -16,35 +16,40 @@ import javafx.scene.shape.Path;
 import javafx.util.Duration;
 import net.jockx.kulki.controller.EventHandlers;
 import net.jockx.kulki.controller.GameController;
-import net.jockx.kulki.controller.PropertiesReader;
 import net.jockx.kulki.model.Ball;
 
 import java.util.Collection;
 import java.util.List;
 
-/**
- * Created by JockX on 2014-05-13.
- *
- */
 public class BallShape  extends Circle{
 
 	public static Pane mainBoardPane;
 	public static Pane nextBallsPane;
-	public static double radius = PropertiesReader.getDouble("ball.size");
-	static double extendedRadius;
+	public static double radius = 25;
+
+	private final Ball ball;
+	private PathTransition pathTransition;
 
 	public BallShape(Ball ball){
 		super(radius);
-		extendedRadius = radius * 1.12;
-		RadialGradient gradient = new RadialGradient(
-				0, 0.1, -radius * 0.35, -radius * 0.35, radius * 1.2, false,
+		this.ball = ball;
+		setFill(createGradient(ball, radius));
+		this.setMouseTransparent(true);
+	}
+
+	private static RadialGradient createGradient(Ball ball, double r) {
+		return new RadialGradient(
+				0, 0.1, -r * 0.35, -r * 0.35, r * 1.2, false,
 				CycleMethod.NO_CYCLE,
 				new Stop(1,  ball.getColor().darker().darker().darker()),
 				new Stop(0.7, ball.getColor().darker()),
 				new Stop(0.25, ball.getColor()),
 				new Stop(0,  Color.WHITE ));
-		this.setFill(gradient);
-		this.setMouseTransparent(true);
+	}
+
+	public void updateGradient(double newRadius) {
+		setRadius(newRadius);
+		setFill(createGradient(ball, newRadius));
 	}
 
 	public void moveTo(List<CellNode> cellsInPath){
@@ -53,14 +58,14 @@ public class BallShape  extends Circle{
 		CellNode lastNode = cellsInPath.get(cellsInPath.size()-1);
 		double oldLayoutX = getLayoutX();
 		double oldLayoutY = getLayoutY();
-		setLayoutX(lastNode.moveToPosition.getX());
-		setLayoutY(lastNode.moveToPosition.getY());
+		setLayoutX(lastNode.getBallCenterX());
+		setLayoutY(lastNode.getBallCenterY());
 
 		MoveTo start = new MoveTo(oldLayoutX - getLayoutX(), oldLayoutY - getLayoutY());
 		path.getElements().add(start);
 
 		for (CellNode cell : cellsInPath){
-			LineTo relativeLine = new LineTo(cell.moveToPosition.getX() -  getLayoutX(), cell.moveToPosition.getY() - getLayoutY());
+			LineTo relativeLine = new LineTo(cell.getBallCenterX() - getLayoutX(), cell.getBallCenterY() - getLayoutY());
 			path.getElements().add(relativeLine);
 		}
 
@@ -71,8 +76,21 @@ public class BallShape  extends Circle{
 
 		pathTransition.setNode(this);
 		pathTransition.setOrientation(PathTransition.OrientationType.NONE);
-		pathTransition.setOnFinished(EventHandlers.onMoveFinished);
+		pathTransition.setOnFinished(event -> {
+			this.pathTransition = null;
+			EventHandlers.onMoveFinished.handle(event);
+		});
+		this.pathTransition = pathTransition;
 		pathTransition.play();
+	}
+
+	public void stopAnimation() {
+		if (pathTransition != null) {
+			pathTransition.stop();
+			pathTransition = null;
+			setTranslateX(0);
+			setTranslateY(0);
+		}
 	}
 
 	public static int remove(Collection<BallShape> balls, boolean gameOver) {

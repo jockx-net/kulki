@@ -3,26 +3,26 @@ package net.jockx.kulki.view.shapes;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.LineTo;
 import javafx.scene.shape.Rectangle;
 import net.jockx.kulki.controller.EventHandlers;
 import net.jockx.kulki.controller.GameController;
 
-/**
- * Created by JockX on 2014-05-12.
- *
- */
 public class CellNode extends Group {
 
+	public static final double CELL_GAP = 5.0;
+
 	private final Rectangle CellShape;
-	final LineTo moveToPosition;
+	double centerX, centerY;
+
+	public void setCenter(double x, double y) {
+		centerX = x;
+		centerY = y;
+	}
 	private BallShape ball;
 
 	private final int column;
 	private final int row;
-
 	public CellNode(double width, double height, int x, int y) {
-
 		this.CellShape = new Rectangle(width, height, Color.CORNFLOWERBLUE);
 		this.column = x;
 		this.row = y;
@@ -31,9 +31,8 @@ public class CellNode extends Group {
 		addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, EventHandlers.onMouseOver);
 		addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, EventHandlers.onMouseAway);
 		addEventHandler(MouseEvent.MOUSE_CLICKED, EventHandlers.onClick);
-		moveToPosition = new LineTo(x * (width + 5) + getCellShape().getWidth() / 2,
-									y * (height + 5) + getCellShape().getHeight() / 2);
-
+		centerX = x * (width + CELL_GAP) + width / 2;
+		centerY = y * (height + CELL_GAP) + height / 2;
 	}
 
 	public CellNode (double width, double height){
@@ -45,9 +44,24 @@ public class CellNode extends Group {
 
 		this.column = -1;
 		this.row = -1;
-		moveToPosition = null;
 	}
 
+	public void updateSize(double newWidth, double newHeight, double offsetX, double offsetY) {
+		CellShape.setWidth(newWidth);
+		CellShape.setHeight(newHeight);
+		if (column >= 0 && row >= 0) {
+			centerX = column * (newWidth + CELL_GAP) + newWidth / 2 + offsetX;
+			centerY = row * (newHeight + CELL_GAP) + newHeight / 2 + offsetY;
+		}
+	}
+
+	public double getBallCenterX() {
+		return centerX;
+	}
+
+	public double getBallCenterY() {
+		return centerY;
+	}
 
 	public void unMarkHovered() {
 		if( !equals(GameController.getInstance().getSourceCell()) ) {
@@ -67,19 +81,18 @@ public class CellNode extends Group {
 			GameController.getInstance().setSourceCell(null);
 		}
 		setFill(Color.CORNFLOWERBLUE);
-		resizeBall(BallShape.radius);
+		if (!isFree()) {
+			getBall().setScaleX(1.0);
+			getBall().setScaleY(1.0);
+		}
 	}
 
 	public void markAsSelected(){
 		GameController.getInstance().setSourceCell(this);
 		setFill(Color.CORAL);
-		resizeBall(BallShape.extendedRadius);
-	}
-
-	public void resizeBall(double radius) {
-		if(!isFree()){
-			getBall().setScaleX(radius / getBall().getRadius());
-			getBall().setScaleY(radius / getBall().getRadius());
+		if (!isFree()) {
+			getBall().setScaleX(1.12);
+			getBall().setScaleY(1.12);
 		}
 	}
 
@@ -100,8 +113,8 @@ public class CellNode extends Group {
 	}
 
 	public void setBallFirstTime(BallShape ball){
-		ball.setLayoutX(moveToPosition.getX());
-		ball.setLayoutY(moveToPosition.getY());
+		ball.setLayoutX(centerX);
+		ball.setLayoutY(centerY);
 		setBall(ball);
 	}
 

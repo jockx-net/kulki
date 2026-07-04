@@ -39,6 +39,8 @@ public class MainApp extends Application {
 
         stage.setTitle("Kulki");
         stage.setScene(scene);
+        stage.setMinWidth(390);
+        stage.setMinHeight(470);
         stage.show();
 		GameController.getInstance().showSettingsDialog();
 	}

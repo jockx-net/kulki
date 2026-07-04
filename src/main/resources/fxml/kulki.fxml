@@ -4,39 +4,33 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<FlowPane fx:controller="net.jockx.kulki.controller.GameController"
+<BorderPane fx:controller="net.jockx.kulki.controller.GameController"
             xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
-    <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
-    </padding>
-    <Pane fx:id="topPane"
-          layoutX="20.0" layoutY="20.0"
-          minHeight="-Infinity" minWidth="-Infinity" styleClass="cell-box"
-          AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0">
-        <GridPane fx:id="boardPane" hgap="5" vgap="5"/>
-    </Pane>
-    <HBox AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0"  >
-        <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
-        <Label text="Next" alignment="TOP_LEFT" contentDisplay="LEFT" textOverrun="CLIP" >
-            <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
-            <font><Font name="System Bold" size="19.0"/></font>
-        </Label>
-        <FlowPane fx:id="nextBallsPane" styleClass="next-cell-box" hgap="5" vgap="5" />
-    </HBox>
-    <HBox>
-        <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
-        <Label text="Score" alignment="CENTER" >
-            <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
-            <font><Font name="System Bold" size="18.0"/></font>
-        </Label>
-
-        <Label fx:id="scoreLabel" text="0" alignment="CENTER_RIGHT"
-               style="-fx-border-style: solid; -fx-border-width: 3; -fx-border-color: grey;"
-               styleClass=".borderd"
-               textAlignment="RIGHT" >
-            <font><Font name="System Bold" size="18.0"/></font>
-            <opaqueInsets><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></opaqueInsets>
-            <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
-        </Label>
-    </HBox>
-</FlowPane>
+    <top>
+        <HBox spacing="10.0" alignment="CENTER_LEFT">
+            <padding>
+                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+            </padding>
+            <Label text="Next" alignment="CENTER" contentDisplay="LEFT" textOverrun="CLIP">
+                <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
+                <font><Font name="System Bold" size="19.0"/></font>
+            </Label>
+            <FlowPane fx:id="nextBallsPane" hgap="5" vgap="5"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Score" alignment="CENTER">
+                <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
+                <font><Font name="System Bold" size="18.0"/></font>
+            </Label>
+            <Label fx:id="scoreLabel" text="0" alignment="CENTER_RIGHT"
+                   style="-fx-border-style: solid; -fx-border-width: 3; -fx-border-color: grey;"
+                   textAlignment="RIGHT">
+                <font><Font name="System Bold" size="18.0"/></font>
+                <opaqueInsets><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></opaqueInsets>
+                <padding><Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/></padding>
+            </Label>
+        </HBox>
+    </top>
+    <center>
+        <Pane fx:id="topPane"/>
+    </center>
+</BorderPane>
