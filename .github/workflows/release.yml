@@ -1,0 +1,118 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]*.[0-9]*.[0-9]*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build tar.gz
+        run: ./gradlew packageTarGz
+
+      - name: Determine version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
+      - name: Validate semver
+        run: |
+          if ! echo "$VERSION" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "Tag ${GITHUB_REF_NAME} does not follow v{semver} pattern"
+            exit 1
+          fi
+
+      - name: Compute sha256
+        run: |
+          echo "SHA256=$(sha256sum build/distributions/Kulki-${VERSION}.tar.gz | cut -d' ' -f1)" >> $GITHUB_ENV
+
+      - name: Extract release notes from metainfo.xml
+        id: notes
+        run: |
+          python3 << 'EOF'
+          import xml.etree.ElementTree as ET
+
+          tree = ET.parse('flatpak/Kulki.metainfo.xml')
+          root = tree.getroot()
+          ns = {'m': 'https://freedesktop.org/standards/metainfo/1.0'}
+          release = root.find('.//m:releases/m:release', ns)
+          if release is None:
+              release = root.find('.//releases/release')
+          desc = release.find('m:description', ns) if release is not None else None
+          if desc is None:
+              desc = release.find('description') if release is not None else None
+          if desc is not None:
+              text = ''.join(ET.tostring(e, encoding='unicode') for e in desc)
+              text = text.replace('<p>', '').replace('</p>', '\n\n')
+              text = text.replace('<ul>', '\n').replace('</ul>', '')
+              text = text.replace('<li>', '- ').replace('</li>', '\n')
+              text = text.strip()
+          else:
+              text = 'See https://kulki.jockx.net/'
+          with open('.github/release_body.md', 'w') as f:
+              f.write(text)
+          EOF
+          echo "body_file=.github/release_body.md" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Kulki ${{ env.VERSION }}
+          tag_name: ${{ github.ref_name }}
+          body_path: ${{ steps.notes.outputs.body_file }}
+          fail_on_unmatched_files: true
+          files: build/distributions/Kulki-${{ env.VERSION }}.tar.gz
+
+      - name: Update flathub manifest and create PR
+        env:
+          GH_TOKEN: ${{ secrets.FLATHUB_PAT }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "FLATHUB_PAT not set, skipping flathub PR"
+            exit 0
+          fi
+
+          VERSION="${{ env.VERSION }}"
+          SHA256="${{ env.SHA256 }}"
+          BRANCH="update-${VERSION}"
+
+          cd flatpak/flathub
+          git config --unset-all http.https://github.com/.extraheader || true
+          git checkout -b "${BRANCH}"
+
+          sed -i "s|url: https://github.com/jockx-net/kulki/releases/download/v[0-9.]*/Kulki-[0-9.]*.tar.gz|url: https://github.com/jockx-net/kulki/releases/download/v${VERSION}/Kulki-${VERSION}.tar.gz|" net.jockx.Kulki.yml
+          sed -i "s|sha256: [a-f0-9]*|sha256: ${SHA256}|" net.jockx.Kulki.yml
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add net.jockx.Kulki.yml
+          git diff --cached --quiet && {
+            echo "No changes to flathub manifest, skipping"
+            exit 0
+          }
+
+          git commit -m "Update Kulki to ${VERSION}"
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/flathub/net.jockx.Kulki.git"
+          git push origin "${BRANCH}"
+          gh pr create \
+            --repo flathub/net.jockx.Kulki \
+            --head "${BRANCH}" \
+            --title "Update Kulki to ${VERSION}" \
+            --body "Update Kulki to version ${VERSION}." \
+            || echo "PR may already exist, continuing"
