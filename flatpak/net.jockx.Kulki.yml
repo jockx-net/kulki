@@ -13,6 +13,7 @@ modules:
       - mkdir -p $FLATPAK_DEST/bin $FLATPAK_DEST/lib
       - cp -r bin/. $FLATPAK_DEST/bin
       - cp -r lib/. $FLATPAK_DEST/lib
+      - chmod +x $FLATPAK_DEST/bin/Kulki
       - install -D "$FLATPAK_DEST/lib/Kulki.png" "/app/share/icons/hicolor/512x512/apps/${FLATPAK_ID}.png"
       - install -D "$FLATPAK_DEST/lib/Kulki.desktop" "/app/share/applications/${FLATPAK_ID}.desktop"
       - install -D "$FLATPAK_DEST/lib/Kulki.metainfo.xml" "/app/share/metainfo/${FLATPAK_ID}.metainfo.xml"
