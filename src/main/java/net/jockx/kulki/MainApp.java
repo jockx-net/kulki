@@ -22,14 +22,14 @@ public class MainApp extends Application {
 
         double width = Double.parseDouble(PropertiesReader.getProperty("scene.width"));
         double height = Double.parseDouble(PropertiesReader.getProperty("scene.height"));
-        Scene scene = new Scene(controller.getTopPane(), width, height);
+        Scene scene = new Scene(controller.getRootPane(), width, height);
 
         scene.widthProperty().addListener((obs, oldVal, newVal) ->
                 PropertiesReader.setProperty("scene.width", Double.toString(newVal.doubleValue())));
         scene.heightProperty().addListener((obs, oldVal, newVal) ->
                 PropertiesReader.setProperty("scene.height", Double.toString(newVal.doubleValue())));
 
-        scene.getStylesheets().add("/styles/styles.css");
+        scene.getStylesheets().add(getClass().getResource("/styles/styles.css").toExternalForm());
 
         stage.setTitle("Kulki");
         stage.setScene(scene);

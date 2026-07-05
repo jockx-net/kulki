@@ -1,14 +1,18 @@
 package net.jockx.kulki.view.shapes;
 
+import javafx.css.PseudoClass;
 import javafx.scene.Group;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import net.jockx.kulki.controller.EventHandlers;
 
 public class CellNode extends Group {
 
     public static final double CELL_GAP = 5.0;
+
+    private static final PseudoClass HOVERED = PseudoClass.getPseudoClass("hovered");
+    private static final PseudoClass SELECTED = PseudoClass.getPseudoClass("selected");
+    private static final PseudoClass INVALID_TARGET = PseudoClass.getPseudoClass("invalid-target");
 
     private final Rectangle CellShape;
     double centerX, centerY;
@@ -19,7 +23,8 @@ public class CellNode extends Group {
     private final int row;
 
     public CellNode(double width, double height, int x, int y) {
-        this.CellShape = new Rectangle(width, height, Color.CORNFLOWERBLUE);
+        this.CellShape = new Rectangle(width, height);
+        this.CellShape.getStyleClass().add("cell-rect");
         this.column = x;
         this.row = y;
 
@@ -32,21 +37,13 @@ public class CellNode extends Group {
     }
 
     public CellNode(double width, double height) {
-        this.CellShape = new Rectangle(width, height, Color.CORNFLOWERBLUE);
+        this.CellShape = new Rectangle(width, height);
+        this.CellShape.getStyleClass().add("cell-rect");
         getChildren().add(CellShape);
         addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, EventHandlers.onMouseOverNext);
         addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, EventHandlers.onMouseAwayNext);
         this.column = -1;
         this.row = -1;
-    }
-
-    public void updateSize(double newWidth, double newHeight, double offsetX, double offsetY) {
-        CellShape.setWidth(newWidth);
-        CellShape.setHeight(newHeight);
-        if (column >= 0 && row >= 0) {
-            centerX = column * (newWidth + CELL_GAP) + newWidth / 2 + offsetX;
-            centerY = row * (newHeight + CELL_GAP) + newHeight / 2 + offsetY;
-        }
     }
 
     public double getBallCenterX() {
@@ -59,25 +56,28 @@ public class CellNode extends Group {
 
     public void unMarkHovered() {
         if (!selected) {
-            setFill(Color.CORNFLOWERBLUE);
+            CellShape.pseudoClassStateChanged(HOVERED, false);
+            CellShape.pseudoClassStateChanged(INVALID_TARGET, false);
         }
     }
 
     public void markHovered() {
         if (!selected) {
-            setFill(Color.BURLYWOOD);
+            CellShape.pseudoClassStateChanged(HOVERED, true);
+            CellShape.pseudoClassStateChanged(INVALID_TARGET, false);
         }
     }
 
     public void markAsInvalidTarget() {
         if (!selected) {
-            setFill(Color.INDIANRED);
+            CellShape.pseudoClassStateChanged(HOVERED, false);
+            CellShape.pseudoClassStateChanged(INVALID_TARGET, true);
         }
     }
 
     public void unMarkAsSelected() {
         selected = false;
-        setFill(Color.CORNFLOWERBLUE);
+        CellShape.pseudoClassStateChanged(SELECTED, false);
         if (!isFree()) {
             getBall().setScaleX(1.0);
             getBall().setScaleY(1.0);
@@ -86,7 +86,7 @@ public class CellNode extends Group {
 
     public void markAsSelected() {
         selected = true;
-        setFill(Color.CORAL);
+        CellShape.pseudoClassStateChanged(SELECTED, true);
         if (!isFree()) {
             getBall().setScaleX(1.12);
             getBall().setScaleY(1.12);
@@ -118,10 +118,6 @@ public class CellNode extends Group {
     public void setCenter(double x, double y) {
         centerX = x;
         centerY = y;
-    }
-
-    public void setFill(Color color) {
-        CellShape.setFill(color);
     }
 
     public int getColumn() {

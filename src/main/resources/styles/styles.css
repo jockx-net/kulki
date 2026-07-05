@@ -1,4 +1,7 @@
 /* Application wide styles */
+.root {
+    -fx-background-color:  rgba(100, 150, 100, 0.4);
+}
 
 .label {
     -fx-font-family: "Fredoka One";
@@ -21,33 +24,87 @@
 
 /* Component specific styles */
 
+/* ======== Shared Dialog Styles ======== */
 
-.main-panel {
-    -fx-background-image: url("../images/background.jpg");
+.dialog-overlay {
+    -fx-background-color: rgba(100, 150, 100, 0.4);
 }
 
-.hello-message {
-    -fx-text-fill: #AA0000;
+.dialog-panel {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12px;
+    -fx-padding: 24px;
+}
+
+/* ======== Settings Panel ======== */
+
+.settings-panel {
+    -fx-spacing: 8px;
+}
+
+.settings-title {
+    -fx-font-family: "Fredoka One";
+    -fx-font-size: 22px;
     -fx-font-weight: bold;
-    -fx-font-family: monospace;
-    -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
+    -fx-text-fill: #333333;
+    -fx-padding: 0 0 12px 0;
 }
 
-#rich-blue {
-    -fx-background-color:
-        #000000,
-        linear-gradient(#7ebcea, #2f4b8f),
-        linear-gradient(#426ab7, #263e75),
-        linear-gradient(#395cab, #223768);
-    -fx-background-insets: 0,1,2,3;
-    -fx-background-radius: 3,2,2,2;
-    -fx-padding: 12 30 12 30;
-    -fx-text-fill: white;
-    -fx-font-size: 12px;
-}
-#rich-blue Text {
-    -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 0 , 1);
+.settings-field-label {
+    -fx-font-family: "Fredoka One";
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #444444;
+    -fx-padding: 6px 0 0 0;
 }
 
+.settings-warning {
+    -fx-font-family: "Fredoka One";
+    -fx-font-size: 11px;
+    -fx-text-fill: #cc0000;
+}
+
+.settings-button {
+    -fx-font-size: 14px;
+    -fx-padding: 8px 24px;
+    -fx-background-radius: 6px;
+}
+
+/* ======== Game Over Panel ======== */
+
+.gameover-panel {
+    -fx-spacing: 16px;
+}
+
+.gameover-title {
+    -fx-font-family: "Fredoka One";
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+/* ======== Game View ======== */
+
+.game-view-label {
+    -fx-font-family: "Fredoka One";
+    -fx-font-size: 18px;
+}
+
+/* ======== Cell States ======== */
+
+.cell-rect {
+    -fx-fill: cornflowerblue;
+}
+
+.cell-rect:hovered {
+    -fx-fill: burlywood;
+}
+
+.cell-rect:selected {
+    -fx-fill: coral;
+}
+
+.cell-rect:invalid-target {
+    -fx-fill: indianred;
+}
 
 
