@@ -30,7 +30,7 @@ public class Board {
 		this.height = ruleSet.boardHeight;
 		this.width = ruleSet.boardWidth;
 		this.cells = Cell.createCellArray(width, height);
-		this.pathFinder = new PathFinder(this);
+		this.pathFinder = new PathFinder();
 		this.matchFinder = new MatchFinder(this);
 	}
 

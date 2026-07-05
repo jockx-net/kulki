@@ -109,28 +109,22 @@ public class BoardTest {
 		Cell to4 = board.getCell(0,0);
 		Cell to5 = board.getCell(0,1);
 
-		LinkedList<Cell> path1 = new LinkedList<>();
-		LinkedList<Cell> path2 = new LinkedList<>();
-		LinkedList<Cell> path3 = new LinkedList<>();
-		LinkedList<Cell> path4 = new LinkedList<>();
-		LinkedList<Cell> path5 = new LinkedList<>();
-
-		PathFinder pathFinder = new PathFinder(board);
-		path1 = pathFinder.findPathToCell(from, to1, path1, null);
-		path2 = pathFinder.findPathToCell(from, to2, path2, null);
-		path3 = pathFinder.findPathToCell(from, to3, path3, null);
-		path4 = pathFinder.findPathToCell(from, to4, path4, null);
-		path5 = pathFinder.findPathToCell(from, to5, path5, null);
+		PathFinder pathFinder = new PathFinder();
+		LinkedList<Cell> path1 = pathFinder.findShortestPathToCell(from, to1);
+		LinkedList<Cell> path2 = pathFinder.findShortestPathToCell(from, to2);
+		LinkedList<Cell> path3 = pathFinder.findShortestPathToCell(from, to3);
+		LinkedList<Cell> path4 = pathFinder.findShortestPathToCell(from, to4);
+		LinkedList<Cell> path5 = pathFinder.findShortestPathToCell(from, to5);
 		printPath(path1, board);
 		printPath(path2, board);
 		printPath(path3, board);
 		printPath(path4, board);
 		printPath(path5, board);
-		Assertions.assertNotNull(path1, "Returned path null, populated list expected");
-		Assertions.assertNotNull(path2, "Returned path null, populated list expected");
-		Assertions.assertNotNull(path3, "Returned path null, populated list expected");
-		Assertions.assertNull(path4, "Expected null for impossible matches");
-		Assertions.assertNull(path5, "Expected null for impossible matches");
+		Assertions.assertFalse(path1.isEmpty(), "path1 should be found");
+		Assertions.assertFalse(path2.isEmpty(), "path2 should be found");
+		Assertions.assertFalse(path3.isEmpty(), "path3 should be found");
+		Assertions.assertTrue(path4.isEmpty(), "path4 should be empty (no path)");
+		Assertions.assertFalse(path5.isEmpty(), "path5 should be found (BFS reaches occupied target)");
 
 	}
 
