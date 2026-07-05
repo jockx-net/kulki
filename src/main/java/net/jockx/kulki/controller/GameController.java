@@ -61,12 +61,11 @@ public class GameController {
         int newBallCount = PropertiesReader.getInt("newBallCount");
         int numberOfColors = PropertiesReader.getInt("numberOfColors");
         int ballScore = PropertiesReader.getInt("ballScore");
-        int boardWidth = PropertiesReader.getInt("board.width");
-        int boardHeight = PropertiesReader.getInt("board.height");
+        int boardSize = PropertiesReader.getInt("board.size");
 
         RuleSet ruleSet = new RuleSet()
                 .setMinimalMatch(minimalMatch)
-                .setBoardSize(boardWidth, boardHeight)
+                .setBoardSize(boardSize)
                 .setNewBallCount(newBallCount)
                 .setNumberOfColors(numberOfColors)
                 .setPerBallScore(ballScore);
@@ -77,7 +76,7 @@ public class GameController {
 
         subscribeToEvents();
 
-        gameView.configure(boardWidth, boardHeight, newBallCount);
+        gameView.configure(boardSize, boardSize, newBallCount);
         repositionView();
 
         game.start();

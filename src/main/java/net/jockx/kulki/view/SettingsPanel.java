@@ -27,8 +27,7 @@ public class SettingsPanel {
     private final Runnable onStart;
     private final Pane overlay;
     private final VBox panel;
-    private final Spinner<Integer> columnsSpinner;
-    private final Spinner<Integer> rowsSpinner;
+    private final Spinner<Integer> boardSizeSpinner;
     private final Spinner<Integer> colorsSpinner;
     private final Spinner<Integer> matchSpinner;
     private final Spinner<Integer> newBallsSpinner;
@@ -41,8 +40,7 @@ public class SettingsPanel {
 
         int maxColors = BallColor.values().length;
 
-        columnsSpinner = new Spinner<>(BOARD_MIN, BOARD_MAX, loadInt("board.width"));
-        rowsSpinner = new Spinner<>(BOARD_MIN, BOARD_MAX, loadInt("board.height"));
+        boardSizeSpinner = new Spinner<>(BOARD_MIN, BOARD_MAX, loadInt("board.size"));
         colorsSpinner = new Spinner<>(1, maxColors, loadInt("numberOfColors"));
         matchSpinner = new Spinner<>(MATCH_MIN, MATCH_MAX, loadInt("minimalMatch"));
         newBallsSpinner = new Spinner<>(NEW_BALLS_MIN, NEW_BALLS_MAX, loadInt("newBallCount"));
@@ -52,8 +50,7 @@ public class SettingsPanel {
         newBallsWarning = new Label();
         newBallsWarning.getStyleClass().add("settings-warning");
 
-        columnsSpinner.valueProperty().addListener((_, _, _) -> validate());
-        rowsSpinner.valueProperty().addListener((_, _, _) -> validate());
+        boardSizeSpinner.valueProperty().addListener((_, _, _) -> validate());
         matchSpinner.valueProperty().addListener((_, _, _) -> validate());
         newBallsSpinner.valueProperty().addListener((_, _, _) -> validate());
         validate();
@@ -78,8 +75,7 @@ public class SettingsPanel {
 
         panel.getChildren().addAll(
                 title,
-                label("Board X"), columnsSpinner,
-                label("Board Y"), rowsSpinner,
+                label("Board size"), boardSizeSpinner,
                 label("Colors (" + maxColors + " max)"), colorsSpinner,
                 label("Match size"), matchSpinner, matchWarning,
                 label("New Balls"), newBallsSpinner, newBallsWarning,
@@ -123,18 +119,17 @@ public class SettingsPanel {
     }
 
     private void validate() {
-        int bx = columnsSpinner.getValue();
-        int by = rowsSpinner.getValue();
+        int bs = boardSizeSpinner.getValue();
         int ms = matchSpinner.getValue();
         int nb = newBallsSpinner.getValue();
 
-        if (ms > bx || ms > by) {
+        if (ms > bs) {
             matchWarning.setText("Match size exceeds board dimensions");
         } else {
             matchWarning.setText("");
         }
 
-        if (nb > bx * by) {
+        if (nb > bs * bs) {
             newBallsWarning.setText("New balls should not exceed board capacity");
         } else {
             newBallsWarning.setText("");
@@ -142,8 +137,7 @@ public class SettingsPanel {
     }
 
     private void onStartClick() {
-        save("board.width", columnsSpinner.getValue());
-        save("board.height", rowsSpinner.getValue());
+        save("board.size", boardSizeSpinner.getValue());
         save("numberOfColors", colorsSpinner.getValue());
         save("minimalMatch", matchSpinner.getValue());
         save("newBallCount", newBallsSpinner.getValue());

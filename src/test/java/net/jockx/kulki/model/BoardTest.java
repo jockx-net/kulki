@@ -23,8 +23,7 @@ public class BoardTest {
     @Test void testRuleSetDefaultConstructor() {
         RuleSet ruleSet = new RuleSet();
         Assertions.assertNotNull (ruleSet);
-        Assertions.assertEquals(ruleSet.boardHeight, 9, "Wrong default Board height");
-        Assertions.assertEquals(ruleSet.boardWidth, 9, "Wrong default Board width");
+        Assertions.assertEquals(ruleSet.boardSize, 9, "Wrong default Board size");
         Assertions.assertEquals(ruleSet.minimalMatch, 5, "Wrong default Board minimalMatch");
     }
 
@@ -193,7 +192,7 @@ public class BoardTest {
     }
 
     public Board getSmallBoard(){
-        Board board = new Board(new RuleSet().setBoardSize(4, 4).setMinimalMatch(3));
+        Board board = new Board(new RuleSet().setBoardSize(4).setMinimalMatch(3));
 
         board.placeBall(new Ball(BallColor.GREEN), 0,0);
         board.placeBall(new Ball(BallColor.GREEN), 1,0);

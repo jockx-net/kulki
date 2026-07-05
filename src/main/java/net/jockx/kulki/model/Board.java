@@ -26,8 +26,8 @@ public class Board {
 
     public Board (RuleSet ruleSet) {
         this.ruleSet =ruleSet;
-        this.height = ruleSet.boardHeight;
-        this.width = ruleSet.boardWidth;
+        this.height = ruleSet.boardSize;
+        this.width = ruleSet.boardSize;
         this.cells = Cell.createCellArray(width, height);
         this.pathFinder = new PathFinder();
         this.matchFinder = new MatchFinder(this);

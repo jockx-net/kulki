@@ -276,7 +276,7 @@ public class GameLoopTest {
         boolean isGameOverValue;
         boolean boardHasBalls;
 
-        final Board board = new Board(new RuleSet().setBoardSize(3, 3));
+        final Board board = new Board(new RuleSet().setBoardSize(3));
         final List<Cell> fakeCells = new ArrayList<>(List.of(new Cell(0, 0)));
         final List<Ball> fakeBalls = new ArrayList<>(List.of(new Ball(BallColor.RED)));
 

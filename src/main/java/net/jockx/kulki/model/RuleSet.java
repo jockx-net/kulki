@@ -5,8 +5,7 @@ import java.util.List;
 
 public class RuleSet {
 
-    int boardWidth = 9;
-    int boardHeight = 9;
+    int boardSize = 9;
     int minimalMatch = 5;
     int newBallCount = 3;
     int numberOfColors = 6;
@@ -31,19 +30,8 @@ public class RuleSet {
             BallColor.BROWN,
             BallColor.KHAKI );
 
-    public RuleSet setBoardWidth(int boardWidth){
-        this.boardWidth = boardWidth;
-        return this;
-    }
-
-    public RuleSet setBoardHeight(int boardHeight){
-        this.boardHeight = boardHeight;
-        return this;
-    }
-
-    public RuleSet setBoardSize (int boardWidth, int boardHeight){
-        setBoardWidth(boardWidth);
-        setBoardHeight(boardHeight);
+    public RuleSet setBoardSize(int boardSize){
+        this.boardSize = boardSize;
         return this;
     }
 
