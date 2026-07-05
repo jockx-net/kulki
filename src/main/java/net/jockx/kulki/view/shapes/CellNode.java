@@ -69,6 +69,12 @@ public class CellNode extends Group {
 		}
 	}
 
+	public void markAsInvalidTarget() {
+		if (!selected) {
+			setFill(Color.INDIANRED);
+		}
+	}
+
 	public void unMarkAsSelected() {
 		selected = false;
 		setFill(Color.CORNFLOWERBLUE);

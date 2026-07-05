@@ -151,15 +151,29 @@ public class GameController implements Initializable {
 		updateScore();
 
 		Set<BallShape> ballShapes = new HashSet<>();
+		List<CellNode> matchedNodes = new ArrayList<>();
 		for (Cell c : t.matchedCells()) {
-			BallShape ballShape = cellNodes[c.x][c.y].getBall();
+			CellNode cellNode = cellNodes[c.x][c.y];
+			BallShape ballShape = cellNode.getBall();
 			if (ballShape != null) {
 				ballShapes.add(ballShape);
+				matchedNodes.add(cellNode);
 			}
-			cellNodes[c.x][c.y].removeBall();
 		}
 
-		BallShape.remove(ballShapes, false, topPane, () -> gameLoop.onRemoveAnimationFinished());
+		if (sourceCell != null && matchedNodes.contains(sourceCell)) {
+			unHighlightPath();
+			sourceCell.unMarkAsSelected();
+			sourceCell = null;
+		}
+
+		BallShape.remove(ballShapes, false, topPane, () -> {
+			for (CellNode node : matchedNodes) {
+				node.unMarkAsSelected();
+				node.removeBall();
+			}
+			gameLoop.onRemoveAnimationFinished();
+		});
 	}
 
 	private void onBallsPlaced(StateTransition t) {
@@ -179,6 +193,9 @@ public class GameController implements Initializable {
 
 	private void onTurnComplete(StateTransition t) {
 		turnLocked = false;
+		if (sourceCell != null && sourceCell.isFree()) {
+			sourceCell = null;
+		}
 	}
 
 	private void onGameOverEvent(StateTransition t) {
@@ -187,11 +204,10 @@ public class GameController implements Initializable {
 	}
 
 	public void onCellClick(CellNode clicked) {
-		if (turnLocked) {
-			return;
-		}
-
 		if (sourceCell == null) {
+			if (turnLocked && clicked.isFree()) {
+				return;
+			}
 			sourceCell = clicked;
 			clicked.markAsSelected();
 			return;
@@ -200,6 +216,16 @@ public class GameController implements Initializable {
 		if (clicked.equals(sourceCell)) {
 			clicked.unMarkAsSelected();
 			sourceCell = null;
+			return;
+		}
+
+		if (turnLocked) {
+			if (clicked.isFree()) {
+				return;
+			}
+			sourceCell.unMarkAsSelected();
+			clicked.markAsSelected();
+			sourceCell = clicked;
 			return;
 		}
 
@@ -426,11 +452,14 @@ public class GameController implements Initializable {
 			return;
 		}
 		List<CellNode> path = getPath(sourceCell, targetCell);
+		boolean reachable = !path.isEmpty();
 		for (int i = 0; i < game.getBoard().height; i++) {
 			for (int j = 0; j < game.getBoard().width; j++) {
 				CellNode c = cellNodes[j][i];
 				if (path.contains(c) && !path.get(0).equals(c)) {
 					c.markHovered();
+				} else if (c.equals(targetCell) && !reachable) {
+					c.markAsInvalidTarget();
 				} else if (!c.equals(sourceCell)) {
 					c.unMarkHovered();
 				}
