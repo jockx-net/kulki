@@ -4,9 +4,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.geometry.Bounds;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -15,37 +15,41 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import net.jockx.kulki.model.Ball;
-import net.jockx.kulki.model.Cell;
-import net.jockx.kulki.model.Game;
-import net.jockx.kulki.model.RuleSet;
+import net.jockx.kulki.model.*;
 import net.jockx.kulki.view.shapes.BallShape;
 import net.jockx.kulki.view.shapes.CellNode;
 
 import java.net.URL;
 import java.util.*;
 
-public class GameController implements Initializable{
+public class GameController implements Initializable {
 	private static GameController instance;
 
-	@FXML private FlowPane nextBallsPane;
-	@FXML private Pane topPane;
-	@FXML private Label scoreLabel;
+	@FXML
+	private FlowPane nextBallsPane;
+	@FXML
+	private Pane topPane;
+	@FXML
+	private Label scoreLabel;
 
-	private Game game;
+	private GameEngine game;
+	private GameLoop gameLoop;
+	private GameEventBus eventBus;
 	private GridPane boardPane;
 	private CellNode[][] cellNodes;
 	private CellNode[] nextCellNodes;
 
 	private CellNode sourceCell;
 	private CellNode targetCell;
+	private boolean turnLocked = false;
 
 	private final int MIN_CELL_SIZE = 35;
 	private static final int BOARD_PADDING = 10;
 	private boolean listenersAdded = false;
 	private BallShape[] currentNextBalls;
+	private double ballRadius;
 
-	public static GameController getInstance(){
+	public static GameController getInstance() {
 		return instance;
 	}
 
@@ -62,16 +66,18 @@ public class GameController implements Initializable{
 		int boardWidth = PropertiesReader.getInt("board.width");
 		int boardHeight = PropertiesReader.getInt("board.height");
 
-		BallShape.mainBoardPane = topPane;
-		BallShape.nextBallsPane = nextBallsPane;
-
 		RuleSet ruleSet = new RuleSet()
 				.setMinimalMatch(minimalMatch)
 				.setBoardSize(boardWidth, boardHeight)
 				.setNewBallCount(newBallCount)
 				.setNumberOfColors(numberOfColors)
 				.setPerBallScore(ballScore);
+
 		game = new Game(ruleSet);
+		eventBus = new GameEventBus();
+		gameLoop = new GameLoop(game, eventBus);
+
+		subscribeToEvents();
 
 		if (boardPane == null) {
 			boardPane = new GridPane();
@@ -89,10 +95,10 @@ public class GameController implements Initializable{
 		cellNodes = new CellNode[x][y];
 
 		double tempCellSize = 50;
-		BallShape.radius = tempCellSize * 0.45;
+		ballRadius = tempCellSize * 0.45;
 
-		for(int i = 0; i < y; i++){
-			for(int j = 0; j < x; j++){
+		for (int i = 0; i < y; i++) {
+			for (int j = 0; j < x; j++) {
 				CellNode cellNode = new CellNode(tempCellSize, tempCellSize, j, i);
 				boardPane.add(cellNode, j, i);
 				cellNodes[j][i] = cellNode;
@@ -100,19 +106,130 @@ public class GameController implements Initializable{
 		}
 
 		nextCellNodes = new CellNode[game.getRuleSet().getNewBallCount()];
-		for (int i = 0; i < nextCellNodes.length; i++){
+		for (int i = 0; i < nextCellNodes.length; i++) {
 			CellNode nextCellNode = new CellNode(tempCellSize, tempCellSize);
 			nextCellNodes[i] = nextCellNode;
 			nextBallsPane.getChildren().add(nextCellNode);
 		}
 
 		updateBoardLayout();
-		addBalls();
+		gameLoop.submitInitialPlacement();
 
 		if (!listenersAdded) {
 			topPane.widthProperty().addListener((obs, old, nv) -> updateBoardLayout());
 			topPane.heightProperty().addListener((obs, old, nv) -> updateBoardLayout());
 			listenersAdded = true;
+		}
+	}
+
+	private void subscribeToEvents() {
+		eventBus.subscribe(GameEvent.BALL_MOVED, this::onBallMoved);
+		eventBus.subscribe(GameEvent.MATCHES_IDENTIFIED, this::onMatchesIdentified);
+		eventBus.subscribe(GameEvent.BALLS_PLACED, this::onBallsPlaced);
+		eventBus.subscribe(GameEvent.TURN_COMPLETE, this::onTurnComplete);
+		eventBus.subscribe(GameEvent.GAME_OVER, this::onGameOverEvent);
+	}
+
+	private void onBallMoved(StateTransition t) {
+		CellNode fromNode = cellNodes[t.source().x][t.source().y];
+		CellNode toNode = cellNodes[t.target().x][t.target().y];
+		BallShape ball = fromNode.getBall();
+
+		List<CellNode> nodePath = new ArrayList<>();
+		for (Cell c : t.path()) {
+			nodePath.add(cellNodes[c.x][c.y]);
+		}
+
+		unHighlightPath();
+		toNode.setBall(ball);
+		fromNode.setBall(null);
+
+		ball.moveTo(nodePath, () -> gameLoop.onMoveAnimationFinished());
+	}
+
+	private void onMatchesIdentified(StateTransition t) {
+		updateScore();
+
+		Set<BallShape> ballShapes = new HashSet<>();
+		for (Cell c : t.matchedCells()) {
+			BallShape ballShape = cellNodes[c.x][c.y].getBall();
+			if (ballShape != null) {
+				ballShapes.add(ballShape);
+			}
+			cellNodes[c.x][c.y].removeBall();
+		}
+
+		BallShape.remove(ballShapes, false, topPane, () -> gameLoop.onRemoveAnimationFinished());
+	}
+
+	private void onBallsPlaced(StateTransition t) {
+		List<BallShape> ballShapes = new ArrayList<>();
+		for (int i = 0; i < t.placedCells().size(); i++) {
+			Cell cell = t.placedCells().get(i);
+			Ball ball = t.placedBalls().get(i);
+			BallShape ballShape = new BallShape(ball, ballRadius);
+			ballShapes.add(ballShape);
+			cellNodes[cell.x][cell.y].setBallFirstTime(ballShape);
+		}
+
+		updateNextBallsArea();
+		BallShape.appearNewBalls(ballShapes, t.placedCells().size(), topPane,
+				() -> gameLoop.onAppearAnimationFinished());
+	}
+
+	private void onTurnComplete(StateTransition t) {
+		turnLocked = false;
+	}
+
+	private void onGameOverEvent(StateTransition t) {
+		turnLocked = false;
+		endGame();
+	}
+
+	public void onCellClick(CellNode clicked) {
+		if (turnLocked) {
+			return;
+		}
+
+		if (sourceCell == null) {
+			sourceCell = clicked;
+			clicked.markAsSelected();
+			return;
+		}
+
+		if (clicked.equals(sourceCell)) {
+			clicked.unMarkAsSelected();
+			sourceCell = null;
+			return;
+		}
+
+		handleSecondClick(clicked);
+	}
+
+	private void handleSecondClick(CellNode clicked) {
+		if (sourceCell.isFree()) {
+			sourceCell.unMarkAsSelected();
+			clicked.markAsSelected();
+			sourceCell = clicked;
+			return;
+		}
+
+		if (!clicked.isFree()) {
+			sourceCell.unMarkAsSelected();
+			clicked.markAsSelected();
+			sourceCell = clicked;
+			return;
+		}
+
+		Cell from = game.getBoard().getCell(sourceCell.getColumn(), sourceCell.getRow());
+		Cell to = game.getBoard().getCell(clicked.getColumn(), clicked.getRow());
+
+		unHighlightPath();
+		sourceCell.unMarkAsSelected();
+		sourceCell = null;
+
+		if (gameLoop.submitMove(from, to)) {
+			turnLocked = true;
 		}
 	}
 
@@ -150,8 +267,7 @@ public class GameController implements Initializable{
 		double offsetX = Math.max(BOARD_PADDING, (containerWidth - boardPixelWidth) / 2);
 		double offsetY = Math.max(BOARD_PADDING, (containerHeight - boardPixelHeight) / 2);
 
-		double ballRadius = cellSize * 0.45;
-		BallShape.radius = ballRadius;
+		ballRadius = cellSize * 0.45;
 
 		boardPane.setLayoutX(offsetX);
 		boardPane.setLayoutY(offsetY);
@@ -170,8 +286,8 @@ public class GameController implements Initializable{
 				CellNode cn = cellNodes[j][i];
 				Bounds b = cn.getBoundsInParent();
 				cn.setCenter(
-					boardPane.getLayoutX() + b.getMinX() + b.getWidth() / 2,
-					boardPane.getLayoutY() + b.getMinY() + b.getHeight() / 2
+						boardPane.getLayoutX() + b.getMinX() + b.getWidth() / 2,
+						boardPane.getLayoutY() + b.getMinY() + b.getHeight() / 2
 				);
 
 				if (!cn.isFree()) {
@@ -211,41 +327,36 @@ public class GameController implements Initializable{
 		final TextField newBallsField = new TextField(PropertiesReader.getProperty("newBallCount"));
 		final Button button = new Button("Start");
 		final VBox settings = new VBox(
-				new Text("Board X"), 	columnsField,
-				new Text("Board Y"),	rowsField,
-				new Text("Colors"),		colorsField,
-				new Text("Match size"),	matchField,
-				new Text("New Balls"),	newBallsField,
+				new Text("Board X"), columnsField,
+				new Text("Board Y"), rowsField,
+				new Text("Colors"), colorsField,
+				new Text("Match size"), matchField,
+				new Text("New Balls"), newBallsField,
 				button);
 		settings.setFillWidth(true);
 		settings.setPadding(new Insets(CellNode.CELL_GAP));
 		settings.setAlignment(Pos.CENTER);
 		topPane.getChildren().add(settings);
 
-
-
 		button.setOnAction(new EventHandler<ActionEvent>() {
 			@Override
 			public void handle(ActionEvent event) {
-				PropertiesReader.setProperty("board.width",String.valueOf(columnsField.getText()));
+				PropertiesReader.setProperty("board.width", String.valueOf(columnsField.getText()));
 				PropertiesReader.setProperty("board.height", String.valueOf(rowsField.getText()));
-				PropertiesReader.setProperty("numberOfColors",String.valueOf(colorsField.getText()));
-				PropertiesReader.setProperty("minimalMatch",String.valueOf(matchField.getText()));
-				PropertiesReader.setProperty("newBallCount",String.valueOf(newBallsField.getText()));
+				PropertiesReader.setProperty("numberOfColors", String.valueOf(colorsField.getText()));
+				PropertiesReader.setProperty("minimalMatch", String.valueOf(matchField.getText()));
+				PropertiesReader.setProperty("newBallCount", String.valueOf(newBallsField.getText()));
 				topPane.getChildren().remove(settings);
 				startGame();
 			}
 		});
-
-
 	}
 
-	private void endGame(){
+	private void endGame() {
 		showExitDialog();
 	}
 
 	private void showExitDialog() {
-
 		Button button = new Button("Try Again");
 		final VBox gameOver = new VBox(new Text("Game Over"), button);
 		gameOver.setFillWidth(true);
@@ -258,116 +369,39 @@ public class GameController implements Initializable{
 				int x = game.getBoard().width;
 				int y = game.getBoard().height;
 
-				Collection<BallShape> balls = new ArrayList<BallShape>();
+				Collection<BallShape> balls = new ArrayList<>();
 
-				for(int i = 0; i < y; i++){
-					for(int j = 0; j < x; j++){
+				for (int i = 0; i < y; i++) {
+					for (int j = 0; j < x; j++) {
 						balls.add(cellNodes[j][i].removeBall());
 					}
 				}
 				nextCellNodes = null;
 				currentNextBalls = null;
-				BallShape.remove(balls, true);
+				BallShape.remove(balls, true, topPane, null);
 				topPane.getChildren().remove(gameOver);
 
 				showSettingsDialog();
 			}
 		});
 		topPane.getChildren().add(gameOver);
-
 	}
 
 	private void updateNextBallsArea() {
-		List<BallShape> nextBallShapes = createNextBallShapes();
+		List<BallShape> nextBallShapes = new ArrayList<>();
 		double nextCellSize = nextCellNodes[0].getCellShape().getWidth();
 		double nextBallRadius = nextCellSize * 0.45;
-		for (int i = 0; i < nextCellNodes.length; i++){
+		for (Ball ball : game.getNextBalls()) {
+			nextBallShapes.add(new BallShape(ball, nextBallRadius));
+		}
+		for (int i = 0; i < nextCellNodes.length; i++) {
 			BallShape ball = nextBallShapes.get(i);
-			ball.updateGradient(nextBallRadius);
 			ball.setLayoutX(nextCellSize / 2);
 			ball.setLayoutY(nextCellSize / 2);
 		}
-		BallShape.appearNext(nextBallShapes);
+		BallShape.appearNext(nextBallShapes, nextBallsPane);
 		currentNextBalls = nextBallShapes.toArray(new BallShape[0]);
 	}
-
-	public void endTurn(int x, int y){
-		boolean goodMove = game.validateMove(game.getBoard().getCell(x, y));
-		if (goodMove){
-			removeBalls();
-		}
-		if (!goodMove || game.getBoard().getBalls().isEmpty()){
-			addBalls();
-		}
-	}
-
-	public void verifyEndTurn() {
-		if(game.isGameOver()){
-			System.out.println("Game over");
-			endGame();
-			return;
-		}
-		if(game.getBoard().getBalls().isEmpty()){
-			addBalls();
-		}
-	}
-
-	private boolean addBalls() {
-		game.createNextCells();
-
-		List<BallShape> ballShapes = createNextBallShapes();
-		for (int i = 0; i < game.getNextCells().size(); i++) {
-			Ball ball = game.getNextBalls().get(i);
-			Cell randomCell = game.getNextCells().get(i);
-
-			BallShape ballShape = ballShapes.get(i);
-
-			randomCell.setBall(ball);
-			addBallShapeAt(ballShape, randomCell);
-		}
-		game.createNextBalls();
-		updateNextBallsArea();
-		game.validateAddedBalls();
-		BallShape.appearNewBalls(ballShapes, game.getNextCells().size());
-
-		return game.isGameOver();
-	}
-
-	private List<BallShape> createNextBallShapes(){
-		List<BallShape> ballShapes = new ArrayList<BallShape>();
-		for (int i = 0; i < game.getNextBalls().size(); i++) {
-			Ball ball = game.getNextBalls().get(i);
-			BallShape ballShape = new BallShape(ball);
-			ballShapes.add(ballShape);
-		}
-		return ballShapes;
-	}
-
-	void removeBalls() {
-		Set<Cell> ballsToRemove = game.getBallsToRemove();
-		Set<BallShape> ballShapes = new HashSet<BallShape>();
-		for (Cell c : ballsToRemove){
-			game.getBoard().removeBall(c);
-
-			BallShape ballShape = cellNodes[c.x][c.y].getBall();
-			if(ballShape != null){
-				ballShapes.add(ballShape);
-			}
-			cellNodes[c.x][c.y].removeBall();
-		}
-		if(ballShapes.isEmpty()){
-			verifyEndTurn();
-		} else {
-			BallShape.remove(ballShapes, false);
-		}
-	}
-
-	private void addBallShapeAt(BallShape ball, Cell cell){
-		int x = cell.x;
-		int y = cell.y;
-		cellNodes[x][y].setBallFirstTime(ball);
-	}
-
 
 	public CellNode getSourceCell() {
 		return sourceCell;
@@ -385,70 +419,49 @@ public class GameController implements Initializable{
 		this.targetCell = targetCell;
 	}
 
-
 	public void highlightPath() {
 		CellNode targetCell = getTargetCell();
 		CellNode sourceCell = getSourceCell();
-		if( sourceCell == null || targetCell == null ||	sourceCell.isFree() ) {
+		if (sourceCell == null || targetCell == null || sourceCell.isFree()) {
 			return;
 		}
-		List<CellNode> path =  getPath(sourceCell, targetCell);
-		for(int i = 0; i < game.getBoard().height; i++){
-			for (int j = 0; j < game.getBoard().width; j++){
+		List<CellNode> path = getPath(sourceCell, targetCell);
+		for (int i = 0; i < game.getBoard().height; i++) {
+			for (int j = 0; j < game.getBoard().width; j++) {
 				CellNode c = cellNodes[j][i];
-
-				if (path.contains(c) && !path.get(0).equals(c)){
+				if (path.contains(c) && !path.get(0).equals(c)) {
 					c.markHovered();
-
-				} else if(!c.equals(sourceCell)) {
+				} else if (!c.equals(sourceCell)) {
 					c.unMarkHovered();
 				}
 			}
 		}
 	}
 
-	public void unHighlightPath(){
-		for(int i = 0; i < game.getBoard().height; i++) {
+	public void unHighlightPath() {
+		for (int i = 0; i < game.getBoard().height; i++) {
 			for (int j = 0; j < game.getBoard().width; j++) {
 				cellNodes[j][i].unMarkHovered();
 			}
 		}
 	}
 
-	public List<CellNode> getPathAndMove(CellNode pathStart, CellNode pathEnd) {
+	private List<CellNode> getPath(CellNode pathStart, CellNode pathEnd) {
 		Cell from = game.getBoard().getCell(pathStart.getColumn(), pathStart.getRow());
-		Cell to   = game.getBoard().getCell(pathEnd.getColumn(), pathEnd.getRow());
-
-		List<Cell> cellPath = game.getBoard().moveBallToCell(from, to);
-		List<CellNode> nodePath = new ArrayList<CellNode>();
-		if (cellPath == null){
-			return nodePath;
-		}
-		for (Cell c : cellPath){
-			nodePath.add(cellNodes[c.x][c.y]);
-		}
-
-		return nodePath;
-	}
-
-	public List<CellNode> getPath(CellNode pathStart, CellNode pathEnd) {
-		Cell from = game.getBoard().getCell(pathStart.getColumn(), pathStart.getRow());
-		Cell to   = game.getBoard().getCell(pathEnd.getColumn(), pathEnd.getRow());
+		Cell to = game.getBoard().getCell(pathEnd.getColumn(), pathEnd.getRow());
 
 		List<Cell> cellPath = game.getBoard().findShortestPathToCell(from, to);
-		List<CellNode> nodePath = new ArrayList<CellNode>();
-		if (cellPath == null){
+		List<CellNode> nodePath = new ArrayList<>();
+		if (cellPath == null) {
 			return nodePath;
 		}
-		for (Cell c : cellPath){
+		for (Cell c : cellPath) {
 			nodePath.add(cellNodes[c.x][c.y]);
 		}
 		return nodePath;
 	}
 
-	public void updateScore() {
+	private void updateScore() {
 		scoreLabel.textProperty().setValue(String.valueOf(game.getScore()));
 	}
-
-
 }

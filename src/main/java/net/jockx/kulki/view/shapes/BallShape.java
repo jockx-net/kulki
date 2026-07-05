@@ -1,8 +1,6 @@
 package net.jockx.kulki.view.shapes;
 
 import javafx.animation.*;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -14,8 +12,6 @@ import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
 import javafx.util.Duration;
-import net.jockx.kulki.controller.EventHandlers;
-import net.jockx.kulki.controller.GameController;
 import net.jockx.kulki.model.Ball;
 import net.jockx.kulki.model.BallColor;
 
@@ -23,11 +19,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class BallShape  extends Circle{
-
-	public static Pane mainBoardPane;
-	public static Pane nextBallsPane;
-	public static double radius = 25;
+public class BallShape extends Circle {
 
 	private static final Map<BallColor, Color> FX_COLORS = Map.ofEntries(
 			Map.entry(BallColor.RED, Color.RED),
@@ -52,7 +44,7 @@ public class BallShape  extends Circle{
 	private final Ball ball;
 	private PathTransition pathTransition;
 
-	public BallShape(Ball ball){
+	public BallShape(Ball ball, double radius) {
 		super(radius);
 		this.ball = ball;
 		setFill(createGradient(ball, radius));
@@ -64,10 +56,10 @@ public class BallShape  extends Circle{
 		return new RadialGradient(
 				0, 0.1, -r * 0.35, -r * 0.35, r * 1.2, false,
 				CycleMethod.NO_CYCLE,
-				new Stop(1,  fxColor.darker().darker().darker()),
+				new Stop(1, fxColor.darker().darker().darker()),
 				new Stop(0.7, fxColor.darker()),
 				new Stop(0.25, fxColor),
-				new Stop(0,  Color.WHITE ));
+				new Stop(0, Color.WHITE));
 	}
 
 	public void updateGradient(double newRadius) {
@@ -75,10 +67,9 @@ public class BallShape  extends Circle{
 		setFill(createGradient(ball, newRadius));
 	}
 
-	public void moveTo(List<CellNode> cellsInPath){
-
+	public void moveTo(List<CellNode> cellsInPath, Runnable onFinished) {
 		Path path = new Path();
-		CellNode lastNode = cellsInPath.get(cellsInPath.size()-1);
+		CellNode lastNode = cellsInPath.get(cellsInPath.size() - 1);
 		double oldLayoutX = getLayoutX();
 		double oldLayoutY = getLayoutY();
 		setLayoutX(lastNode.getBallCenterX());
@@ -87,7 +78,7 @@ public class BallShape  extends Circle{
 		MoveTo start = new MoveTo(oldLayoutX - getLayoutX(), oldLayoutY - getLayoutY());
 		path.getElements().add(start);
 
-		for (CellNode cell : cellsInPath){
+		for (CellNode cell : cellsInPath) {
 			LineTo relativeLine = new LineTo(cell.getBallCenterX() - getLayoutX(), cell.getBallCenterY() - getLayoutY());
 			path.getElements().add(relativeLine);
 		}
@@ -96,12 +87,13 @@ public class BallShape  extends Circle{
 		int transitionDuration = 200 * cellsInPath.size();
 		pathTransition.setDuration(Duration.millis(transitionDuration));
 		pathTransition.setPath(path);
-
 		pathTransition.setNode(this);
 		pathTransition.setOrientation(PathTransition.OrientationType.NONE);
 		pathTransition.setOnFinished(event -> {
 			this.pathTransition = null;
-			EventHandlers.onMoveFinished.handle(event);
+			if (onFinished != null) {
+				onFinished.run();
+			}
 		});
 		this.pathTransition = pathTransition;
 		pathTransition.play();
@@ -116,19 +108,14 @@ public class BallShape  extends Circle{
 		}
 	}
 
-	public static int remove(Collection<BallShape> balls, boolean gameOver) {
+	public static int remove(Collection<BallShape> balls, boolean gameOver, Pane mainBoardPane, Runnable onFinished) {
 		int duration = 500;
 		ParallelTransition parallelTransition = new ParallelTransition();
-		if(!gameOver) {
-			parallelTransition.setOnFinished(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event) {
-					GameController.getInstance().verifyEndTurn();
-				}
-			});
+		if (!gameOver && onFinished != null) {
+			parallelTransition.setOnFinished(event -> onFinished.run());
 		}
 
-		for (final BallShape ball : balls){
+		for (final BallShape ball : balls) {
 			ScaleTransition st = new ScaleTransition(Duration.millis(duration), ball);
 			st.setByX(-0.5f);
 			st.setByY(-0.5f);
@@ -136,12 +123,8 @@ public class BallShape  extends Circle{
 			FadeTransition ft = new FadeTransition(Duration.millis(duration), ball);
 			ft.setFromValue(1.0);
 			ft.setToValue(0.0);
-			ft.setOnFinished(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event) {
-					mainBoardPane.getChildren().remove(ball);
-					GameController.getInstance().updateScore();
-				}
+			ft.setOnFinished(event -> {
+				mainBoardPane.getChildren().remove(ball);
 			});
 			parallelTransition.getChildren().add(st);
 			parallelTransition.getChildren().add(ft);
@@ -150,14 +133,15 @@ public class BallShape  extends Circle{
 		return duration;
 	}
 
-	public static void appearNewBalls(List<BallShape> balls, int actuallyShown){
+	public static void appearNewBalls(List<BallShape> balls, int actuallyShown, Pane mainBoardPane, Runnable onFinished) {
 		int duration = 300;
 		SequentialTransition sequentialFade = new SequentialTransition();
 		SequentialTransition sequentialScale = new SequentialTransition();
-		sequentialFade.setOnFinished(EventHandlers.onRandomBallsPlaced);
+		if (onFinished != null) {
+			sequentialFade.setOnFinished(event -> onFinished.run());
+		}
 
-
-		for(int i = 0; i < actuallyShown; i++){
+		for (int i = 0; i < actuallyShown; i++) {
 			BallShape ball = balls.get(i);
 			mainBoardPane.getChildren().add(ball);
 			ball.setScaleX(0.01f);
@@ -183,16 +167,15 @@ public class BallShape  extends Circle{
 		sequentialScale.play();
 	}
 
-	public static void appearNext(List<BallShape> nextBalls) {
-
+	public static void appearNext(List<BallShape> nextBalls, Pane nextBallsPane) {
 		int duration = 300;
 		SequentialTransition sequentialFade = new SequentialTransition();
 		SequentialTransition sequentialScale = new SequentialTransition();
 
-		for (int i = 0; i < nextBallsPane.getChildren().size(); i++){
+		for (int i = 0; i < nextBallsPane.getChildren().size(); i++) {
 			final CellNode node = (CellNode) nextBallsPane.getChildren().get(i);
 
-			if(node.getChildren().size() < 2) {
+			if (node.getChildren().size() < 2) {
 				continue;
 			}
 			Node ball = node.getChildren().get(1);
@@ -204,18 +187,13 @@ public class BallShape  extends Circle{
 			ft.setFromValue(1.0);
 			ft.setToValue(0.0);
 
-			ft.setOnFinished(new EventHandler<ActionEvent>() {
-				@Override
-				public void handle(ActionEvent event) {
-					node.getChildren().remove(1);
-				}
-			});
+			ft.setOnFinished(event -> node.getChildren().remove(1));
 			sequentialScale.getChildren().add(st);
 			sequentialFade.getChildren().add(ft);
 			node.getChildren().removeAll();
 		}
 
-		for(int i = 0; i < nextBalls.size(); i++){
+		for (int i = 0; i < nextBalls.size(); i++) {
 			BallShape ball = nextBalls.get(i);
 			CellNode node = (CellNode) nextBallsPane.getChildren().get(i);
 			node.getChildren().add(ball);

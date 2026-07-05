@@ -5,7 +5,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import net.jockx.kulki.controller.EventHandlers;
-import net.jockx.kulki.controller.GameController;
 
 public class CellNode extends Group {
 
@@ -13,15 +12,12 @@ public class CellNode extends Group {
 
 	private final Rectangle CellShape;
 	double centerX, centerY;
-
-	public void setCenter(double x, double y) {
-		centerX = x;
-		centerY = y;
-	}
 	private BallShape ball;
+	private boolean selected;
 
 	private final int column;
 	private final int row;
+
 	public CellNode(double width, double height, int x, int y) {
 		this.CellShape = new Rectangle(width, height, Color.CORNFLOWERBLUE);
 		this.column = x;
@@ -35,13 +31,11 @@ public class CellNode extends Group {
 		centerY = y * (height + CELL_GAP) + height / 2;
 	}
 
-	public CellNode (double width, double height){
+	public CellNode(double width, double height) {
 		this.CellShape = new Rectangle(width, height, Color.CORNFLOWERBLUE);
 		getChildren().add(CellShape);
-
 		addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, EventHandlers.onMouseOverNext);
 		addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, EventHandlers.onMouseAwayNext);
-
 		this.column = -1;
 		this.row = -1;
 	}
@@ -64,22 +58,19 @@ public class CellNode extends Group {
 	}
 
 	public void unMarkHovered() {
-		if( !equals(GameController.getInstance().getSourceCell()) ) {
+		if (!selected) {
 			setFill(Color.CORNFLOWERBLUE);
 		}
 	}
 
 	public void markHovered() {
-		if( !equals(GameController.getInstance().getSourceCell()) ) {
+		if (!selected) {
 			setFill(Color.BURLYWOOD);
 		}
 	}
 
-	public void unMarkAsSelected(){
-		CellNode sourceCell = GameController.getInstance().getSourceCell();
-		if(sourceCell != null && sourceCell.equals(this)){
-			GameController.getInstance().setSourceCell(null);
-		}
+	public void unMarkAsSelected() {
+		selected = false;
 		setFill(Color.CORNFLOWERBLUE);
 		if (!isFree()) {
 			getBall().setScaleX(1.0);
@@ -87,8 +78,8 @@ public class CellNode extends Group {
 		}
 	}
 
-	public void markAsSelected(){
-		GameController.getInstance().setSourceCell(this);
+	public void markAsSelected() {
+		selected = true;
 		setFill(Color.CORAL);
 		if (!isFree()) {
 			getBall().setScaleX(1.12);
@@ -112,14 +103,18 @@ public class CellNode extends Group {
 		this.ball = ball;
 	}
 
-	public void setBallFirstTime(BallShape ball){
+	public void setBallFirstTime(BallShape ball) {
 		ball.setLayoutX(centerX);
 		ball.setLayoutY(centerY);
 		setBall(ball);
 	}
 
+	public void setCenter(double x, double y) {
+		centerX = x;
+		centerY = y;
+	}
 
-	public void setFill(Color color){
+	public void setFill(Color color) {
 		CellShape.setFill(color);
 	}
 
@@ -136,6 +131,4 @@ public class CellNode extends Group {
 		setBall(null);
 		return old;
 	}
-
-
 }
