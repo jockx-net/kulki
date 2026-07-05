@@ -18,7 +18,7 @@ public class MainApp extends Application {
         Font.loadFont(getClass().getResourceAsStream("/fonts/FredokaOne-Regular.ttf"), 14);
         log.debug("Showing JFX scene");
 
-		GameController controller = new GameController();
+        GameController controller = new GameController();
 
         double width = Double.parseDouble(PropertiesReader.getProperty("scene.width"));
         double height = Double.parseDouble(PropertiesReader.getProperty("scene.height"));
@@ -36,6 +36,6 @@ public class MainApp extends Application {
         stage.setMinWidth(390);
         stage.setMinHeight(550);
         stage.show();
-		controller.showSettingsDialog();
-	}
+        controller.showSettingsDialog();
+    }
 }

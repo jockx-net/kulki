@@ -5,29 +5,29 @@ import java.util.Set;
 
 public interface GameEngine {
 
-	void start();
+    void start();
 
-	StateTransition tryMove(Cell from, Cell to);
+    StateTransition tryMove(Cell from, Cell to);
 
-	StateTransition checkMatches(Cell cell);
+    StateTransition checkMatches(Cell cell);
 
-	StateTransition finalizeRemoval();
+    StateTransition finalizeRemoval();
 
-	StateTransition checkAllMatches();
+    StateTransition checkAllMatches();
 
-	StateTransition placeNextBalls();
+    StateTransition placeNextBalls();
 
-	void generateNextBalls();
+    void generateNextBalls();
 
-	List<Ball> getNextBalls();
+    List<Ball> getNextBalls();
 
-	List<Cell> getNextCells();
+    List<Cell> getNextCells();
 
-	boolean isGameOver();
+    boolean isGameOver();
 
-	int getScore();
+    int getScore();
 
-	Board getBoard();
+    Board getBoard();
 
-	RuleSet getRuleSet();
+    RuleSet getRuleSet();
 }
