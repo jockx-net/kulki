@@ -1,7 +1,7 @@
 plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
-    id 'org.beryx.jlink' version '3.0.1'
+    id 'org.beryx.jlink' version '4.0.2'
 }
 
 repositories {
@@ -9,7 +9,7 @@ repositories {
 }
 
 javafx {
-    version = "17"
+    version = "25"
     modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
@@ -24,14 +24,14 @@ version = '1.0.3'
 description = """Kulki"""
 
 dependencies {
-    implementation 'org.openjfx:javafx-controls:17'
-    implementation 'org.openjfx:javafx-fxml:17'
-    implementation 'com.miglayout:miglayout-javafx:11.2'
+    implementation 'org.openjfx:javafx-controls:25'
+    implementation 'org.openjfx:javafx-fxml:25'
+    implementation 'com.miglayout:miglayout-javafx:11.4.3'
     implementation 'org.apache.commons:commons-lang3:3.20.0'
-    implementation 'org.slf4j:slf4j-simple:2.0.17'
+    implementation 'org.slf4j:slf4j-simple:2.0.18'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.14.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
 }
 
 test {
@@ -40,6 +40,8 @@ test {
 
 compileJava {
     options.encoding = 'UTF-8'
+    sourceCompatibility = '25'
+    targetCompatibility = '25'
 }
 
 jlink {
@@ -52,17 +54,14 @@ jlink {
     jpackage {
         skipInstaller = true
         icon = 'flatpak/Kulki.png'
-        imageOptions += [
-                '--app-content', 'flatpak/Kulki.desktop',
-                '--app-content', 'flatpak/Kulki.metainfo.xml'
-        ]
+        imageOptions.addAll('--app-content', 'flatpak/Kulki.desktop', '--app-content', 'flatpak/Kulki.metainfo.xml')
     }
 }
 
 tasks.register('packageTarGz', Tar) {
     group = 'Distribution'
     description = 'Creates a tar.gz archive of the jpackage image for Flatpak builds.'
-    dependsOn jpackage
+    dependsOn 'jpackageImage'
 
     from layout.buildDirectory.dir('jpackage/Kulki')
     into 'Kulki'
@@ -75,45 +74,50 @@ tasks.register('packageTarGz', Tar) {
     destinationDirectory = layout.buildDirectory.dir('distributions')
 }
 
-tasks.register("buildFlatpak") {
+def flatpakDir = layout.buildDirectory.dir('flatpak')
+
+tasks.register('cleanFlatpakDir', Delete) {
+    delete flatpakDir
+}
+
+tasks.register('copyDistToFlatpak', Copy) {
+    dependsOn cleanFlatpakDir, packageTarGz
+    from(layout.buildDirectory.dir('distributions')) {
+        include "Kulki-${project.version}.tar.gz"
+        rename "Kulki-${project.version}.tar.gz", "kulki.tar.gz"
+    }
+    into(flatpakDir)
+}
+
+tasks.register('copyManifestToFlatpak', Copy) {
+    dependsOn cleanFlatpakDir
+    from('flatpak/') { include 'net.jockx.Kulki.yml' }
+    into(flatpakDir)
+}
+
+tasks.register('flatpakRemoteAdd', Exec) {
+    dependsOn copyDistToFlatpak, copyManifestToFlatpak
+    workingDir = flatpakDir.get().asFile
+    commandLine 'flatpak', 'remote-add', '--if-not-exists', '--user', 'flathub',
+            'https://dl.flathub.org/repo/flathub.flatpakrepo'
+}
+
+tasks.register('flatpakEnsureBuilder', Exec) {
+    dependsOn flatpakRemoteAdd
+    workingDir = flatpakDir.get().asFile
+    commandLine 'flatpak', 'install', '--user', 'org.flatpak.Builder'
+}
+
+tasks.register('flatpakBuilderRun', Exec) {
+    dependsOn flatpakEnsureBuilder
+    workingDir = flatpakDir.get().asFile
+    commandLine 'flatpak', 'run', 'org.flatpak.Builder', '--force-clean', '--user',
+            '--install-deps-from=flathub', '--state-dir=.flatpak-builder',
+            '--repo=repo', '--install', 'builddir', 'net.jockx.Kulki.yml'
+}
+
+tasks.register('buildFlatpak') {
     group = 'Build'
     description = 'Builds and installs a Flatpak package from the jpackage image.'
-    dependsOn packageTarGz
-
-    doLast {
-        def buildDirFile = layout.buildDirectory.get().asFile
-        def flatpakDir = new File(buildDirFile, 'flatpak')
-        flatpakDir.mkdirs()
-
-        copy {
-            from layout.buildDirectory.dir('distributions')
-            include "Kulki-${project.version}.tar.gz"
-            into flatpakDir
-            rename "Kulki-${project.version}.tar.gz", "kulki.tar.gz"
-        }
-
-        copy {
-            from "flatpak/"
-            include "net.jockx.Kulki.yml"
-            into flatpakDir
-        }
-
-        exec {
-            workingDir flatpakDir
-            commandLine 'flatpak', 'remote-add', '--if-not-exists', '--user', 'flathub',
-                    'https://dl.flathub.org/repo/flathub.flatpakrepo'
-        }
-        exec {
-            workingDir flatpakDir
-            commandLine 'flatpak', 'install', '--user', 'org.flatpak.Builder'
-        }
-        exec {
-            workingDir flatpakDir
-            commandLine 'flatpak', 'run', 'org.flatpak.Builder', '--force-clean', '--user',
-                    '--install-deps-from=flathub',
-                    '--state-dir=.flatpak-builder',
-                    '--repo=repo',
-                    '--install', 'builddir', 'net.jockx.Kulki.yml'
-        }
-    }
+    dependsOn flatpakBuilderRun
 }
