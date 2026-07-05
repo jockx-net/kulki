@@ -1,9 +1,8 @@
 package net.jockx.kulki;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import net.jockx.kulki.controller.GameController;
 import net.jockx.kulki.controller.PropertiesReader;
@@ -14,21 +13,16 @@ public class MainApp extends Application {
 
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
 
-    public static void main(String[] args) {
-		launch(args);
-    }
+    public void start(Stage stage) {
 
-    public void start(Stage stage) throws Exception {
-
-        String fxmlFile = "/fxml/kulki.fxml";
-        FXMLLoader loader = new FXMLLoader();
-        Parent rootNode = loader.load(getClass().getResourceAsStream(fxmlFile));
-
+        Font.loadFont(getClass().getResourceAsStream("/fonts/FredokaOne-Regular.ttf"), 14);
         log.debug("Showing JFX scene");
+
+		GameController controller = new GameController();
 
         double width = Double.parseDouble(PropertiesReader.getProperty("scene.width"));
         double height = Double.parseDouble(PropertiesReader.getProperty("scene.height"));
-        Scene scene = new Scene(rootNode, width, height);
+        Scene scene = new Scene(controller.getTopPane(), width, height);
 
         scene.widthProperty().addListener((obs, oldVal, newVal) ->
                 PropertiesReader.setProperty("scene.width", Double.toString(newVal.doubleValue())));
@@ -40,8 +34,8 @@ public class MainApp extends Application {
         stage.setTitle("Kulki");
         stage.setScene(scene);
         stage.setMinWidth(390);
-        stage.setMinHeight(470);
+        stage.setMinHeight(550);
         stage.show();
-		GameController.getInstance().showSettingsDialog();
+		controller.showSettingsDialog();
 	}
 }

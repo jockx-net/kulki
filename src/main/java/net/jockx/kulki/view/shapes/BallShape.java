@@ -43,6 +43,7 @@ public class BallShape extends Circle {
 
 	private final Ball ball;
 	private PathTransition pathTransition;
+	private Runnable moveFinishedCallback;
 
 	public BallShape(Ball ball, double radius) {
 		super(radius);
@@ -83,6 +84,7 @@ public class BallShape extends Circle {
 			path.getElements().add(relativeLine);
 		}
 
+		moveFinishedCallback = onFinished;
 		PathTransition pathTransition = new PathTransition();
 		int transitionDuration = 200 * cellsInPath.size();
 		pathTransition.setDuration(Duration.millis(transitionDuration));
@@ -91,6 +93,7 @@ public class BallShape extends Circle {
 		pathTransition.setOrientation(PathTransition.OrientationType.NONE);
 		pathTransition.setOnFinished(event -> {
 			this.pathTransition = null;
+			this.moveFinishedCallback = null;
 			if (onFinished != null) {
 				onFinished.run();
 			}
@@ -105,6 +108,11 @@ public class BallShape extends Circle {
 			pathTransition = null;
 			setTranslateX(0);
 			setTranslateY(0);
+			if (moveFinishedCallback != null) {
+				Runnable cb = moveFinishedCallback;
+				moveFinishedCallback = null;
+				cb.run();
+			}
 		}
 	}
 
@@ -157,8 +165,8 @@ public class BallShape extends Circle {
 			ft.setToValue(1.0);
 
 			ScaleTransition st = new ScaleTransition(Duration.millis(duration), ball);
-			st.setByX(1.0f);
-			st.setByY(1.0f);
+			st.setToX(1.0);
+			st.setToY(1.0);
 
 			sequentialScale.getChildren().add(st);
 			sequentialFade.getChildren().add(ft);
@@ -211,8 +219,8 @@ public class BallShape extends Circle {
 			ft.setToValue(1.0);
 
 			ScaleTransition st = new ScaleTransition(Duration.millis(100), ball);
-			st.setByX(1.0f);
-			st.setByY(1.0f);
+			st.setToX(1.0);
+			st.setToY(1.0);
 
 			sequentialScale.getChildren().add(st);
 			sequentialFade.getChildren().add(ft);

@@ -1,33 +1,38 @@
 package net.jockx.kulki.controller;
 
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import net.jockx.kulki.model.*;
 import net.jockx.kulki.view.shapes.BallShape;
 import net.jockx.kulki.view.shapes.CellNode;
 
-import java.net.URL;
 import java.util.*;
 
-public class GameController implements Initializable {
+public class GameController {
+	private static final int BOARD_PADDING = 10;
+	private static final double MIN_CELL_SIZE = 35;
+	private static final double TEMP_CELL_SIZE = 50;
+	private static final double BALL_RADIUS_RATIO = 0.45;
+	private static final double FONT_SIZE_RATIO = 0.75;
+	private static final String FONT_FAMILY = "Fredoka One";
+
 	private static GameController instance;
 
-	@FXML
-	private FlowPane nextBallsPane;
-	@FXML
+	private GridPane nextBallsPane;
 	private Pane topPane;
-	@FXML
+	private Label scoreTextLabel;
 	private Label scoreLabel;
 
 	private GameEngine game;
@@ -41,18 +46,25 @@ public class GameController implements Initializable {
 	private CellNode targetCell;
 	private boolean turnLocked = false;
 
-	private static final int BOARD_PADDING = 10;
 	private boolean listenersAdded = false;
-	private BallShape[] currentNextBalls;
 	private double ballRadius;
+	private BallShape[] currentNextBalls;
+	private Label nextLabel;
+	private final DoubleProperty cellSizeProperty = new SimpleDoubleProperty();
 
 	public static GameController getInstance() {
 		return instance;
 	}
 
-	@Override
-	public void initialize(URL url, ResourceBundle resourceBundle) {
+	public Pane getTopPane() {
+		return topPane;
+	}
+
+	public GameController() {
 		instance = this;
+		topPane = new Pane();
+		nextBallsPane = new GridPane();
+		topPane.getChildren().add(nextBallsPane);
 	}
 
 	private void startGame() {
@@ -80,7 +92,7 @@ public class GameController implements Initializable {
 			boardPane = new GridPane();
 			boardPane.setHgap(CellNode.CELL_GAP);
 			boardPane.setVgap(CellNode.CELL_GAP);
-			topPane.getChildren().addFirst(boardPane);
+			topPane.getChildren().add(boardPane);
 		}
 		boardPane.getChildren().clear();
 		nextBallsPane.getChildren().clear();
@@ -91,12 +103,9 @@ public class GameController implements Initializable {
 
 		cellNodes = new CellNode[x][y];
 
-		double tempCellSize = 50;
-		ballRadius = tempCellSize * 0.45;
-
 		for (int i = 0; i < y; i++) {
 			for (int j = 0; j < x; j++) {
-				CellNode cellNode = new CellNode(tempCellSize, tempCellSize, j, i);
+				CellNode cellNode = new CellNode(TEMP_CELL_SIZE, TEMP_CELL_SIZE, j, i);
 				boardPane.add(cellNode, j, i);
 				cellNodes[j][i] = cellNode;
 			}
@@ -104,9 +113,27 @@ public class GameController implements Initializable {
 
 		nextCellNodes = new CellNode[game.getRuleSet().getNewBallCount()];
 		for (int i = 0; i < nextCellNodes.length; i++) {
-			CellNode nextCellNode = new CellNode(tempCellSize, tempCellSize);
+			CellNode nextCellNode = new CellNode(TEMP_CELL_SIZE, TEMP_CELL_SIZE);
 			nextCellNodes[i] = nextCellNode;
-			nextBallsPane.getChildren().add(nextCellNode);
+			nextBallsPane.add(nextCellNode, i % x, i / x);
+		}
+
+		cellSizeProperty.set(TEMP_CELL_SIZE);
+		if (scoreTextLabel == null) {
+			scoreTextLabel = new Label("Score");
+			scoreTextLabel.setFont(fontAtSize(TEMP_CELL_SIZE));
+			topPane.getChildren().add(scoreTextLabel);
+		}
+		if (scoreLabel == null) {
+			scoreLabel = new Label("0");
+			scoreLabel.setFont(fontAtSize(TEMP_CELL_SIZE));
+			cellSizeProperty.addListener((_, _, newVal) -> updateLabelFonts());
+			topPane.getChildren().add(scoreLabel);
+		}
+		if (nextLabel == null) {
+			nextLabel = new Label("Next");
+			nextLabel.setFont(fontAtSize(TEMP_CELL_SIZE));
+			topPane.getChildren().add(nextLabel);
 		}
 
 		updateBoardLayout();
@@ -138,6 +165,7 @@ public class GameController implements Initializable {
 		}
 
 		unHighlightPath();
+		fromNode.unMarkAsSelected();
 		toNode.setBall(ball);
 		fromNode.setBall(null);
 
@@ -197,7 +225,7 @@ public class GameController implements Initializable {
 
 	private void onGameOverEvent(StateTransition t) {
 		turnLocked = false;
-		endGame();
+		showExitDialog();
 	}
 
 	public void onCellClick(CellNode clicked) {
@@ -259,6 +287,10 @@ public class GameController implements Initializable {
 		}
 	}
 
+	private double gridPixelSize(int cellCount, double cellSize, double gap) {
+		return cellCount * cellSize + (cellCount - 1) * gap;
+	}
+
 	private void updateBoardLayout() {
 		if (game == null) return;
 
@@ -283,21 +315,55 @@ public class GameController implements Initializable {
 		double availWidth = containerWidth - 2.0 * BOARD_PADDING;
 		double availHeight = containerHeight - 2.0 * BOARD_PADDING;
 
-		double cellSizeByWidth = (availWidth - (bw - 1) * gap) / bw;
-		double cellSizeByHeight = (availHeight - (bh - 1) * gap) / bh;
-		int minCellSize = 35;
-		double cellSize = Math.max(minCellSize, Math.min(cellSizeByWidth, cellSizeByHeight));
+		int nextRows = nextCellNodes != null ? (nextCellNodes.length + bw - 1) / bw : 0;
+		int totalRows = bh + (nextCellNodes != null ? 2 + nextRows : 0);
 
-		double boardPixelWidth = bw * cellSize + (bw - 1) * gap;
-		double boardPixelHeight = bh * cellSize + (bh - 1) * gap;
+		double cellSizeByWidth = (availWidth - (bw - 1) * gap) / bw;
+		double cellSizeByHeight = (availHeight - (totalRows - 1) * gap) / totalRows;
+		double cellSize = Math.max(MIN_CELL_SIZE, Math.min(cellSizeByWidth, cellSizeByHeight));
+
+		double boardPixelWidth = gridPixelSize(bw, cellSize, gap);
+		double boardPixelHeight = gridPixelSize(bh, cellSize, gap);
 
 		double offsetX = Math.max(BOARD_PADDING, (containerWidth - boardPixelWidth) / 2);
-		double offsetY = Math.max(BOARD_PADDING, (containerHeight - boardPixelHeight) / 2);
 
-		ballRadius = cellSize * 0.45;
+		ballRadius = cellSize * BALL_RADIUS_RATIO;
 
-		boardPane.setLayoutX(offsetX);
-		boardPane.setLayoutY(offsetY);
+		double offsetY;
+		if (nextCellNodes != null) {
+			double nextAreaWidth = gridPixelSize(bw, cellSize, gap);
+			double nextAreaHeight = gridPixelSize(nextRows, cellSize, gap);
+
+			cellSizeProperty.set(cellSize);
+
+			double scoreY = BOARD_PADDING;
+			scoreTextLabel.setLayoutX(offsetX);
+			scoreTextLabel.setLayoutY(scoreY);
+			scoreLabel.setPrefWidth(nextAreaWidth);
+			scoreLabel.setAlignment(Pos.CENTER_RIGHT);
+			scoreLabel.setLayoutX(offsetX);
+			scoreLabel.setLayoutY(scoreY);
+
+			offsetY = BOARD_PADDING + cellSize + gap;
+			boardPane.setLayoutX(offsetX);
+			boardPane.setLayoutY(offsetY);
+
+			double labelY = offsetY + boardPixelHeight + gap;
+			nextLabel.setLayoutX(offsetX);
+			nextLabel.setLayoutY(labelY);
+
+			double nextY = labelY + cellSize + gap;
+			nextBallsPane.setLayoutX(offsetX);
+			nextBallsPane.setLayoutY(nextY);
+			nextBallsPane.setPrefWidth(nextAreaWidth);
+			nextBallsPane.setPrefHeight(nextAreaHeight);
+			nextBallsPane.setHgap(gap);
+			nextBallsPane.setVgap(gap);
+		} else {
+			offsetY = Math.max(BOARD_PADDING, (containerHeight - boardPixelHeight) / 2);
+			boardPane.setLayoutX(offsetX);
+			boardPane.setLayoutY(offsetY);
+		}
 
 		for (int i = 0; i < bh; i++) {
 			for (int j = 0; j < bw; j++) {
@@ -327,17 +393,16 @@ public class GameController implements Initializable {
 		}
 
 		if (nextCellNodes != null) {
-			double nextCellSize = Math.max(minCellSize, cellSize * 0.55);
-			double nextBallRadius = nextCellSize * 0.45;
+			double nextBallRadius = cellSize * BALL_RADIUS_RATIO;
 			for (int i = 0; i < nextCellNodes.length; i++) {
 				CellNode cell = nextCellNodes[i];
-				cell.getCellShape().setWidth(nextCellSize);
-				cell.getCellShape().setHeight(nextCellSize);
+				cell.getCellShape().setWidth(cellSize);
+				cell.getCellShape().setHeight(cellSize);
 				if (currentNextBalls != null && i < currentNextBalls.length) {
 					BallShape ball = currentNextBalls[i];
 					ball.updateGradient(nextBallRadius);
-					ball.setLayoutX(nextCellSize / 2);
-					ball.setLayoutY(nextCellSize / 2);
+					ball.setLayoutX(cellSize / 2);
+					ball.setLayoutY(cellSize / 2);
 				}
 			}
 			nextBallsPane.requestLayout();
@@ -376,10 +441,6 @@ public class GameController implements Initializable {
 		});
 	}
 
-	private void endGame() {
-		showExitDialog();
-	}
-
 	private void showExitDialog() {
 		Button button = new Button("Try Again");
 		final VBox gameOver = new VBox(new Text("Game Over"), button);
@@ -398,6 +459,9 @@ public class GameController implements Initializable {
 					balls.add(cellNodes[j][i].removeBall());
 				}
 			}
+			scoreLabel = null;
+			scoreTextLabel = null;
+			nextLabel = null;
 			nextCellNodes = null;
 			currentNextBalls = null;
 			BallShape.remove(balls, true, topPane, null);
@@ -411,7 +475,7 @@ public class GameController implements Initializable {
 	private void updateNextBallsArea() {
 		List<BallShape> nextBallShapes = new ArrayList<>();
 		double nextCellSize = nextCellNodes[0].getCellShape().getWidth();
-		double nextBallRadius = nextCellSize * 0.45;
+		double nextBallRadius = nextCellSize * BALL_RADIUS_RATIO;
 		for (Ball ball : game.getNextBalls()) {
 			nextBallShapes.add(new BallShape(ball, nextBallRadius));
 		}
@@ -483,5 +547,16 @@ public class GameController implements Initializable {
 
 	private void updateScore() {
 		scoreLabel.textProperty().setValue(String.valueOf(game.getScore()));
+	}
+
+	private Font fontAtSize(double cellSize) {
+		return Font.font(FONT_FAMILY, cellSize * FONT_SIZE_RATIO);
+	}
+
+	private void updateLabelFonts() {
+		double size = cellSizeProperty.get() * FONT_SIZE_RATIO;
+		scoreLabel.setFont(Font.font(FONT_FAMILY, size));
+		scoreTextLabel.setFont(Font.font(FONT_FAMILY, size));
+		nextLabel.setFont(Font.font(FONT_FAMILY, size));
 	}
 }
