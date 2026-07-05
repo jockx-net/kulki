@@ -17,15 +17,37 @@ import javafx.util.Duration;
 import net.jockx.kulki.controller.EventHandlers;
 import net.jockx.kulki.controller.GameController;
 import net.jockx.kulki.model.Ball;
+import net.jockx.kulki.model.BallColor;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public class BallShape  extends Circle{
 
 	public static Pane mainBoardPane;
 	public static Pane nextBallsPane;
 	public static double radius = 25;
+
+	private static final Map<BallColor, Color> FX_COLORS = Map.ofEntries(
+			Map.entry(BallColor.RED, Color.RED),
+			Map.entry(BallColor.GREEN, Color.GREEN),
+			Map.entry(BallColor.BLUE, Color.BLUE),
+			Map.entry(BallColor.YELLOW, Color.YELLOW),
+			Map.entry(BallColor.MAGENTA, Color.MAGENTA),
+			Map.entry(BallColor.CYAN, Color.CYAN),
+			Map.entry(BallColor.ORANGE, Color.ORANGE),
+			Map.entry(BallColor.PINK, Color.PINK),
+			Map.entry(BallColor.WHITE, Color.WHITE),
+			Map.entry(BallColor.BLACK, Color.BLACK),
+			Map.entry(BallColor.GRAY, Color.GRAY),
+			Map.entry(BallColor.BROWN, Color.BROWN),
+			Map.entry(BallColor.KHAKI, Color.KHAKI)
+	);
+
+	private static Color toFx(BallColor ballColor) {
+		return FX_COLORS.get(ballColor);
+	}
 
 	private final Ball ball;
 	private PathTransition pathTransition;
@@ -38,12 +60,13 @@ public class BallShape  extends Circle{
 	}
 
 	private static RadialGradient createGradient(Ball ball, double r) {
+		Color fxColor = toFx(ball.getColor());
 		return new RadialGradient(
 				0, 0.1, -r * 0.35, -r * 0.35, r * 1.2, false,
 				CycleMethod.NO_CYCLE,
-				new Stop(1,  ball.getColor().darker().darker().darker()),
-				new Stop(0.7, ball.getColor().darker()),
-				new Stop(0.25, ball.getColor()),
+				new Stop(1,  fxColor.darker().darker().darker()),
+				new Stop(0.7, fxColor.darker()),
+				new Stop(0.25, fxColor),
 				new Stop(0,  Color.WHITE ));
 	}
 

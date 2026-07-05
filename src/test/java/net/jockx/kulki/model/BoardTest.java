@@ -1,6 +1,5 @@
 package net.jockx.kulki.model;
 
-import javafx.scene.paint.Color;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -92,12 +91,12 @@ public class BoardTest {
 		printSet("2:1", match2_1);
 		printSet("1:3", match1_3);
 		printSet("3:1", match3_1);
-		Assertions.assertEquals(match0_0.size(), 7, "Horizontal + diagonal [0:0] didn't match"); // 7 green matches
-		Assertions.assertEquals(match1_1.size(), 4, "Diagonal [1:1] didn't match"); // 4 green matches
-		Assertions.assertEquals(match0_2.size(), 3, "Vertical [0:2] didn't match"); // 3 blue matches
-		Assertions.assertEquals(match2_1.size(), 3, "Anti-diagonal  [2:1] didn't match"); // 3 blue matches
-		Assertions.assertEquals(match1_3.size(), 3, "Horizontal [1:3] didn't match"); // 3 blue matches
-		Assertions.assertEquals(match3_1.size(), 0, "Empty [3:1] didn't match"); // 2 blue matches
+		Assertions.assertEquals(match0_0.size(), 7, "Horizontal + diagonal [0:0] didn't match");
+		Assertions.assertEquals(match1_1.size(), 4, "Diagonal [1:1] didn't match");
+		Assertions.assertEquals(match0_2.size(), 3, "Vertical [0:2] didn't match");
+		Assertions.assertEquals(match2_1.size(), 3, "Anti-diagonal  [2:1] didn't match");
+		Assertions.assertEquals(match1_3.size(), 3, "Horizontal [1:3] didn't match");
+		Assertions.assertEquals(match3_1.size(), 0, "Empty [3:1] didn't match");
 	}
 
 	@Test
@@ -107,8 +106,8 @@ public class BoardTest {
 		Cell to1 = board.getCell(2,5);
 		Cell to2 = board.getCell(5,3);
 		Cell to3 = board.getCell(6,5);
-		Cell to4 = board.getCell(0,0); // Unaccessible
-		Cell to5 = board.getCell(0,1); // Taken
+		Cell to4 = board.getCell(0,0);
+		Cell to5 = board.getCell(0,1);
 
 		LinkedList<Cell> path1 = new LinkedList<>();
 		LinkedList<Cell> path2 = new LinkedList<>();
@@ -142,8 +141,8 @@ public class BoardTest {
 		Cell to1 = board.getCell(2,5);
 		Cell to2 = board.getCell(5,3);
 		Cell to3 = board.getCell(6,5);
-		Cell to4 = board.getCell(0,0); // Unaccessible
-		Cell to5 = board.getCell(0,1); // Taken
+		Cell to4 = board.getCell(0,0);
+		Cell to5 = board.getCell(0,1);
 
 		LinkedList<Cell> path1 = board.findShortestPathToCell(from, to1);
 		LinkedList<Cell> path2 = board.findShortestPathToCell(from, to2);
@@ -184,13 +183,13 @@ public class BoardTest {
 
 	public void printCell(Cell c){
 		String color = " ";
-		if (c.getBall() != null && c.getBall().getColor().equals(Color.BLUE)){
+		if (c.getBall() != null && c.getBall().getColor().equals(BallColor.BLUE)){
 			color = "B";
 		}
-		if(c.getBall() != null && c.getBall().getColor().equals(Color.GREEN)){
+		if(c.getBall() != null && c.getBall().getColor().equals(BallColor.GREEN)){
 			color = "G";
 		}
-		if(c.getBall() != null && c.getBall().getColor().equals(Color.WHITE)){
+		if(c.getBall() != null && c.getBall().getColor().equals(BallColor.WHITE)){
 			color = "W";
 		}
 		System.out.print("|" + c.x + ":" + c.y + ":" + color + "|");
@@ -199,25 +198,25 @@ public class BoardTest {
 	public Board getSmallBoard(){
 		Board board = new Board(new RuleSet().setBoardSize(4, 4).setMinimalMatch(3));
 
-		board.placeBall(new Ball(Color.GREEN), 0,0);
-		board.placeBall(new Ball(Color.GREEN), 1,0);
-		board.placeBall(new Ball(Color.GREEN), 2,0);
-		board.placeBall(new Ball(Color.GREEN), 3,0);
+		board.placeBall(new Ball(BallColor.GREEN), 0,0);
+		board.placeBall(new Ball(BallColor.GREEN), 1,0);
+		board.placeBall(new Ball(BallColor.GREEN), 2,0);
+		board.placeBall(new Ball(BallColor.GREEN), 3,0);
 
-		board.placeBall(new Ball(Color.BLUE), 0,1);
-		board.placeBall(new Ball(Color.GREEN), 1,1);
-		board.placeBall(new Ball(Color.BLUE), 2,1);
-		board.placeBall(new Ball(Color.BLUE), 3,1);
+		board.placeBall(new Ball(BallColor.BLUE), 0,1);
+		board.placeBall(new Ball(BallColor.GREEN), 1,1);
+		board.placeBall(new Ball(BallColor.BLUE), 2,1);
+		board.placeBall(new Ball(BallColor.BLUE), 3,1);
 
-		board.placeBall(new Ball(Color.BLUE), 0,2);
-		board.placeBall(new Ball(Color.BLUE), 1,2);
-		board.placeBall(new Ball(Color.GREEN), 2,2);
-		board.placeBall(new Ball(Color.BLUE), 3,2);
+		board.placeBall(new Ball(BallColor.BLUE), 0,2);
+		board.placeBall(new Ball(BallColor.BLUE), 1,2);
+		board.placeBall(new Ball(BallColor.GREEN), 2,2);
+		board.placeBall(new Ball(BallColor.BLUE), 3,2);
 
-		board.placeBall(new Ball(Color.BLUE), 0,3);
-		board.placeBall(new Ball(Color.BLUE), 1,3);
-		board.placeBall(new Ball(Color.BLUE), 2,3);
-		board.placeBall(new Ball(Color.GREEN), 3,3);
+		board.placeBall(new Ball(BallColor.BLUE), 0,3);
+		board.placeBall(new Ball(BallColor.BLUE), 1,3);
+		board.placeBall(new Ball(BallColor.BLUE), 2,3);
+		board.placeBall(new Ball(BallColor.GREEN), 3,3);
 
 		printBoard(board);
 		return board;

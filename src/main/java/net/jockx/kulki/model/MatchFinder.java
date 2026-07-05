@@ -1,14 +1,8 @@
 package net.jockx.kulki.model;
 
-import javafx.scene.paint.Color;
-
 import java.util.HashSet;
 import java.util.Set;
 
-/**
- * Created by JockX on 2014-05-11
- *
- */
 public class MatchFinder {
 
 	static enum MatchDirection {
@@ -22,26 +16,22 @@ public class MatchFinder {
 	}
 
 	Set<Cell> getMatchingLine(Set<Cell> matchedList, Cell toMatch, MatchDirection direction){
-		// End of the  line;
 		if ( toMatch == null || toMatch.isFree() ) {
 			return matchedList;
 		}
 
 		if (matchedList == null){
-			matchedList = new HashSet<Cell>();
+			matchedList = new HashSet<>();
 		}
 
 		if (matchedList.isEmpty()){
 			matchedList.add(toMatch);
 		}
 
-		// Color mismatch
-		Color color = matchedList.iterator().next().getBall().getColor();
+		BallColor color = matchedList.iterator().next().getBall().getColor();
 		if ( toMatch.getBall().getColor() != color ) {
 			return matchedList;
 		}
-
-
 
 		if(!matchedList.contains(toMatch)){
 			matchedList.add(toMatch);
@@ -63,7 +53,7 @@ public class MatchFinder {
 					matchedList = getMatchingLine(matchedList, toMatch.down, direction);
 				}
 				break;
-			case MAIN_DIAGONAL: //:		\
+			case MAIN_DIAGONAL:
 				if(!matchedList.contains(toMatch.upLeft)){
 					matchedList = getMatchingLine(matchedList, toMatch.upLeft, direction);
 				}
@@ -71,7 +61,7 @@ public class MatchFinder {
 					matchedList = getMatchingLine(matchedList, toMatch.downRight, direction);
 				}
 				break;
-			case ANTI_DIAGONAL: //:		/
+			case ANTI_DIAGONAL:
 				if(!matchedList.contains(toMatch.upRight)){
 					matchedList = getMatchingLine(matchedList, toMatch.upRight, direction);
 				}
@@ -87,10 +77,9 @@ public class MatchFinder {
 		if (toMatch.getBall() == null){
 			return null;
 		}
-		Set<Cell> cellsInLines = new HashSet<Cell>();
+		Set<Cell> cellsInLines = new HashSet<>();
 		for (MatchDirection direction : MatchDirection.values()) {
 
-			// Diagonal lines might be ignored
 			if( (!ruleSet.isDiagonalMatchAllowed) &&
 					(direction == MatchDirection.ANTI_DIAGONAL ||
 							direction == MatchDirection.MAIN_DIAGONAL ) ){

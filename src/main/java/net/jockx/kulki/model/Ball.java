@@ -1,22 +1,16 @@
 package net.jockx.kulki.model;
 
-import javafx.scene.paint.Color;
-
-/**
- * Created by Mateusz on 2014-05-09.
- *
- */
 public class Ball {
-	private final Color color;
-	public Ball(Color color) {
+	private final BallColor color;
+	public Ball(BallColor color) {
 		this.color = color;
 	}
 
 	public Ball (){
-		this(Color.WHITE);
+		this(BallColor.WHITE);
 	}
 
-	public Color getColor() {
+	public BallColor getColor() {
 		return color;
 	}
 }

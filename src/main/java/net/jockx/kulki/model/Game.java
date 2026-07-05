@@ -1,13 +1,7 @@
 package net.jockx.kulki.model;
 
-import javafx.scene.paint.Color;
-
 import java.util.*;
 
-/**
- * Created by JockX on 2014-05-11.
- *
- */
 public class Game {
 
 	RuleSet ruleSet;
@@ -17,20 +11,12 @@ public class Game {
 
 	List<Cell> nextCells;
 	List<Ball> nextBalls;
-	List<Color> colorList;
+	List<BallColor> colorList;
 	Set<Cell> cellsToRemove;
-
-
-
-
 
 	public  Game (RuleSet ruleSet){
 		this.ruleSet = ruleSet;
 	}
-
-//	public Game (){
-//		this.ruleSet = new RuleSet();
-//	}
 
 	public void start (){
 		score = 0;
@@ -41,7 +27,7 @@ public class Game {
 	}
 
 	public void createNextBalls() {
-		nextBalls = new LinkedList<Ball>();
+		nextBalls = new LinkedList<>();
 
 		for(int i = 0; i < ruleSet.newBallCount; i++){
 			int color = new Random().nextInt(ruleSet.numberOfColors);
@@ -84,7 +70,7 @@ public class Game {
 
 	private void selectColors() {
 		if(colorList == null){
-			colorList = new ArrayList<Color>();
+			colorList = new ArrayList<>();
 		}
 		int limit = ruleSet.numberOfColors;
 		for (int i = 0; i < limit; i++){
@@ -92,10 +78,6 @@ public class Game {
 		}
 	}
 
-
-	/*
-	 *	Getters and setters
-	 */
 	public void setRuleSet(RuleSet ruleSet) {
 		this.ruleSet = ruleSet;
 	}
@@ -132,7 +114,7 @@ public class Game {
 		return nextCells;
 	}
 
-	public List<Color> getColorList() {
+	public List<BallColor> getColorList() {
 		return colorList;
 	}
 
@@ -143,7 +125,6 @@ public class Game {
 	public RuleSet getRuleSet(){
 		return ruleSet;
 	}
-
 
 	public Set<Cell> getBallsToRemove() {
 		return cellsToRemove;

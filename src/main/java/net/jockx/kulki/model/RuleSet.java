@@ -1,14 +1,8 @@
 package net.jockx.kulki.model;
 
-import javafx.scene.paint.Color;
-
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Created by Mateusz on 2014-05-09.
- *
- */
 public class RuleSet {
 
 	int boardWidth = 9;
@@ -22,20 +16,20 @@ public class RuleSet {
 	boolean isDiagonalMatchAllowed = true;
 	boolean isSimultaneousMatchAllowed = true;
 
-	final static List<Color> colorList = Arrays.asList(
-	/* 0*/	Color.RED,
-			Color.GREEN,
-			Color.BLUE,
-			Color.YELLOW,
-			Color.MAGENTA,
-			Color.CYAN,
-	/* 6*/	Color.ORANGE,
-			Color.PINK,
-			Color.WHITE,
-			Color.BLACK,
-			Color.GRAY,
-			Color.BROWN,
-	/*12*/	Color.KHAKI );
+	final static List<BallColor> colorList = Arrays.asList(
+			BallColor.RED,
+			BallColor.GREEN,
+			BallColor.BLUE,
+			BallColor.YELLOW,
+			BallColor.MAGENTA,
+			BallColor.CYAN,
+			BallColor.ORANGE,
+			BallColor.PINK,
+			BallColor.WHITE,
+			BallColor.BLACK,
+			BallColor.GRAY,
+			BallColor.BROWN,
+			BallColor.KHAKI );
 
 	public RuleSet setBoardWidth(int boardWidth){
 		this.boardWidth = boardWidth;
@@ -88,11 +82,11 @@ public class RuleSet {
 		return this;
 	}
 
-	public static List<Color> getColorList() {
+	public static List<BallColor> getColorList() {
 		return colorList;
 	}
 
-	public static Color getColor(int i) {
+	public static BallColor getColor(int i) {
 		return colorList.get(i);
 	}
 
