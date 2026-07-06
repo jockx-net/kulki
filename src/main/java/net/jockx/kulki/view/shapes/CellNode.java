@@ -16,6 +16,7 @@ public class CellNode extends Group {
 
     private final Rectangle CellShape;
     double centerX, centerY;
+    private double boardOffsetX, boardOffsetY;
     private BallShape ball;
     private boolean selected;
 
@@ -28,12 +29,19 @@ public class CellNode extends Group {
         this.column = x;
         this.row = y;
 
+        boundsInParentProperty().addListener((_, _, newBounds) -> {
+            centerX = boardOffsetX + newBounds.getCenterX();
+            centerY = boardOffsetY + newBounds.getCenterY();
+            if (ball != null) {
+                ball.setLayoutX(centerX);
+                ball.setLayoutY(centerY);
+            }
+        });
+
         getChildren().add(CellShape);
         addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, EventHandlers.onMouseOver);
         addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, EventHandlers.onMouseAway);
         addEventHandler(MouseEvent.MOUSE_CLICKED, EventHandlers.onClick);
-        centerX = x * (width + CELL_GAP) + width / 2;
-        centerY = y * (height + CELL_GAP) + height / 2;
     }
 
     public CellNode(double width, double height) {
@@ -110,14 +118,14 @@ public class CellNode extends Group {
     }
 
     public void setBallFirstTime(BallShape ball) {
-        ball.setLayoutX(centerX);
-        ball.setLayoutY(centerY);
+        ball.setLayoutX(boardOffsetX + getBoundsInParent().getCenterX());
+        ball.setLayoutY(boardOffsetY + getBoundsInParent().getCenterY());
         setBall(ball);
     }
 
-    public void setCenter(double x, double y) {
-        centerX = x;
-        centerY = y;
+    public void setBoardOffset(double x, double y) {
+        boardOffsetX = x;
+        boardOffsetY = y;
     }
 
     public int getColumn() {

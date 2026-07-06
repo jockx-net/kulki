@@ -1,6 +1,6 @@
 /* Application wide styles */
 .root {
-    -fx-background-color:  rgba(100, 150, 100, 0.4);
+    -fx-background-color:  rgba(200, 200, 200, 0.4);
 }
 
 .label {
@@ -27,7 +27,7 @@
 /* ======== Shared Dialog Styles ======== */
 
 .dialog-overlay {
-    -fx-background-color: rgba(100, 150, 100, 0.4);
+    -fx-background-color: rgba(0, 0, 0, 0.4);
 }
 
 .dialog-panel {
@@ -68,6 +68,67 @@
     -fx-font-size: 14px;
     -fx-padding: 8px 24px;
     -fx-background-radius: 6px;
+}
+
+.button-start {
+    -fx-background-color: linear-gradient(#7cb342, #33691e);
+}
+
+.button-start:hover {
+    -fx-background-color: linear-gradient(#8bc34a, #558b2f);
+}
+
+.button-defaults {
+    -fx-background-color: linear-gradient(#ef5350, #b71c1c);
+}
+
+.button-defaults:hover {
+    -fx-background-color: linear-gradient(#e57373, #c62828);
+}
+
+/* ======== Settings Spinners ======== */
+
+.settings-spinner {
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-width: 2px;
+    -fx-border-color: #444444;
+    -fx-background-color: linear-gradient(to bottom, #f5f5f5, #e0e0e0);
+}
+
+.settings-spinner .text-field {
+    -fx-font-family: "Fredoka One";
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-alignment: center;
+    -fx-text-fill: #444444;
+    -fx-background-color: #ffffff;
+    -fx-padding: 2px 0 2px 8px;
+    -fx-background-radius: 6px 0 0 6px;
+    -fx-border-width: 0;
+}
+
+.settings-spinner .increment-arrow-button,
+.settings-spinner .decrement-arrow-button {
+    -fx-padding: 2px;
+    -fx-background-insets: 0;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+    -fx-background-color: linear-gradient(#888888, #444444);
+}
+
+.settings-spinner .increment-arrow-button .increment-arrow,
+.settings-spinner .decrement-arrow-button .decrement-arrow {
+    -fx-background-color: white;
+}
+
+/* Hover glow effects */
+.settings-spinner:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 8, 0.3, 0, 2);
+}
+
+.settings-spinner:focused {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.4, 0, 3);
 }
 
 /* ======== Game Over Panel ======== */

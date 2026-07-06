@@ -86,10 +86,7 @@ public class GameView {
         for (int i = 0; i < bh; i++) {
             for (int j = 0; j < bw; j++) {
                 CellNode cn = cellNodes[j][i];
-                cn.setCenter(
-                        ox + j * (CELL_SIZE + GAP) + CELL_SIZE / 2,
-                        by + i * (CELL_SIZE + GAP) + CELL_SIZE / 2
-                );
+                cn.setBoardOffset(ox, by);
             }
         }
 

@@ -5,10 +5,15 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import net.jockx.kulki.controller.PropertiesReader;
 import net.jockx.kulki.model.BallColor;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class SettingsPanel {
     private static final int BOARD_MIN = 3;
@@ -21,7 +26,8 @@ public class SettingsPanel {
     private static final double DESIGN_WIDTH = 350;
     private static final double DESIGN_HEIGHT = 500;
     private static final double PANEL_HEIGHT_RATIO = 0.8;
-
+    private static final double LABEL_WIDTH = 130;
+    private static final double SPINNER_WIDTH = 70;
 
     private final Pane parent;
     private final Runnable onStart;
@@ -40,10 +46,10 @@ public class SettingsPanel {
 
         int maxColors = BallColor.values().length;
 
-        boardSizeSpinner = new Spinner<>(BOARD_MIN, BOARD_MAX, loadInt("board.size"));
-        colorsSpinner = new Spinner<>(1, maxColors, loadInt("numberOfColors"));
-        matchSpinner = new Spinner<>(MATCH_MIN, MATCH_MAX, loadInt("minimalMatch"));
-        newBallsSpinner = new Spinner<>(NEW_BALLS_MIN, NEW_BALLS_MAX, loadInt("newBallCount"));
+        boardSizeSpinner = spinner(BOARD_MIN, BOARD_MAX, loadInt("board.size"));
+        colorsSpinner = spinner(1, maxColors, loadInt("numberOfColors"));
+        matchSpinner = spinner(MATCH_MIN, MATCH_MAX, loadInt("minimalMatch"));
+        newBallsSpinner = spinner(NEW_BALLS_MIN, NEW_BALLS_MAX, loadInt("newBallCount"));
 
         matchWarning = new Label();
         matchWarning.getStyleClass().add("settings-warning");
@@ -68,18 +74,26 @@ public class SettingsPanel {
         Label title = new Label("Game Settings");
         title.getStyleClass().add("settings-title");
 
-        Button button = new Button("Start");
-        button.getStyleClass().add("settings-button");
-        button.setDefaultButton(true);
-        button.setOnAction(_ -> onStartClick());
+        Button startButton = new Button("Start");
+        startButton.getStyleClass().addAll("settings-button", "button-start");
+        startButton.setDefaultButton(true);
+        startButton.setOnAction(_ -> onStartClick());
+
+        Button defaultsButton = new Button("Defaults");
+        defaultsButton.getStyleClass().addAll("settings-button", "button-defaults");
+        defaultsButton.setOnAction(_ -> onDefaultsClick());
+
+        HBox buttons = new HBox(8);
+        buttons.setAlignment(Pos.CENTER);
+        buttons.getChildren().addAll(startButton, defaultsButton);
 
         panel.getChildren().addAll(
                 title,
-                label("Board size"), boardSizeSpinner,
-                label("Colors (" + maxColors + " max)"), colorsSpinner,
-                label("Match size"), matchSpinner, matchWarning,
-                label("New Balls"), newBallsSpinner, newBallsWarning,
-                button
+                row("Board size", boardSizeSpinner),
+                row("Colors (" + maxColors + " max)", colorsSpinner),
+                row("Match size", matchSpinner, matchWarning),
+                row("New Balls", newBallsSpinner, newBallsWarning),
+                buttons
         );
         overlay.getChildren().add(panel);
 
@@ -146,10 +160,67 @@ public class SettingsPanel {
         onStart.run();
     }
 
-    private static Label label(String text) {
-        Label l = new Label(text);
+    private void onDefaultsClick() {
+        boardSizeSpinner.getValueFactory().setValue(loadDefaultInt("board.size"));
+        colorsSpinner.getValueFactory().setValue(loadDefaultInt("numberOfColors"));
+        matchSpinner.getValueFactory().setValue(loadDefaultInt("minimalMatch"));
+        newBallsSpinner.getValueFactory().setValue(loadDefaultInt("newBallCount"));
+    }
+
+    private static int loadDefaultInt(String key) {
+        Properties defaults = new Properties();
+        try (InputStream is = SettingsPanel.class.getClassLoader().getResourceAsStream("size.properties")) {
+            if (is != null) {
+                defaults.load(is);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return Integer.parseInt(defaults.getProperty(key));
+    }
+
+    private static Spinner<Integer> spinner(int min, int max, int value) {
+        Spinner<Integer> s = new Spinner<>(min, max, value);
+        s.getStyleClass().add("settings-spinner");
+        s.setMaxWidth(SPINNER_WIDTH);
+        s.setPrefWidth(SPINNER_WIDTH);
+        s.setMinWidth(SPINNER_WIDTH);
+        s.setEditable(true);
+        s.setOnScroll(e -> {
+            if (e.getDeltaY() > 0) {
+                s.increment();
+            } else if (e.getDeltaY() < 0) {
+                s.decrement();
+            }
+            e.consume();
+        });
+        return s;
+    }
+
+    private static VBox row(String labelText, Spinner<Integer> spinner) {
+        HBox hb = new HBox(8);
+        hb.setAlignment(Pos.CENTER_LEFT);
+        Label l = new Label(labelText);
         l.getStyleClass().add("settings-field-label");
-        return l;
+        l.setMinWidth(LABEL_WIDTH);
+        hb.getChildren().addAll(l, spinner);
+        VBox vb = new VBox(2);
+        Label spacer = new Label();
+        spacer.setMinHeight(14);
+        vb.getChildren().addAll(hb, spacer);
+        return vb;
+    }
+
+    private static VBox row(String labelText, Spinner<Integer> spinner, Label warning) {
+        VBox vb = new VBox(2);
+        HBox hb = new HBox(8);
+        hb.setAlignment(Pos.CENTER_LEFT);
+        Label l = new Label(labelText);
+        l.getStyleClass().add("settings-field-label");
+        l.setMinWidth(LABEL_WIDTH);
+        hb.getChildren().addAll(l, spinner);
+        vb.getChildren().addAll(hb, warning);
+        return vb;
     }
 
     private static void save(String key, int value) {
