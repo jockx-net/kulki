@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
@@ -34,6 +35,16 @@ public class GameMenuPanel {
         Text title = new Text("Kulki");
         title.getStyleClass().add("gameover-title");
 
+        backToGameButton = new Button("Back to Game");
+        backToGameButton.getStyleClass().addAll("game-menu-button", "game-menu-button-back");
+        backToGameButton.setFocusTraversable(false);
+        backToGameButton.setMaxWidth(Double.MAX_VALUE);
+        backToGameButton.setOnAction(_ -> onBackToGameClick());
+
+        Region spacer = new Region();
+        spacer.setMinHeight(16);
+        spacer.setPrefHeight(16);
+
         Button newGameButton = new Button("New Game");
         newGameButton.getStyleClass().addAll("game-menu-button", "button-start");
         newGameButton.setFocusTraversable(false);
@@ -52,13 +63,7 @@ public class GameMenuPanel {
         exitButton.setMaxWidth(Double.MAX_VALUE);
         exitButton.setOnAction(_ -> onExitClick());
 
-        backToGameButton = new Button("Back to Game");
-        backToGameButton.getStyleClass().addAll("game-menu-button", "game-menu-button-back");
-        backToGameButton.setFocusTraversable(false);
-        backToGameButton.setMaxWidth(Double.MAX_VALUE);
-        backToGameButton.setOnAction(_ -> onBackToGameClick());
-
-        panel = new VBox(12, title, newGameButton, settingsButton, backToGameButton, exitButton);
+        panel = new VBox(12, title, backToGameButton, spacer, newGameButton, settingsButton, exitButton);
         panel.setFillWidth(true);
         panel.setAlignment(Pos.CENTER);
         panel.getStyleClass().addAll("dialog-panel", "menu-panel");

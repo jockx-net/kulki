@@ -10,7 +10,7 @@ import javafx.scene.text.Text;
 public class GameOverPanel {
     private static final double DESIGN_WIDTH = 260;
     private static final double DESIGN_HEIGHT = 150;
-    private static final double PANEL_HEIGHT_RATIO = 0.5;
+    private static final double PANEL_HEIGHT_RATIO = 0.3;
 
 
     private final Pane parent;
@@ -27,12 +27,14 @@ public class GameOverPanel {
 
         Button button = new Button("Try Again");
         button.setFocusTraversable(false);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.getStyleClass().addAll("game-menu-button", "button-start");
         button.setOnAction(_ -> onRetryClick());
 
         Text gameOverText = new Text("Game Over");
         gameOverText.getStyleClass().add("gameover-title");
 
-        panel = new VBox(gameOverText, button);
+        panel = new VBox(12, gameOverText, button);
         panel.setFillWidth(true);
         panel.setAlignment(Pos.CENTER);
         panel.getStyleClass().addAll("dialog-panel", "gameover-panel");

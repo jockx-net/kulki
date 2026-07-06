@@ -134,7 +134,7 @@
 /* ======== Game Over Panel ======== */
 
 .gameover-panel {
-    -fx-spacing: 16px;
+    -fx-spacing: 12px;
 }
 
 .gameover-title {
