@@ -1,6 +1,8 @@
 package net.jockx.kulki.controller;
 
 import javafx.application.Platform;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import net.jockx.kulki.model.Ball;
 import net.jockx.kulki.model.Cell;
@@ -33,6 +35,9 @@ public class GameController {
     private GameEventBus eventBus;
     private GameMenuPanel gameMenuPanel;
 
+    private SettingsPanel currentSettingsPanel;
+    private GameOverPanel currentGameOverPanel;
+
     private CellNode sourceCell;
     private CellNode targetCell;
     private boolean turnLocked = false;
@@ -48,11 +53,22 @@ public class GameController {
     public GameController() {
         instance = this;
         rootPane = new Pane();
+        rootPane.setFocusTraversable(true);
         gameView = new GameView();
         rootPane.getChildren().add(gameView.getRoot());
 
         rootPane.widthProperty().addListener((_, _, _) -> repositionView());
         rootPane.heightProperty().addListener((_, _, _) -> repositionView());
+
+        rootPane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+            KeyCode code = event.getCode();
+            if (code == KeyCode.ENTER || code == KeyCode.SPACE) {
+                event.consume();
+            } else if (code == KeyCode.ESCAPE) {
+                event.consume();
+                handleEscape();
+            }
+        });
     }
 
     private void repositionView() {
@@ -87,6 +103,7 @@ public class GameController {
 
         gameView.getMenuButton().setOnAction(_ -> onGameMenuRequested());
         gameView.getMenuButton().setVisible(true);
+        Platform.runLater(rootPane::requestFocus);
     }
 
     private void subscribeToEvents() {
@@ -244,6 +261,26 @@ public class GameController {
         BallShape.appearNext(nextBallShapes, gameView.getNextBallsPane());
     }
 
+    private void handleEscape() {
+        if (currentGameOverPanel != null
+                && rootPane.getChildren().contains(currentGameOverPanel.getOverlay())) {
+            // game over is top-level modal — ignore
+        } else if (currentSettingsPanel != null
+                && rootPane.getChildren().contains(currentSettingsPanel.getOverlay())) {
+            currentSettingsPanel.cancel();
+            currentSettingsPanel = null;
+            rootPane.requestFocus();
+        } else if (gameMenuPanel != null
+                && rootPane.getChildren().contains(gameMenuPanel.getOverlay())) {
+            if (game != null) {
+                gameMenuPanel.hide();
+                rootPane.requestFocus();
+            }
+        } else if (game != null) {
+            showGameMenu();
+        }
+    }
+
     public void showGameMenu() {
         boolean inProgress = game != null;
         if (gameMenuPanel == null) {
@@ -258,14 +295,17 @@ public class GameController {
     }
 
     public void showSettingsDialog(Runnable onSave, Runnable onCancel) {
-        new SettingsPanel(rootPane, onSave, onCancel).show();
+        currentSettingsPanel = new SettingsPanel(rootPane, onSave, onCancel);
+        currentSettingsPanel.show();
     }
 
     private void showExitDialog() {
-        new GameOverPanel(rootPane, this::onRetry).show();
+        currentGameOverPanel = new GameOverPanel(rootPane, this::onRetry);
+        currentGameOverPanel.show();
     }
 
     private void onRetry() {
+        currentGameOverPanel = null;
         stopCurrentGame();
         showGameMenu();
     }
@@ -279,6 +319,9 @@ public class GameController {
             sourceCell = null;
             targetCell = null;
             turnLocked = false;
+            if (gameView.getMenuButton() != null) {
+                gameView.getMenuButton().setVisible(false);
+            }
         }
     }
 
@@ -296,7 +339,7 @@ public class GameController {
     }
 
     private void onBackToGame() {
-        // game continues, menu is already hidden
+        rootPane.requestFocus();
     }
 
     private void onGameMenuRequested() {

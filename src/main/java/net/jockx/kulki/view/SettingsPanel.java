@@ -82,15 +82,17 @@ public class SettingsPanel {
         title.getStyleClass().add("settings-title");
 
         Button saveButton = new Button("Save");
+        saveButton.setFocusTraversable(false);
         saveButton.getStyleClass().addAll("settings-button", "button-save");
-        saveButton.setDefaultButton(true);
         saveButton.setOnAction(_ -> onSaveClick());
 
         Button cancelButton = new Button("Cancel");
+        cancelButton.setFocusTraversable(false);
         cancelButton.getStyleClass().addAll("settings-button", "button-cancel");
         cancelButton.setOnAction(_ -> onCancelClick());
 
         Button defaultsButton = new Button("Restore defaults");
+        defaultsButton.setFocusTraversable(false);
         defaultsButton.getStyleClass().addAll("settings-button", "button-defaults");
         defaultsButton.setOnAction(_ -> onDefaultsClick());
 
@@ -120,8 +122,18 @@ public class SettingsPanel {
         parent.heightProperty().addListener((_, _, _) -> reposition());
     }
 
+    public Pane getOverlay() {
+        return overlay;
+    }
+
+    public void cancel() {
+        onCancelClick();
+    }
+
     public void show() {
-        parent.getChildren().add(overlay);
+        if (!parent.getChildren().contains(overlay)) {
+            parent.getChildren().add(overlay);
+        }
         Platform.runLater(this::reposition);
     }
 

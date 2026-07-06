@@ -25,6 +25,8 @@ public class CellNode extends Group {
 
     public CellNode(double width, double height, int x, int y) {
         this.CellShape = new Rectangle(width, height);
+        this.CellShape.setArcWidth(10);
+        this.CellShape.setArcHeight(10);
         this.CellShape.getStyleClass().add("cell-rect");
         this.column = x;
         this.row = y;
@@ -46,6 +48,8 @@ public class CellNode extends Group {
 
     public CellNode(double width, double height) {
         this.CellShape = new Rectangle(width, height);
+        this.CellShape.setArcWidth(8);
+        this.CellShape.setArcHeight(8);
         this.CellShape.getStyleClass().add("cell-rect");
         getChildren().add(CellShape);
         addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, EventHandlers.onMouseOverNext);
@@ -126,6 +130,12 @@ public class CellNode extends Group {
     public void setBoardOffset(double x, double y) {
         boardOffsetX = x;
         boardOffsetY = y;
+        if (column >= 0 && row >= 0) {
+            double cw = CellShape.getWidth();
+            double ch = CellShape.getHeight();
+            centerX = x + column * (cw + CELL_GAP) + cw / 2;
+            centerY = y + row * (ch + CELL_GAP) + ch / 2;
+        }
     }
 
     public int getColumn() {

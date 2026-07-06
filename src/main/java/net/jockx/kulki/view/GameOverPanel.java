@@ -26,7 +26,7 @@ public class GameOverPanel {
         overlay.getStyleClass().add("dialog-overlay");
 
         Button button = new Button("Try Again");
-        button.setDefaultButton(true);
+        button.setFocusTraversable(false);
         button.setOnAction(_ -> onRetryClick());
 
         Text gameOverText = new Text("Game Over");
@@ -46,8 +46,14 @@ public class GameOverPanel {
         parent.heightProperty().addListener((_, _, _) -> reposition());
     }
 
+    public Pane getOverlay() {
+        return overlay;
+    }
+
     public void show() {
-        parent.getChildren().add(overlay);
+        if (!parent.getChildren().contains(overlay)) {
+            parent.getChildren().add(overlay);
+        }
         Platform.runLater(this::reposition);
     }
 

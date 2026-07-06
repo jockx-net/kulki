@@ -7,7 +7,7 @@
     -fx-font-family: "Fredoka One";
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
-    -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
+    /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/
 }
 
 .button {
@@ -166,6 +166,12 @@
     -fx-background-radius: 4px;
     -fx-min-width: 35px;
     -fx-min-height: 20px;
+    -fx-background-color: cornflowerblue;
+    -fx-effect: none;
+}
+
+.menu-button:hover {
+    -fx-background-color: #7ec8e3;
 }
 
 .button-save {

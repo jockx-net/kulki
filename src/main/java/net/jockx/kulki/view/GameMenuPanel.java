@@ -36,22 +36,25 @@ public class GameMenuPanel {
 
         Button newGameButton = new Button("New Game");
         newGameButton.getStyleClass().addAll("game-menu-button", "button-start");
-        newGameButton.setDefaultButton(true);
+        newGameButton.setFocusTraversable(false);
         newGameButton.setMaxWidth(Double.MAX_VALUE);
         newGameButton.setOnAction(_ -> onNewGameClick());
 
         Button settingsButton = new Button("Settings");
+        settingsButton.setFocusTraversable(false);
         settingsButton.getStyleClass().add("game-menu-button");
         settingsButton.setMaxWidth(Double.MAX_VALUE);
         settingsButton.setOnAction(_ -> onSettingsClick());
 
         Button exitButton = new Button("Exit");
+        exitButton.setFocusTraversable(false);
         exitButton.getStyleClass().addAll("game-menu-button", "button-defaults");
         exitButton.setMaxWidth(Double.MAX_VALUE);
         exitButton.setOnAction(_ -> onExitClick());
 
         backToGameButton = new Button("Back to Game");
         backToGameButton.getStyleClass().addAll("game-menu-button", "game-menu-button-back");
+        backToGameButton.setFocusTraversable(false);
         backToGameButton.setMaxWidth(Double.MAX_VALUE);
         backToGameButton.setOnAction(_ -> onBackToGameClick());
 
@@ -69,18 +72,25 @@ public class GameMenuPanel {
         parent.heightProperty().addListener((_, _, _) -> reposition());
     }
 
+    public Pane getOverlay() {
+        return overlay;
+    }
+
     public void setGameInProgress(boolean inProgress) {
         backToGameButton.setVisible(inProgress);
         backToGameButton.setManaged(inProgress);
     }
 
     public void show() {
-        parent.getChildren().add(overlay);
+        if (!parent.getChildren().contains(overlay)) {
+            parent.getChildren().add(overlay);
+        }
         Platform.runLater(this::reposition);
     }
 
     public void hide() {
         parent.getChildren().remove(overlay);
+        parent.requestFocus();
     }
 
     private void reposition() {

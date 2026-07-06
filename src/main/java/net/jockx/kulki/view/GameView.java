@@ -12,7 +12,6 @@ public class GameView {
     private static final double GAP = CellNode.CELL_GAP;
     private static final double LABEL_FONT = 18;
     private static final double PADDING = 10;
-    private static final double MENU_BTN_WIDTH = 35;
 
     private final Pane root;
     private GridPane nextBallsPane;
@@ -76,22 +75,24 @@ public class GameView {
 
         double ox = PADDING;
         double sy = PADDING;
-        menuButton = new Button("\u2630");
+
+        double menuBtnW = 35;
+        menuButton = new Button("\u2699");
         menuButton.getStyleClass().add("menu-button");
-        menuButton.setPrefSize(MENU_BTN_WIDTH, labelH);
-        menuButton.setMinSize(MENU_BTN_WIDTH, labelH);
-        menuButton.setMaxSize(MENU_BTN_WIDTH, labelH);
+        menuButton.setFocusTraversable(false);
+        menuButton.setPrefSize(menuBtnW, labelH);
+        menuButton.setMinSize(menuBtnW, labelH);
+        menuButton.setMaxSize(menuBtnW, labelH);
         menuButton.setLayoutX(ox);
         menuButton.setLayoutY(sy);
 
-        scoreTextLabel.setLayoutX(ox);
+        double scoreLx = ox + menuBtnW + GAP;
+        scoreTextLabel.setLayoutX(scoreLx);
         scoreTextLabel.setLayoutY(sy);
-        scoreTextLabel.setLayoutX(ox + MENU_BTN_WIDTH + GAP);
 
-        scoreLabel.setLayoutX(ox);
+        scoreLabel.setLayoutX(scoreLx);
         scoreLabel.setLayoutY(sy);
-        scoreLabel.setLayoutX(ox + MENU_BTN_WIDTH + GAP);
-        scoreLabel.setPrefWidth(bwPx - MENU_BTN_WIDTH - GAP);
+        scoreLabel.setPrefWidth(bwPx - menuBtnW - GAP);
 
         double by = PADDING + labelH + GAP;
         boardPane.setLayoutX(ox);
