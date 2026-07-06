@@ -5,6 +5,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
+import net.jockx.kulki.i18n.Messages;
 import net.jockx.kulki.view.shapes.CellNode;
 
 public class GameView {
@@ -18,7 +19,9 @@ public class GameView {
     private CellNode[][] cellNodes;
     private CellNode[] nextCellNodes;
     private Button menuButton;
+    private Label scoreTextLabel;
     private Label scoreLabel;
+    private Label nextLabel;
     private double ballRadius;
     private double designWidth;
     private double designHeight;
@@ -54,14 +57,14 @@ public class GameView {
             nextBallsPane.add(nextCellNodes[i], i % bw, i / bw);
         }
 
-        Label scoreTextLabel = new Label("Score");
+        scoreTextLabel = new Label(Messages.get("gameView.score"));
         scoreTextLabel.getStyleClass().add("game-view-label");
 
         scoreLabel = new Label("0");
         scoreLabel.getStyleClass().add("game-view-label");
         scoreLabel.setAlignment(Pos.CENTER_RIGHT);
 
-        Label nextLabel = new Label("Next");
+        nextLabel = new Label(Messages.get("gameView.next"));
         nextLabel.getStyleClass().add("game-view-label");
 
         double bwPx = bw * CELL_SIZE + (bw - 1) * GAP;
@@ -76,8 +79,8 @@ public class GameView {
         double ox = PADDING;
         double sy = PADDING;
 
-        double menuBtnW = 35;
-        menuButton = new Button("\u2699");
+        double menuBtnW = labelH;
+        menuButton = new Button("☰");
         menuButton.getStyleClass().add("menu-button");
         menuButton.setFocusTraversable(false);
         menuButton.setPrefSize(menuBtnW, labelH);
@@ -145,6 +148,15 @@ public class GameView {
         return cellNodes[x][y];
     }
 
+    public void updateTexts() {
+        if (scoreTextLabel != null) {
+            scoreTextLabel.setText(Messages.get("gameView.score"));
+        }
+        if (nextLabel != null) {
+            nextLabel.setText(Messages.get("gameView.next"));
+        }
+    }
+
     public void updateScore(int score) {
         scoreLabel.textProperty().setValue(String.valueOf(score));
     }
@@ -174,7 +186,9 @@ public class GameView {
         cellNodes = null;
         nextCellNodes = null;
         menuButton = null;
+        scoreTextLabel = null;
         scoreLabel = null;
+        nextLabel = null;
         ballRadius = 0;
         designWidth = 0;
         designHeight = 0;

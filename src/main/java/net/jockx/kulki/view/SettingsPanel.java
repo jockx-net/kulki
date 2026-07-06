@@ -5,17 +5,37 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import net.jockx.kulki.controller.PropertiesReader;
+import net.jockx.kulki.i18n.Messages;
 import net.jockx.kulki.model.BallColor;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 public class SettingsPanel {
+    public record Lang(Locale locale, String imagePath) {}
+
+    private static final Lang[] LANGUAGES = {
+            new Lang(Locale.of("en"), "flag-gb.png"),
+            new Lang(Locale.of("pl"), "flag-pl.png"),
+            new Lang(Locale.of("es"), "flag-es.png"),
+            new Lang(Locale.of("de"), "flag-de.png"),
+            new Lang(Locale.of("zh"), "flag-cn.png"),
+            new Lang(Locale.of("ja"), "flag-jp.png"),
+            new Lang(Locale.of("pt", "BR"), "flag-br.png"),
+            new Lang(Locale.of("uk"), "flag-ua.png"),
+    };
+
     private static final int BOARD_MIN = 3;
     private static final int BOARD_MAX = 20;
     private static final int MATCH_MIN = 2;
@@ -23,14 +43,14 @@ public class SettingsPanel {
     private static final int NEW_BALLS_MIN = 1;
     private static final int NEW_BALLS_MAX = 20;
 
-    private static final double DESIGN_WIDTH = 350;
-    private static final double DESIGN_HEIGHT = 500;
+    private static final double DESIGN_WIDTH = 340;
+    private static final double DESIGN_HEIGHT = 440;
     private static final double PANEL_HEIGHT_RATIO = 0.8;
-    private static final double LABEL_WIDTH = 130;
     private static final double SPINNER_WIDTH = 70;
 
     private final Pane parent;
     private final Runnable onSave, onCancel;
+    private final Consumer<Locale> onLanguageChange;
     private final Pane overlay;
     private final VBox panel;
     private final Spinner<Integer> boardSizeSpinner;
@@ -40,11 +60,15 @@ public class SettingsPanel {
     private final Label matchWarning;
     private final Label newBallsWarning;
     private final int origBoardSize, origColors, origMatch, origNewBalls;
+    private final Label title;
+    private final Button saveButton, cancelButton, defaultsButton;
+    private final Label[] rowLabels = new Label[4];
 
-    public SettingsPanel(Pane parent, Runnable onSave, Runnable onCancel) {
+    public SettingsPanel(Pane parent, Runnable onSave, Runnable onCancel, Consumer<Locale> onLanguageChange) {
         this.parent = parent;
         this.onSave = onSave;
         this.onCancel = onCancel;
+        this.onLanguageChange = onLanguageChange;
 
         int maxColors = BallColor.values().length;
 
@@ -78,20 +102,20 @@ public class SettingsPanel {
         panel.setPrefSize(DESIGN_WIDTH, DESIGN_HEIGHT);
         panel.setMaxSize(DESIGN_WIDTH, DESIGN_HEIGHT);
 
-        Label title = new Label("Game Settings");
+        title = new Label(Messages.get("settings.title"));
         title.getStyleClass().add("settings-title");
 
-        Button saveButton = new Button("Save");
+        saveButton = new Button(Messages.get("settings.save"));
         saveButton.setFocusTraversable(false);
         saveButton.getStyleClass().addAll("settings-button", "button-save");
         saveButton.setOnAction(_ -> onSaveClick());
 
-        Button cancelButton = new Button("Cancel");
+        cancelButton = new Button(Messages.get("settings.cancel"));
         cancelButton.setFocusTraversable(false);
         cancelButton.getStyleClass().addAll("settings-button", "button-cancel");
         cancelButton.setOnAction(_ -> onCancelClick());
 
-        Button defaultsButton = new Button("Restore defaults");
+        defaultsButton = new Button(Messages.get("settings.restoreDefaults"));
         defaultsButton.setFocusTraversable(false);
         defaultsButton.getStyleClass().addAll("settings-button", "button-defaults");
         defaultsButton.setOnAction(_ -> onDefaultsClick());
@@ -108,12 +132,37 @@ public class SettingsPanel {
         buttons.setAlignment(Pos.CENTER);
         buttons.getChildren().addAll(row1, row2);
 
+        HBox flags = new HBox(4);
+        flags.setAlignment(Pos.CENTER);
+        for (Lang lang : LANGUAGES) {
+            var is = getClass().getClassLoader().getResourceAsStream(lang.imagePath());
+            ImageView iv = new ImageView(new Image(is));
+            iv.setFitHeight(12);
+            iv.setPreserveRatio(true);
+            Button fb = new Button();
+            fb.setGraphic(iv);
+            fb.getStyleClass().add("flag-button");
+            fb.setFocusTraversable(false);
+            fb.setOnAction(_ -> onLanguageChange.accept(lang.locale()));
+            flags.getChildren().add(fb);
+        }
+
+        Region spacer = new Region();
+        spacer.setMinHeight(24);
+
+        rowLabels[0] = new Label(Messages.get("settings.boardSize"));
+        rowLabels[1] = new Label(Messages.get("settings.colors"));
+        rowLabels[2] = new Label(Messages.get("settings.matchSize"));
+        rowLabels[3] = new Label(Messages.get("settings.newBalls"));
+
         panel.getChildren().addAll(
                 title,
-                row("Board size", boardSizeSpinner),
-                row("Colors (" + maxColors + " max)", colorsSpinner),
-                row("Match size", matchSpinner, matchWarning),
-                row("New Balls", newBallsSpinner, newBallsWarning),
+                row(rowLabels[0], boardSizeSpinner),
+                row(rowLabels[1], colorsSpinner),
+                row(rowLabels[2], matchSpinner, matchWarning),
+                row(rowLabels[3], newBallsSpinner, newBallsWarning),
+                spacer,
+                flags,
                 buttons
         );
         overlay.getChildren().add(panel);
@@ -135,6 +184,18 @@ public class SettingsPanel {
             parent.getChildren().add(overlay);
         }
         Platform.runLater(this::reposition);
+    }
+
+    public void refreshTexts() {
+        title.setText(Messages.get("settings.title"));
+        saveButton.setText(Messages.get("settings.save"));
+        cancelButton.setText(Messages.get("settings.cancel"));
+        defaultsButton.setText(Messages.get("settings.restoreDefaults"));
+        rowLabels[0].setText(Messages.get("settings.boardSize"));
+        rowLabels[1].setText(Messages.get("settings.colors"));
+        rowLabels[2].setText(Messages.get("settings.matchSize"));
+        rowLabels[3].setText(Messages.get("settings.newBalls"));
+        validate();
     }
 
     public void hide() {
@@ -169,13 +230,13 @@ public class SettingsPanel {
         int nb = newBallsSpinner.getValue();
 
         if (ms > bs) {
-            matchWarning.setText("Match size exceeds board dimensions");
+            matchWarning.setText(Messages.get("settings.warning.matchSize"));
         } else {
             matchWarning.setText("");
         }
 
         if (nb > bs * bs) {
-            newBallsWarning.setText("New balls should not exceed board capacity");
+            newBallsWarning.setText(Messages.get("settings.warning.newBalls"));
         } else {
             newBallsWarning.setText("");
         }
@@ -237,13 +298,13 @@ public class SettingsPanel {
         return s;
     }
 
-    private static VBox row(String labelText, Spinner<Integer> spinner) {
+    private static VBox row(Label l, Spinner<Integer> spinner) {
+        l.getStyleClass().add("settings-field-label");
         HBox hb = new HBox(8);
         hb.setAlignment(Pos.CENTER_LEFT);
-        Label l = new Label(labelText);
-        l.getStyleClass().add("settings-field-label");
-        l.setMinWidth(LABEL_WIDTH);
-        hb.getChildren().addAll(l, spinner);
+        Region gap = new Region();
+        HBox.setHgrow(gap, Priority.ALWAYS);
+        hb.getChildren().addAll(l, gap, spinner);
         VBox vb = new VBox(2);
         Label spacer = new Label();
         spacer.setMinHeight(14);
@@ -251,14 +312,14 @@ public class SettingsPanel {
         return vb;
     }
 
-    private static VBox row(String labelText, Spinner<Integer> spinner, Label warning) {
-        VBox vb = new VBox(2);
+    private static VBox row(Label l, Spinner<Integer> spinner, Label warning) {
+        l.getStyleClass().add("settings-field-label");
         HBox hb = new HBox(8);
         hb.setAlignment(Pos.CENTER_LEFT);
-        Label l = new Label(labelText);
-        l.getStyleClass().add("settings-field-label");
-        l.setMinWidth(LABEL_WIDTH);
-        hb.getChildren().addAll(l, spinner);
+        Region gap = new Region();
+        HBox.setHgrow(gap, Priority.ALWAYS);
+        hb.getChildren().addAll(l, gap, spinner);
+        VBox vb = new VBox(2);
         vb.getChildren().addAll(hb, warning);
         return vb;
     }

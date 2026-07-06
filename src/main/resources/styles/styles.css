@@ -4,18 +4,18 @@
 }
 
 .label {
-    -fx-font-family: "Fredoka One";
+    -fx-font-family: "Nunito Black";
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
-    /*-fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );*/
+    -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
 }
 
 .button {
     -fx-text-fill: white;
-    -fx-font-family: "Fredoka One";
+    -fx-font-family: "Nunito Black";
     -fx-font-weight: bold;
-    -fx-background-color: linear-gradient(#61a2b1, #2A5058);
-    -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );
+    -fx-background-color: #61a2b1;
+    /*-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );*/
 }
 
 .button:hover{
@@ -31,7 +31,7 @@
 }
 
 .dialog-panel {
-    -fx-background-color: #ffffff;
+    -fx-background-color: #dddddd;
     -fx-background-radius: 12px;
     -fx-padding: 24px;
 }
@@ -43,7 +43,7 @@
 }
 
 .settings-title {
-    -fx-font-family: "Fredoka One";
+    -fx-font-family: "Nunito Black";
     -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
@@ -51,7 +51,7 @@
 }
 
 .settings-field-label {
-    -fx-font-family: "Fredoka One";
+    -fx-font-family: "Nunito Black";
     -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-text-fill: #444444;
@@ -59,7 +59,7 @@
 }
 
 .settings-warning {
-    -fx-font-family: "Fredoka One";
+    -fx-font-family: "Nunito Black";
     -fx-font-size: 11px;
     -fx-text-fill: #cc0000;
 }
@@ -71,19 +71,19 @@
 }
 
 .button-start {
-    -fx-background-color: linear-gradient(#7cb342, #33691e);
+    -fx-background-color: #7cb342;
 }
 
 .button-start:hover {
-    -fx-background-color: linear-gradient(#8bc34a, #558b2f);
+    -fx-background-color: #8bc34a;
 }
 
 .button-defaults {
-    -fx-background-color: linear-gradient(#ef5350, #b71c1c);
+    -fx-background-color: #ef5350;
 }
 
 .button-defaults:hover {
-    -fx-background-color: linear-gradient(#e57373, #c62828);
+    -fx-background-color: #e57373;
 }
 
 /* ======== Settings Spinners ======== */
@@ -97,7 +97,7 @@
 }
 
 .settings-spinner .text-field {
-    -fx-font-family: "Fredoka One";
+    -fx-font-family: "Nunito Black";
     -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-alignment: center;
@@ -138,7 +138,7 @@
 }
 
 .gameover-title {
-    -fx-font-family: "Fredoka One";
+    -fx-font-family: "Nunito Black";
     -fx-font-size: 22px;
     -fx-font-weight: bold;
 }
@@ -151,7 +151,7 @@
 }
 
 .menu-title {
-    -fx-font-family: "Fredoka One";
+    -fx-font-family: "Nunito Black";
     -fx-font-size: 28px;
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
@@ -159,56 +159,58 @@
 }
 
 .menu-button {
-    -fx-font-family: "Fredoka One";
-    -fx-font-size: 12px;
-    -fx-font-weight: bold;
-    -fx-padding: 2px 6px;
+    /*-fx-font-family: "Nimbus Mono PS";*/
+    -fx-padding: 1px;
     -fx-background-radius: 4px;
-    -fx-min-width: 35px;
+    -fx-min-width: 20px;
     -fx-min-height: 20px;
-    -fx-background-color: cornflowerblue;
+    -fx-background-color: #e57373;
     -fx-effect: none;
 }
 
 .menu-button:hover {
-    -fx-background-color: #7ec8e3;
+    -fx-background-color: indianred;
 }
 
 .button-save {
-    -fx-background-color: linear-gradient(#7cb342, #33691e);
+    -fx-background-color: #7cb342;
 }
 
 .button-save:hover {
-    -fx-background-color: linear-gradient(#8bc34a, #558b2f);
+    -fx-background-color: #8bc34a;
 }
 
 .button-cancel {
-    -fx-background-color: linear-gradient(#888888, #444444);
+    -fx-background-color: #888888;
 }
 
 .button-cancel:hover {
-    -fx-background-color: linear-gradient(#999999, #555555);
+    -fx-background-color: #999999;
 }
 
 .game-menu-button {
-    -fx-font-family: "Fredoka One";
+    -fx-font-family: "Nunito Black";
     -fx-font-size: 14px;
     -fx-padding: 10px 32px;
     -fx-background-radius: 6px;
 }
 
+.game-menu-button:hover {
+    -fx-background-color: #8fbcbb;
+}
+
 .game-menu-button-back {
-    -fx-background-color: linear-gradient(#888888, #444444);
+    -fx-background-color: #888888;
 }
 
 .game-menu-button-back:hover {
-    -fx-background-color: linear-gradient(#999999, #555555);
+    -fx-background-color: #999999;
 }
 
 /* ======== Game View ======== */
 
 .game-view-label {
-    -fx-font-family: "Fredoka One";
+    -fx-font-family: "Nunito Black";
     -fx-font-size: 18px;
 }
 
@@ -228,6 +230,23 @@
 
 .cell-rect:invalid-target {
     -fx-fill: indianred;
+}
+
+/* ======== Flag Buttons ======== */
+
+.flag-button {
+    -fx-padding: 1px;
+    -fx-min-width: 0;
+    -fx-min-height: 0;
+    -fx-background-color: transparent;
+    -fx-background-radius: 4px;
+    -fx-background-insets: 0;
+    -fx-effect: none;
+    -fx-cursor: hand;
+}
+
+.flag-button:hover {
+    -fx-background-color: rgba(0, 0, 0, 0.1);
 }
 
 

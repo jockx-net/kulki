@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
+import net.jockx.kulki.i18n.Messages;
 import net.jockx.kulki.model.Ball;
 import net.jockx.kulki.model.Cell;
 import net.jockx.kulki.model.Game;
@@ -22,6 +23,7 @@ import net.jockx.kulki.view.shapes.CellNode;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 public class GameController {
@@ -281,21 +283,49 @@ public class GameController {
         }
     }
 
+    private void onLocaleChanged(Locale locale) {
+        hideAllOverlays();
+        Messages.setLocale(locale);
+        if (game != null) {
+            gameView.updateTexts();
+        }
+        showGameMenu();
+    }
+
+    private void hideAllOverlays() {
+        if (gameMenuPanel != null) {
+            gameMenuPanel.hide();
+        }
+        if (currentSettingsPanel != null) {
+            currentSettingsPanel.hide();
+            currentSettingsPanel = null;
+        }
+        if (currentGameOverPanel != null) {
+            currentGameOverPanel.hide();
+            currentGameOverPanel = null;
+        }
+    }
+
     public void showGameMenu() {
         boolean inProgress = game != null;
-        if (gameMenuPanel == null) {
-            gameMenuPanel = new GameMenuPanel(rootPane,
-                    this::onNewGameFromMenu,
-                    this::onSettingsFromMenu,
-                    this::onExitFromMenu,
-                    this::onBackToGame);
-        }
+        gameMenuPanel = new GameMenuPanel(rootPane,
+                this::onNewGameFromMenu,
+                this::onSettingsFromMenu,
+                this::onExitFromMenu,
+                this::onBackToGame,
+                this::onLocaleChanged);
         gameMenuPanel.setGameInProgress(inProgress);
         gameMenuPanel.show();
     }
 
     public void showSettingsDialog(Runnable onSave, Runnable onCancel) {
-        currentSettingsPanel = new SettingsPanel(rootPane, onSave, onCancel);
+        currentSettingsPanel = new SettingsPanel(rootPane, onSave, onCancel, locale -> {
+            Messages.setLocale(locale);
+            if (game != null) {
+                gameView.updateTexts();
+            }
+            currentSettingsPanel.refreshTexts();
+        });
         currentSettingsPanel.show();
     }
 

@@ -6,6 +6,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import net.jockx.kulki.i18n.Messages;
 
 public class GameOverPanel {
     private static final double DESIGN_WIDTH = 260;
@@ -25,13 +26,13 @@ public class GameOverPanel {
         overlay = new Pane();
         overlay.getStyleClass().add("dialog-overlay");
 
-        Button button = new Button("Try Again");
+        Button button = new Button(Messages.get("gameOver.tryAgain"));
         button.setFocusTraversable(false);
         button.setMaxWidth(Double.MAX_VALUE);
         button.getStyleClass().addAll("game-menu-button", "button-start");
         button.setOnAction(_ -> onRetryClick());
 
-        Text gameOverText = new Text("Game Over");
+        Text gameOverText = new Text(Messages.get("gameOver.title"));
         gameOverText.getStyleClass().add("gameover-title");
 
         panel = new VBox(12, gameOverText, button);

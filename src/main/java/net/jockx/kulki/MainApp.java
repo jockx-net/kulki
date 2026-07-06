@@ -6,6 +6,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import net.jockx.kulki.controller.GameController;
 import net.jockx.kulki.controller.PropertiesReader;
+import net.jockx.kulki.i18n.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +16,8 @@ public class MainApp extends Application {
 
     public void start(Stage stage) {
 
-        Font.loadFont(getClass().getResourceAsStream("/fonts/FredokaOne-Regular.ttf"), 14);
+        Font.loadFont(getClass().getResourceAsStream("/fonts/ZenMaruGothic-Black.ttf"), 14);
+        Font.loadFont(getClass().getResourceAsStream("/fonts/Nunito-Black.ttf"), 14);
         log.debug("Showing JFX scene");
 
         GameController controller = new GameController();
@@ -31,7 +33,7 @@ public class MainApp extends Application {
 
         scene.getStylesheets().add(getClass().getResource("/styles/styles.css").toExternalForm());
 
-        stage.setTitle("Kulki");
+        stage.setTitle(Messages.get("title.kulki"));
         stage.setScene(scene);
         stage.setMinWidth(390);
         stage.setMinHeight(550);
