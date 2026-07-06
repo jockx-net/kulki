@@ -1,6 +1,7 @@
 package net.jockx.kulki.view;
 
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -11,11 +12,13 @@ public class GameView {
     private static final double GAP = CellNode.CELL_GAP;
     private static final double LABEL_FONT = 18;
     private static final double PADDING = 10;
+    private static final double MENU_BTN_WIDTH = 35;
 
     private final Pane root;
     private GridPane nextBallsPane;
     private CellNode[][] cellNodes;
     private CellNode[] nextCellNodes;
+    private Button menuButton;
     private Label scoreLabel;
     private double ballRadius;
     private double designWidth;
@@ -73,11 +76,22 @@ public class GameView {
 
         double ox = PADDING;
         double sy = PADDING;
+        menuButton = new Button("\u2630");
+        menuButton.getStyleClass().add("menu-button");
+        menuButton.setPrefSize(MENU_BTN_WIDTH, labelH);
+        menuButton.setMinSize(MENU_BTN_WIDTH, labelH);
+        menuButton.setMaxSize(MENU_BTN_WIDTH, labelH);
+        menuButton.setLayoutX(ox);
+        menuButton.setLayoutY(sy);
+
         scoreTextLabel.setLayoutX(ox);
         scoreTextLabel.setLayoutY(sy);
-        scoreLabel.setPrefWidth(bwPx);
+        scoreTextLabel.setLayoutX(ox + MENU_BTN_WIDTH + GAP);
+
         scoreLabel.setLayoutX(ox);
         scoreLabel.setLayoutY(sy);
+        scoreLabel.setLayoutX(ox + MENU_BTN_WIDTH + GAP);
+        scoreLabel.setPrefWidth(bwPx - MENU_BTN_WIDTH - GAP);
 
         double by = PADDING + labelH + GAP;
         boardPane.setLayoutX(ox);
@@ -108,7 +122,7 @@ public class GameView {
         root.setPrefSize(designWidth, designHeight);
         root.setMaxSize(designWidth, designHeight);
 
-        root.getChildren().addAll(boardPane, scoreTextLabel, scoreLabel, nextLabel, nextBallsPane);
+        root.getChildren().addAll(boardPane, menuButton, scoreTextLabel, scoreLabel, nextLabel, nextBallsPane);
     }
 
     public void reposition(double containerWidth, double containerHeight) {
@@ -138,6 +152,10 @@ public class GameView {
         return ballRadius;
     }
 
+    public Button getMenuButton() {
+        return menuButton;
+    }
+
     public Pane getBallsPane() {
         return root;
     }
@@ -154,6 +172,7 @@ public class GameView {
         root.getChildren().clear();
         cellNodes = null;
         nextCellNodes = null;
+        menuButton = null;
         scoreLabel = null;
         ballRadius = 0;
         designWidth = 0;

@@ -36,6 +36,6 @@ public class MainApp extends Application {
         stage.setMinWidth(390);
         stage.setMinHeight(550);
         stage.show();
-        controller.showSettingsDialog();
+        controller.showGameMenu();
     }
 }

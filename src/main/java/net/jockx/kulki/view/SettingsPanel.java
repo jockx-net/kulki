@@ -30,7 +30,7 @@ public class SettingsPanel {
     private static final double SPINNER_WIDTH = 70;
 
     private final Pane parent;
-    private final Runnable onStart;
+    private final Runnable onSave, onCancel;
     private final Pane overlay;
     private final VBox panel;
     private final Spinner<Integer> boardSizeSpinner;
@@ -39,12 +39,19 @@ public class SettingsPanel {
     private final Spinner<Integer> newBallsSpinner;
     private final Label matchWarning;
     private final Label newBallsWarning;
+    private final int origBoardSize, origColors, origMatch, origNewBalls;
 
-    public SettingsPanel(Pane parent, Runnable onStart) {
+    public SettingsPanel(Pane parent, Runnable onSave, Runnable onCancel) {
         this.parent = parent;
-        this.onStart = onStart;
+        this.onSave = onSave;
+        this.onCancel = onCancel;
 
         int maxColors = BallColor.values().length;
+
+        origBoardSize = loadInt("board.size");
+        origColors = loadInt("numberOfColors");
+        origMatch = loadInt("minimalMatch");
+        origNewBalls = loadInt("newBallCount");
 
         boardSizeSpinner = spinner(BOARD_MIN, BOARD_MAX, loadInt("board.size"));
         colorsSpinner = spinner(1, maxColors, loadInt("numberOfColors"));
@@ -74,18 +81,30 @@ public class SettingsPanel {
         Label title = new Label("Game Settings");
         title.getStyleClass().add("settings-title");
 
-        Button startButton = new Button("Start");
-        startButton.getStyleClass().addAll("settings-button", "button-start");
-        startButton.setDefaultButton(true);
-        startButton.setOnAction(_ -> onStartClick());
+        Button saveButton = new Button("Save");
+        saveButton.getStyleClass().addAll("settings-button", "button-save");
+        saveButton.setDefaultButton(true);
+        saveButton.setOnAction(_ -> onSaveClick());
 
-        Button defaultsButton = new Button("Defaults");
+        Button cancelButton = new Button("Cancel");
+        cancelButton.getStyleClass().addAll("settings-button", "button-cancel");
+        cancelButton.setOnAction(_ -> onCancelClick());
+
+        Button defaultsButton = new Button("Restore defaults");
         defaultsButton.getStyleClass().addAll("settings-button", "button-defaults");
         defaultsButton.setOnAction(_ -> onDefaultsClick());
 
-        HBox buttons = new HBox(8);
+        HBox row1 = new HBox(8);
+        row1.setAlignment(Pos.CENTER);
+        row1.getChildren().addAll(saveButton, cancelButton);
+
+        HBox row2 = new HBox(8);
+        row2.setAlignment(Pos.CENTER);
+        row2.getChildren().add(defaultsButton);
+
+        VBox buttons = new VBox(8);
         buttons.setAlignment(Pos.CENTER);
-        buttons.getChildren().addAll(startButton, defaultsButton);
+        buttons.getChildren().addAll(row1, row2);
 
         panel.getChildren().addAll(
                 title,
@@ -150,14 +169,23 @@ public class SettingsPanel {
         }
     }
 
-    private void onStartClick() {
+    private void onSaveClick() {
         save("board.size", boardSizeSpinner.getValue());
         save("numberOfColors", colorsSpinner.getValue());
         save("minimalMatch", matchSpinner.getValue());
         save("newBallCount", newBallsSpinner.getValue());
 
         hide();
-        onStart.run();
+        onSave.run();
+    }
+
+    private void onCancelClick() {
+        boardSizeSpinner.getValueFactory().setValue(origBoardSize);
+        colorsSpinner.getValueFactory().setValue(origColors);
+        matchSpinner.getValueFactory().setValue(origMatch);
+        newBallsSpinner.getValueFactory().setValue(origNewBalls);
+        hide();
+        onCancel.run();
     }
 
     private void onDefaultsClick() {

@@ -1,5 +1,6 @@
 package net.jockx.kulki.controller;
 
+import javafx.application.Platform;
 import javafx.scene.layout.Pane;
 import net.jockx.kulki.model.Ball;
 import net.jockx.kulki.model.Cell;
@@ -11,6 +12,7 @@ import net.jockx.kulki.model.RuleSet;
 import net.jockx.kulki.model.StateTransition;
 import net.jockx.kulki.view.GameOverPanel;
 import net.jockx.kulki.view.GameView;
+import net.jockx.kulki.view.GameMenuPanel;
 import net.jockx.kulki.view.SettingsPanel;
 import net.jockx.kulki.view.shapes.BallShape;
 import net.jockx.kulki.view.shapes.CellNode;
@@ -29,6 +31,7 @@ public class GameController {
     private GameEngine game;
     private GameLoop gameLoop;
     private GameEventBus eventBus;
+    private GameMenuPanel gameMenuPanel;
 
     private CellNode sourceCell;
     private CellNode targetCell;
@@ -81,6 +84,9 @@ public class GameController {
 
         game.start();
         gameLoop.submitInitialPlacement();
+
+        gameView.getMenuButton().setOnAction(_ -> onGameMenuRequested());
+        gameView.getMenuButton().setVisible(true);
     }
 
     private void subscribeToEvents() {
@@ -238,8 +244,21 @@ public class GameController {
         BallShape.appearNext(nextBallShapes, gameView.getNextBallsPane());
     }
 
-    public void showSettingsDialog() {
-        new SettingsPanel(rootPane, this::startGame).show();
+    public void showGameMenu() {
+        boolean inProgress = game != null;
+        if (gameMenuPanel == null) {
+            gameMenuPanel = new GameMenuPanel(rootPane,
+                    this::onNewGameFromMenu,
+                    this::onSettingsFromMenu,
+                    this::onExitFromMenu,
+                    this::onBackToGame);
+        }
+        gameMenuPanel.setGameInProgress(inProgress);
+        gameMenuPanel.show();
+    }
+
+    public void showSettingsDialog(Runnable onSave, Runnable onCancel) {
+        new SettingsPanel(rootPane, onSave, onCancel).show();
     }
 
     private void showExitDialog() {
@@ -247,10 +266,41 @@ public class GameController {
     }
 
     private void onRetry() {
-        rootPane.getChildren().removeIf(child -> child instanceof BallShape);
-        gameView.clear();
-        game = null;
-        showSettingsDialog();
+        stopCurrentGame();
+        showGameMenu();
+    }
+
+    private void stopCurrentGame() {
+        if (game != null) {
+            gameView.clear();
+            game = null;
+            gameLoop = null;
+            eventBus = null;
+            sourceCell = null;
+            targetCell = null;
+            turnLocked = false;
+        }
+    }
+
+    private void onNewGameFromMenu() {
+        stopCurrentGame();
+        startGame();
+    }
+
+    private void onSettingsFromMenu() {
+        showSettingsDialog(this::showGameMenu, this::showGameMenu);
+    }
+
+    private void onExitFromMenu() {
+        Platform.exit();
+    }
+
+    private void onBackToGame() {
+        // game continues, menu is already hidden
+    }
+
+    private void onGameMenuRequested() {
+        showGameMenu();
     }
 
     public CellNode getSourceCell() {

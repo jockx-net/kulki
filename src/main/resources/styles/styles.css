@@ -143,6 +143,62 @@
     -fx-font-weight: bold;
 }
 
+/* ======== Game Menu Panel ======== */
+
+.menu-panel {
+    -fx-spacing: 12px;
+    -fx-alignment: center;
+}
+
+.menu-title {
+    -fx-font-family: "Fredoka One";
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+    -fx-padding: 0 0 16px 0;
+}
+
+.menu-button {
+    -fx-font-family: "Fredoka One";
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 2px 6px;
+    -fx-background-radius: 4px;
+    -fx-min-width: 35px;
+    -fx-min-height: 20px;
+}
+
+.button-save {
+    -fx-background-color: linear-gradient(#7cb342, #33691e);
+}
+
+.button-save:hover {
+    -fx-background-color: linear-gradient(#8bc34a, #558b2f);
+}
+
+.button-cancel {
+    -fx-background-color: linear-gradient(#888888, #444444);
+}
+
+.button-cancel:hover {
+    -fx-background-color: linear-gradient(#999999, #555555);
+}
+
+.game-menu-button {
+    -fx-font-family: "Fredoka One";
+    -fx-font-size: 14px;
+    -fx-padding: 10px 32px;
+    -fx-background-radius: 6px;
+}
+
+.game-menu-button-back {
+    -fx-background-color: linear-gradient(#888888, #444444);
+}
+
+.game-menu-button-back:hover {
+    -fx-background-color: linear-gradient(#999999, #555555);
+}
+
 /* ======== Game View ======== */
 
 .game-view-label {
