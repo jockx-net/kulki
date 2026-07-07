@@ -1,68 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-    <id>net.jockx.Kulki</id>
+  <id>net.jockx.Kulki</id>
 
-    <name>Kulki</name>
-    <summary>A game of matching marbles</summary>
+  <name>Kulki</name>
+  <summary>A game of matching marbles</summary>
 
-    <metadata_license>CC0-1.0</metadata_license>
-    <project_license>MIT</project_license>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
 
-    <developer id="net.jockx">
-        <name>Mateusz Pietryga</name>
-    </developer>
+  <developer id="net.jockx">
+    <name>Mateusz Pietryga</name>
+  </developer>
 
-    <supports>
-        <control>pointing</control>
-        <control>keyboard</control>
-    </supports>
-    <categories>
-        <category>Game</category>
-    </categories>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+  </supports>
+  <categories>
+    <category>Game</category>
+  </categories>
 
-    <description>
-        <p>
-            Move marbles around the board and try to match the same colors until you inevitably run out of space or get
-            bored.
-        </p>
-    </description>
+  <description>
+    <p>
+      Move marbles around the board and try to match the same colors until you inevitably run out of space or get
+      bored.
+    </p>
+  </description>
 
-    <screenshots>
-        <screenshot type="default">
-            <caption>Marbles on the game board</caption>
-            <image>https://kulki.jockx.net/img/screenshot.png</image>
-        </screenshot>
-    </screenshots>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Marbles on the game board</caption>
+      <image>https://kulki.jockx.net/img/screenshot.png</image>
+    </screenshot>
+  </screenshots>
 
-    <branding>
-        <color type="primary" scheme_preference="light">#426ab7</color>
-        <color type="primary" scheme_preference="dark">#395cab</color>
-    </branding>
+  <branding>
+    <color type="primary" scheme_preference="light">#426ab7</color>
+    <color type="primary" scheme_preference="dark">#395cab</color>
+  </branding>
 
-    <releases>
-        <release version="1.0.3" date="2026-07-05">
-            <description>
-                <p>Minor visual bug-fixes</p>
-            </description>
-        </release>
-        <release version="1.0.2" date="2026-02-15">
-            <description>
-                <p>Release description</p>
-                <ul>
-                    <li>App now remembers last used configuration options</li>
-                    <li>App no longer targets EOL Flatpak runtime</li>
-                </ul>
-            </description>
-        </release>
-        <release version="1.0.1" date="2024-06-06"></release>
-        <release version="1.0.0" date="2024-05-11"></release>
-    </releases>
+  <releases>
+    <release version="1.1.0" date="2026-07-08">
+      <description>
+        <p>Some quality-of-life improvements</p>
+        <ul>
+          <li>Scaling that actually works</li>
+          <li>A reset button!</li>
+          <li>A top score to beat — give yourself a challenge</li>
+          <li>Now in a language spoken near you</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.0.3" date="2026-07-05">
+      <description>
+        <p>Minor visual bug-fixes</p>
+      </description>
+    </release>
+    <release version="1.0.2" date="2026-02-15">
+      <description>
+        <p>Release description</p>
+        <ul>
+          <li>App now remembers last used configuration options</li>
+          <li>App no longer targets EOL Flatpak runtime</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.0.1" date="2024-06-06"></release>
+    <release version="1.0.0" date="2024-05-11"></release>
+  </releases>
 
-    <content_rating type="oars-1.1" />
+  <content_rating type="oars-1.1"/>
 
-    <url type="homepage">https://kulki.jockx.net/</url>
-    <url type="vcs-browser">https://github.com/jockx-net/kulki.git</url>
+  <url type="homepage">https://kulki.jockx.net/</url>
+  <url type="vcs-browser">https://github.com/jockx-net/kulki.git</url>
 
 
-    <launchable type="desktop-id">net.jockx.Kulki.desktop</launchable>
+  <launchable type="desktop-id">net.jockx.Kulki.desktop</launchable>
 </component>

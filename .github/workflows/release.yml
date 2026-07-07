@@ -92,9 +92,9 @@ jobs:
           SHA256="${{ env.SHA256 }}"
           BRANCH="update-${VERSION}"
 
-          cd flatpak/flathub
-          git config --unset-all http.https://github.com/.extraheader || true
-          git checkout -b "${BRANCH}"
+          git clone --branch next --single-branch https://github.com/flathub/net.jockx.Kulki.git /tmp/flathub
+          cd /tmp/flathub
+          git checkout -B "${BRANCH}"
 
           sed -i "s|url: https://github.com/jockx-net/kulki/releases/download/v[0-9.]*/Kulki-[0-9.]*.tar.gz|url: https://github.com/jockx-net/kulki/releases/download/v${VERSION}/Kulki-${VERSION}.tar.gz|" net.jockx.Kulki.yml
           sed -i "s|sha256: [a-f0-9]*|sha256: ${SHA256}|" net.jockx.Kulki.yml
@@ -109,7 +109,7 @@ jobs:
 
           git commit -m "Update Kulki to ${VERSION}"
           git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/flathub/net.jockx.Kulki.git"
-          git push origin "${BRANCH}"
+          git push --force-with-lease origin "${BRANCH}"
           gh pr create \
             --repo flathub/net.jockx.Kulki \
             --head "${BRANCH}" \
