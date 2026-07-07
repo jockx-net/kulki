@@ -14,7 +14,7 @@ public class CellNode extends Group {
     private static final PseudoClass SELECTED = PseudoClass.getPseudoClass("selected");
     private static final PseudoClass INVALID_TARGET = PseudoClass.getPseudoClass("invalid-target");
 
-    private final Rectangle CellShape;
+    private final Rectangle cellShape;
     double centerX, centerY;
     private double boardOffsetX, boardOffsetY;
     private BallShape ball;
@@ -24,10 +24,7 @@ public class CellNode extends Group {
     private final int row;
 
     public CellNode(double width, double height, int x, int y) {
-        this.CellShape = new Rectangle(width, height);
-        this.CellShape.setArcWidth(10);
-        this.CellShape.setArcHeight(10);
-        this.CellShape.getStyleClass().add("cell-rect");
+        this.cellShape = createCellRect(width, height, 10);
         this.column = x;
         this.row = y;
 
@@ -40,22 +37,28 @@ public class CellNode extends Group {
             }
         });
 
-        getChildren().add(CellShape);
+        getChildren().add(cellShape);
         addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, EventHandlers.onMouseOver);
         addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, EventHandlers.onMouseAway);
         addEventHandler(MouseEvent.MOUSE_CLICKED, EventHandlers.onClick);
     }
 
     public CellNode(double width, double height) {
-        this.CellShape = new Rectangle(width, height);
-        this.CellShape.setArcWidth(8);
-        this.CellShape.setArcHeight(8);
-        this.CellShape.getStyleClass().add("cell-rect");
-        getChildren().add(CellShape);
-        addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, EventHandlers.onMouseOverNext);
-        addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, EventHandlers.onMouseAwayNext);
+        this.cellShape = createCellRect(width, height, 8);
         this.column = -1;
         this.row = -1;
+
+        getChildren().add(cellShape);
+        addEventHandler(MouseEvent.MOUSE_ENTERED_TARGET, EventHandlers.onMouseOverNext);
+        addEventHandler(MouseEvent.MOUSE_EXITED_TARGET, EventHandlers.onMouseAwayNext);
+    }
+
+    private static Rectangle createCellRect(double width, double height, double arc) {
+        Rectangle rect = new Rectangle(width, height);
+        rect.setArcWidth(arc);
+        rect.setArcHeight(arc);
+        rect.getStyleClass().add("cell-rect");
+        return rect;
     }
 
     public double getBallCenterX() {
@@ -68,28 +71,28 @@ public class CellNode extends Group {
 
     public void unMarkHovered() {
         if (!selected) {
-            CellShape.pseudoClassStateChanged(HOVERED, false);
-            CellShape.pseudoClassStateChanged(INVALID_TARGET, false);
+            cellShape.pseudoClassStateChanged(HOVERED, false);
+            cellShape.pseudoClassStateChanged(INVALID_TARGET, false);
         }
     }
 
     public void markHovered() {
         if (!selected) {
-            CellShape.pseudoClassStateChanged(HOVERED, true);
-            CellShape.pseudoClassStateChanged(INVALID_TARGET, false);
+            cellShape.pseudoClassStateChanged(HOVERED, true);
+            cellShape.pseudoClassStateChanged(INVALID_TARGET, false);
         }
     }
 
     public void markAsInvalidTarget() {
         if (!selected) {
-            CellShape.pseudoClassStateChanged(HOVERED, false);
-            CellShape.pseudoClassStateChanged(INVALID_TARGET, true);
+            cellShape.pseudoClassStateChanged(HOVERED, false);
+            cellShape.pseudoClassStateChanged(INVALID_TARGET, true);
         }
     }
 
     public void unMarkAsSelected() {
         selected = false;
-        CellShape.pseudoClassStateChanged(SELECTED, false);
+        cellShape.pseudoClassStateChanged(SELECTED, false);
         if (!isFree()) {
             getBall().setScaleX(1.0);
             getBall().setScaleY(1.0);
@@ -98,7 +101,7 @@ public class CellNode extends Group {
 
     public void markAsSelected() {
         selected = true;
-        CellShape.pseudoClassStateChanged(SELECTED, true);
+        cellShape.pseudoClassStateChanged(SELECTED, true);
         if (!isFree()) {
             getBall().setScaleX(1.12);
             getBall().setScaleY(1.12);
@@ -110,7 +113,7 @@ public class CellNode extends Group {
     }
 
     public Rectangle getCellShape() {
-        return CellShape;
+        return cellShape;
     }
 
     public BallShape getBall() {
@@ -131,8 +134,8 @@ public class CellNode extends Group {
         boardOffsetX = x;
         boardOffsetY = y;
         if (column >= 0 && row >= 0) {
-            double cw = CellShape.getWidth();
-            double ch = CellShape.getHeight();
+            double cw = cellShape.getWidth();
+            double ch = cellShape.getHeight();
             centerX = x + column * (cw + CELL_GAP) + cw / 2;
             centerY = y + row * (ch + CELL_GAP) + ch / 2;
         }

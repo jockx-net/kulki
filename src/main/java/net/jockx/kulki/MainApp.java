@@ -10,6 +10,8 @@ import net.jockx.kulki.i18n.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
+
 public class MainApp extends Application {
 
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
@@ -19,6 +21,8 @@ public class MainApp extends Application {
         Font.loadFont(getClass().getResourceAsStream("/fonts/ZenMaruGothic-Black.ttf"), 14);
         Font.loadFont(getClass().getResourceAsStream("/fonts/Nunito-Black.ttf"), 14);
         log.debug("Showing JFX scene");
+
+        applySavedLocale();
 
         GameController controller = new GameController();
 
@@ -38,6 +42,23 @@ public class MainApp extends Application {
         stage.setMinWidth(390);
         stage.setMinHeight(550);
         stage.show();
-        controller.showGameMenu();
+
+        String playerName = PropertiesReader.getProperty("player.name");
+        if (playerName == null || playerName.isBlank()) {
+            controller.showPlayerNamePrompt(controller::showGameMenu);
+        } else {
+            controller.showGameMenu();
+        }
+    }
+
+    private static void applySavedLocale() {
+        String localeStr = PropertiesReader.getProperty("locale");
+        if (localeStr != null && !localeStr.isBlank()) {
+            String[] parts = localeStr.split("_");
+            Locale locale = parts.length == 2
+                ? Locale.of(parts[0], parts[1])
+                : Locale.of(parts[0]);
+            Messages.setLocale(locale);
+        }
     }
 }

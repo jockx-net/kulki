@@ -1,6 +1,7 @@
 package net.jockx.kulki.controller;
 
 import javafx.application.Platform;
+import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
@@ -12,10 +13,13 @@ import net.jockx.kulki.model.GameEngine;
 import net.jockx.kulki.model.GameEvent;
 import net.jockx.kulki.model.GameEventBus;
 import net.jockx.kulki.model.RuleSet;
+import net.jockx.kulki.model.ScoreBoard;
 import net.jockx.kulki.model.StateTransition;
+import net.jockx.kulki.view.GameMenuPanel;
 import net.jockx.kulki.view.GameOverPanel;
 import net.jockx.kulki.view.GameView;
-import net.jockx.kulki.view.GameMenuPanel;
+import net.jockx.kulki.view.PlayerNamePrompt;
+import net.jockx.kulki.view.ScoreBoardPanel;
 import net.jockx.kulki.view.SettingsPanel;
 import net.jockx.kulki.view.shapes.BallShape;
 import net.jockx.kulki.view.shapes.CellNode;
@@ -37,8 +41,11 @@ public class GameController {
     private GameEventBus eventBus;
     private GameMenuPanel gameMenuPanel;
 
+    private PlayerNamePrompt playerNamePrompt;
     private SettingsPanel currentSettingsPanel;
     private GameOverPanel currentGameOverPanel;
+    private ScoreBoardPanel currentScoreBoardPanel;
+    private final ScoreBoard scoreBoard;
 
     private CellNode sourceCell;
     private CellNode targetCell;
@@ -58,6 +65,7 @@ public class GameController {
         rootPane.setFocusTraversable(true);
         gameView = new GameView();
         rootPane.getChildren().add(gameView.getRoot());
+        scoreBoard = new ScoreBoard();
 
         rootPane.widthProperty().addListener((_, _, _) -> repositionView());
         rootPane.heightProperty().addListener((_, _, _) -> repositionView());
@@ -65,6 +73,9 @@ public class GameController {
         rootPane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             KeyCode code = event.getCode();
             if (code == KeyCode.ENTER || code == KeyCode.SPACE) {
+                if (event.getTarget() instanceof TextInputControl) {
+                    return;
+                }
                 event.consume();
             } else if (code == KeyCode.ESCAPE) {
                 event.consume();
@@ -85,11 +96,11 @@ public class GameController {
         int boardSize = PropertiesReader.getInt("board.size");
 
         RuleSet ruleSet = new RuleSet()
-                .setMinimalMatch(minimalMatch)
-                .setBoardSize(boardSize)
-                .setNewBallCount(newBallCount)
-                .setNumberOfColors(numberOfColors)
-                .setPerBallScore(ballScore);
+            .setMinimalMatch(minimalMatch)
+            .setBoardSize(boardSize)
+            .setNewBallCount(newBallCount)
+            .setNumberOfColors(numberOfColors)
+            .setPerBallScore(ballScore);
 
         game = new Game(ruleSet);
         eventBus = new GameEventBus();
@@ -101,6 +112,7 @@ public class GameController {
         repositionView();
 
         game.start();
+        prefillNextBallsPanel();
         gameLoop.submitInitialPlacement();
 
         gameView.getMenuButton().setOnAction(_ -> onGameMenuRequested());
@@ -131,7 +143,9 @@ public class GameController {
         toNode.setBall(ball);
         fromNode.setBall(null);
 
-        ball.moveTo(nodePath, () -> gameLoop.onMoveAnimationFinished());
+        ball.moveTo(nodePath, () -> {
+            if (gameLoop != null) gameLoop.onMoveAnimationFinished();
+        });
     }
 
     private void onMatchesIdentified(StateTransition t) {
@@ -154,18 +168,19 @@ public class GameController {
             sourceCell = null;
         }
 
-        BallShape.remove(ballShapes, false, gameView.getBallsPane(), () -> {
+        BallShape.remove(ballShapes, gameView.getBallsPane(), () -> {
             for (CellNode node : matchedNodes) {
                 node.unMarkAsSelected();
                 node.removeBall();
             }
-            gameLoop.onRemoveAnimationFinished();
+            if (gameLoop != null) gameLoop.onRemoveAnimationFinished();
         });
     }
 
     private void onBallsPlaced(StateTransition t) {
+        int placedCount = t.placedCells().size();
         List<BallShape> ballShapes = new ArrayList<>();
-        for (int i = 0; i < t.placedCells().size(); i++) {
+        for (int i = 0; i < placedCount; i++) {
             Cell cell = t.placedCells().get(i);
             Ball ball = t.placedBalls().get(i);
             BallShape ballShape = new BallShape(ball, gameView.getBallRadius());
@@ -173,9 +188,11 @@ public class GameController {
             gameView.getCellNode(cell.x, cell.y).setBallFirstTime(ballShape);
         }
 
-        updateNextBallsArea();
-        BallShape.appearNewBalls(ballShapes, t.placedCells().size(), gameView.getBallsPane(),
-                () -> gameLoop.onAppearAnimationFinished());
+        updateNextBallsArea(placedCount);
+        BallShape.appearNewBalls(ballShapes, gameView.getBallsPane(),
+            () -> {
+            if (gameLoop != null) gameLoop.onAppearAnimationFinished();
+        });
     }
 
     private void onTurnComplete(StateTransition t) {
@@ -249,31 +266,54 @@ public class GameController {
         }
     }
 
-    private void updateNextBallsArea() {
-        List<BallShape> nextBallShapes = new ArrayList<>();
+    private void prefillNextBallsPanel() {
         double br = gameView.getBallRadius();
-        for (Ball ball : game.getNextBalls()) {
-            nextBallShapes.add(new BallShape(ball, br));
+        List<Ball> nextBalls = game.getNextBalls();
+        CellNode[] nextNodes = gameView.getNextCellNodes();
+        double layoutX = gameView.getCellNode(0, 0).getCellShape().getWidth() / 2;
+        double layoutY = gameView.getCellNode(0, 0).getCellShape().getHeight() / 2;
+        for (int i = 0; i < nextBalls.size(); i++) {
+            BallShape ball = new BallShape(nextBalls.get(i), br);
+            ball.setLayoutX(layoutX);
+            ball.setLayoutY(layoutY);
+            nextNodes[i].getChildren().add(ball);
         }
-        for (int i = 0; i < gameView.getNextCellNodes().length; i++) {
-            BallShape ball = nextBallShapes.get(i);
-            ball.setLayoutX(gameView.getCellNode(0, 0).getCellShape().getWidth() / 2);
-            ball.setLayoutY(gameView.getCellNode(0, 0).getCellShape().getHeight() / 2);
+    }
+
+    private void updateNextBallsArea(int placedCount) {
+        List<BallShape> nextBallShapes = new ArrayList<>();
+        if (!game.isGameOver()) {
+            double br = gameView.getBallRadius();
+            List<Ball> nextBalls = game.getNextBalls();
+            for (int i = 0; i < placedCount && i < nextBalls.size(); i++) {
+                BallShape ball = new BallShape(nextBalls.get(i), br);
+                ball.setLayoutX(gameView.getCellNode(0, 0).getCellShape().getWidth() / 2);
+                ball.setLayoutY(gameView.getCellNode(0, 0).getCellShape().getHeight() / 2);
+                nextBallShapes.add(ball);
+            }
         }
-        BallShape.appearNext(nextBallShapes, gameView.getNextBallsPane());
+        BallShape.appearNext(nextBallShapes, gameView.getNextBallsPane(), placedCount);
     }
 
     private void handleEscape() {
-        if (currentGameOverPanel != null
-                && rootPane.getChildren().contains(currentGameOverPanel.getOverlay())) {
+        if (playerNamePrompt != null
+            && rootPane.getChildren().contains(playerNamePrompt.getOverlay())) {
+            // prompt handles itself via Enter/OK button — ignore
+        } else if (currentGameOverPanel != null
+            && rootPane.getChildren().contains(currentGameOverPanel.getOverlay())) {
             // game over is top-level modal — ignore
+        } else if (currentScoreBoardPanel != null
+            && rootPane.getChildren().contains(currentScoreBoardPanel.getOverlay())) {
+            currentScoreBoardPanel.hide();
+            currentScoreBoardPanel = null;
+            showGameMenu();
         } else if (currentSettingsPanel != null
-                && rootPane.getChildren().contains(currentSettingsPanel.getOverlay())) {
+            && rootPane.getChildren().contains(currentSettingsPanel.getOverlay())) {
             currentSettingsPanel.cancel();
             currentSettingsPanel = null;
             rootPane.requestFocus();
         } else if (gameMenuPanel != null
-                && rootPane.getChildren().contains(gameMenuPanel.getOverlay())) {
+            && rootPane.getChildren().contains(gameMenuPanel.getOverlay())) {
             if (game != null) {
                 gameMenuPanel.hide();
                 rootPane.requestFocus();
@@ -286,10 +326,15 @@ public class GameController {
     private void onLocaleChanged(Locale locale) {
         hideAllOverlays();
         Messages.setLocale(locale);
+        persistLocale(locale);
         if (game != null) {
             gameView.updateTexts();
         }
         showGameMenu();
+    }
+
+    private static void persistLocale(Locale locale) {
+        PropertiesReader.setProperty("locale", locale.toString());
     }
 
     private void hideAllOverlays() {
@@ -304,16 +349,22 @@ public class GameController {
             currentGameOverPanel.hide();
             currentGameOverPanel = null;
         }
+        if (currentScoreBoardPanel != null) {
+            currentScoreBoardPanel.hide();
+            currentScoreBoardPanel = null;
+        }
     }
 
     public void showGameMenu() {
         boolean inProgress = game != null;
         gameMenuPanel = new GameMenuPanel(rootPane,
-                this::onNewGameFromMenu,
-                this::onSettingsFromMenu,
-                this::onExitFromMenu,
-                this::onBackToGame,
-                this::onLocaleChanged);
+            this::onNewGameFromMenu,
+            this::onSettingsFromMenu,
+            this::onTopScoreFromMenu,
+            this::onResignFromMenu,
+            this::onExitFromMenu,
+            this::onBackToGame,
+            this::onLocaleChanged);
         gameMenuPanel.setGameInProgress(inProgress);
         gameMenuPanel.show();
     }
@@ -321,6 +372,7 @@ public class GameController {
     public void showSettingsDialog(Runnable onSave, Runnable onCancel) {
         currentSettingsPanel = new SettingsPanel(rootPane, onSave, onCancel, locale -> {
             Messages.setLocale(locale);
+            persistLocale(locale);
             if (game != null) {
                 gameView.updateTexts();
             }
@@ -330,14 +382,53 @@ public class GameController {
     }
 
     private void showExitDialog() {
-        currentGameOverPanel = new GameOverPanel(rootPane, this::onRetry);
+        currentGameOverPanel = new GameOverPanel(rootPane, this::onGameOverOk, game.getScore());
         currentGameOverPanel.show();
     }
 
-    private void onRetry() {
+    private void onGameOverOk() {
+        int score = currentGameOverPanel != null ? currentGameOverPanel.getScore() : 0;
         currentGameOverPanel = null;
         stopCurrentGame();
-        showGameMenu();
+        addScoreAndShowBoard(score);
+    }
+
+    public void showPlayerNamePrompt(Runnable onDone) {
+        String prefill = System.getProperty("user.name", "");
+        playerNamePrompt = new PlayerNamePrompt(rootPane, prefill,
+            () -> {
+                playerNamePrompt = null;
+                onDone.run();
+            },
+            locale -> {
+                Messages.setLocale(locale);
+                persistLocale(locale);
+                if (game != null) {
+                    gameView.updateTexts();
+                }
+                if (playerNamePrompt != null) {
+                    playerNamePrompt.refreshTexts();
+                }
+            });
+        playerNamePrompt.show();
+    }
+
+    public static String getPlayerName() {
+        String name = PropertiesReader.getProperty("player.name");
+        if (name == null || name.isBlank()) {
+            return System.getProperty("user.name", "Player");
+        }
+        return name;
+    }
+
+    private void addScoreAndShowBoard(int score) {
+        String name = getPlayerName();
+        if (scoreBoard.isHighScore(score)) {
+            scoreBoard.addAndHighlight(name, score);
+        } else {
+            scoreBoard.highlightOnly(name, score);
+        }
+        showScoreBoard();
     }
 
     private void stopCurrentGame() {
@@ -360,12 +451,31 @@ public class GameController {
         startGame();
     }
 
+    private void onTopScoreFromMenu() {
+        scoreBoard.clearHighlight();
+        showScoreBoard();
+    }
+
+    private void showScoreBoard() {
+        currentScoreBoardPanel = new ScoreBoardPanel(rootPane, scoreBoard, () -> {
+            currentScoreBoardPanel = null;
+            showGameMenu();
+        });
+        currentScoreBoardPanel.show();
+    }
+
     private void onSettingsFromMenu() {
         showSettingsDialog(this::showGameMenu, this::showGameMenu);
     }
 
     private void onExitFromMenu() {
         Platform.exit();
+    }
+
+    private void onResignFromMenu() {
+        int score = game != null ? game.getScore() : 0;
+        stopCurrentGame();
+        addScoreAndShowBoard(score);
     }
 
     private void onBackToGame() {

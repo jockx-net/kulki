@@ -1,12 +1,10 @@
 package net.jockx.kulki.view;
 
-import javafx.application.Platform;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TextFormatter;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -22,20 +20,7 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-public class SettingsPanel {
-    public record Lang(Locale locale, String imagePath) {}
-
-    private static final Lang[] LANGUAGES = {
-            new Lang(Locale.of("en"), "flag-gb.png"),
-            new Lang(Locale.of("pl"), "flag-pl.png"),
-            new Lang(Locale.of("es"), "flag-es.png"),
-            new Lang(Locale.of("de"), "flag-de.png"),
-            new Lang(Locale.of("zh"), "flag-cn.png"),
-            new Lang(Locale.of("ja"), "flag-jp.png"),
-            new Lang(Locale.of("pt", "BR"), "flag-br.png"),
-            new Lang(Locale.of("uk"), "flag-ua.png"),
-    };
-
+public class SettingsPanel extends OverlayPanel {
     private static final int BOARD_MIN = 3;
     private static final int BOARD_MAX = 20;
     private static final int MATCH_MIN = 2;
@@ -44,31 +29,34 @@ public class SettingsPanel {
     private static final int NEW_BALLS_MAX = 20;
 
     private static final double DESIGN_WIDTH = 340;
-    private static final double DESIGN_HEIGHT = 440;
-    private static final double PANEL_HEIGHT_RATIO = 0.8;
+    private static final double DESIGN_HEIGHT = 500;
+    private static final double PANEL_HEIGHT_RATIO = 0.85;
     private static final double SPINNER_WIDTH = 70;
 
-    private final Pane parent;
     private final Runnable onSave, onCancel;
     private final Consumer<Locale> onLanguageChange;
-    private final Pane overlay;
-    private final VBox panel;
     private final Spinner<Integer> boardSizeSpinner;
     private final Spinner<Integer> colorsSpinner;
     private final Spinner<Integer> matchSpinner;
     private final Spinner<Integer> newBallsSpinner;
+    private final TextField playerNameField;
     private final Label matchWarning;
     private final Label newBallsWarning;
     private final int origBoardSize, origColors, origMatch, origNewBalls;
+    private final String origPlayerName;
     private final Label title;
-    private final Button saveButton, cancelButton, defaultsButton;
-    private final Label[] rowLabels = new Label[4];
+    private final javafx.scene.control.Button saveButton, cancelButton, defaultsButton;
+    private final Label[] rowLabels = new Label[5];
 
     public SettingsPanel(Pane parent, Runnable onSave, Runnable onCancel, Consumer<Locale> onLanguageChange) {
-        this.parent = parent;
+        super(parent, DESIGN_WIDTH, DESIGN_HEIGHT, PANEL_HEIGHT_RATIO);
+
         this.onSave = onSave;
         this.onCancel = onCancel;
         this.onLanguageChange = onLanguageChange;
+
+        panel.getStyleClass().add("settings-panel");
+        panel.setAlignment(Pos.TOP_CENTER);
 
         int maxColors = BallColor.values().length;
 
@@ -82,6 +70,20 @@ public class SettingsPanel {
         matchSpinner = spinner(MATCH_MIN, MATCH_MAX, loadInt("minimalMatch"));
         newBallsSpinner = spinner(NEW_BALLS_MIN, NEW_BALLS_MAX, loadInt("newBallCount"));
 
+        origPlayerName = loadPlayerName();
+        playerNameField = new TextField();
+        playerNameField.setText(origPlayerName);
+        playerNameField.setAlignment(Pos.CENTER);
+        playerNameField.getStyleClass().add("player-name-field");
+        playerNameField.setPromptText(Messages.get("playerName.prompt"));
+        playerNameField.setMaxWidth(180);
+        playerNameField.setTextFormatter(new TextFormatter<String>(change -> {
+            if (change.getControlNewText().length() > 20) {
+                return null;
+            }
+            return change;
+        }));
+
         matchWarning = new Label();
         matchWarning.getStyleClass().add("settings-warning");
         newBallsWarning = new Label();
@@ -92,33 +94,20 @@ public class SettingsPanel {
         newBallsSpinner.valueProperty().addListener((_, _, _) -> validate());
         validate();
 
-        overlay = new Pane();
-        overlay.getStyleClass().add("dialog-overlay");
-
-        panel = new VBox();
-        panel.getStyleClass().addAll("dialog-panel", "settings-panel");
-        panel.setAlignment(Pos.TOP_CENTER);
-        panel.setMinSize(DESIGN_WIDTH, DESIGN_HEIGHT);
-        panel.setPrefSize(DESIGN_WIDTH, DESIGN_HEIGHT);
-        panel.setMaxSize(DESIGN_WIDTH, DESIGN_HEIGHT);
-
         title = new Label(Messages.get("settings.title"));
         title.getStyleClass().add("settings-title");
 
-        saveButton = new Button(Messages.get("settings.save"));
-        saveButton.setFocusTraversable(false);
-        saveButton.getStyleClass().addAll("settings-button", "button-save");
-        saveButton.setOnAction(_ -> onSaveClick());
+        saveButton = createButton(Messages.get("settings.save"), this::onSaveClick,
+            "settings-button", "button-save");
+        saveButton.setMaxWidth(Double.MAX_VALUE);
 
-        cancelButton = new Button(Messages.get("settings.cancel"));
-        cancelButton.setFocusTraversable(false);
-        cancelButton.getStyleClass().addAll("settings-button", "button-cancel");
-        cancelButton.setOnAction(_ -> onCancelClick());
+        cancelButton = createButton(Messages.get("settings.cancel"), this::onCancelClick,
+            "settings-button", "button-cancel");
+        cancelButton.setMaxWidth(Double.MAX_VALUE);
 
-        defaultsButton = new Button(Messages.get("settings.restoreDefaults"));
-        defaultsButton.setFocusTraversable(false);
-        defaultsButton.getStyleClass().addAll("settings-button", "button-defaults");
-        defaultsButton.setOnAction(_ -> onDefaultsClick());
+        defaultsButton = createButton(Messages.get("settings.restoreDefaults"), this::onDefaultsClick,
+            "settings-button", "button-defaults");
+        defaultsButton.setMaxWidth(Double.MAX_VALUE);
 
         HBox row1 = new HBox(8);
         row1.setAlignment(Pos.CENTER);
@@ -132,20 +121,7 @@ public class SettingsPanel {
         buttons.setAlignment(Pos.CENTER);
         buttons.getChildren().addAll(row1, row2);
 
-        HBox flags = new HBox(4);
-        flags.setAlignment(Pos.CENTER);
-        for (Lang lang : LANGUAGES) {
-            var is = getClass().getClassLoader().getResourceAsStream(lang.imagePath());
-            ImageView iv = new ImageView(new Image(is));
-            iv.setFitHeight(12);
-            iv.setPreserveRatio(true);
-            Button fb = new Button();
-            fb.setGraphic(iv);
-            fb.getStyleClass().add("flag-button");
-            fb.setFocusTraversable(false);
-            fb.setOnAction(_ -> onLanguageChange.accept(lang.locale()));
-            flags.getChildren().add(fb);
-        }
+        var flags = FlagSelector.createFlagSelector(this.onLanguageChange);
 
         Region spacer = new Region();
         spacer.setMinHeight(24);
@@ -154,36 +130,23 @@ public class SettingsPanel {
         rowLabels[1] = new Label(Messages.get("settings.colors"));
         rowLabels[2] = new Label(Messages.get("settings.matchSize"));
         rowLabels[3] = new Label(Messages.get("settings.newBalls"));
+        rowLabels[4] = new Label(Messages.get("settings.playerName"));
 
         panel.getChildren().addAll(
-                title,
-                row(rowLabels[0], boardSizeSpinner),
-                row(rowLabels[1], colorsSpinner),
-                row(rowLabels[2], matchSpinner, matchWarning),
-                row(rowLabels[3], newBallsSpinner, newBallsWarning),
-                spacer,
-                flags,
-                buttons
+            title,
+            row(rowLabels[0], boardSizeSpinner),
+            row(rowLabels[1], colorsSpinner),
+            row(rowLabels[2], matchSpinner, matchWarning),
+            row(rowLabels[3], newBallsSpinner, newBallsWarning),
+            row(rowLabels[4], playerNameField),
+            spacer,
+            buttons,
+            flags
         );
-        overlay.getChildren().add(panel);
-
-        parent.widthProperty().addListener((_, _, _) -> reposition());
-        parent.heightProperty().addListener((_, _, _) -> reposition());
-    }
-
-    public Pane getOverlay() {
-        return overlay;
     }
 
     public void cancel() {
         onCancelClick();
-    }
-
-    public void show() {
-        if (!parent.getChildren().contains(overlay)) {
-            parent.getChildren().add(overlay);
-        }
-        Platform.runLater(this::reposition);
     }
 
     public void refreshTexts() {
@@ -195,33 +158,9 @@ public class SettingsPanel {
         rowLabels[1].setText(Messages.get("settings.colors"));
         rowLabels[2].setText(Messages.get("settings.matchSize"));
         rowLabels[3].setText(Messages.get("settings.newBalls"));
+        rowLabels[4].setText(Messages.get("settings.playerName"));
+        playerNameField.setPromptText(Messages.get("playerName.prompt"));
         validate();
-    }
-
-    public void hide() {
-        parent.getChildren().remove(overlay);
-    }
-
-    private void reposition() {
-        double pw = parent.getWidth();
-        double ph = parent.getHeight();
-        if (pw <= 0 || ph <= 0) return;
-
-        overlay.setLayoutX(0);
-        overlay.setLayoutY(0);
-        overlay.setPrefSize(pw, ph);
-        overlay.setMinSize(pw, ph);
-        overlay.setMaxSize(pw, ph);
-
-        double scale = ph * PANEL_HEIGHT_RATIO / DESIGN_HEIGHT;
-        if (DESIGN_WIDTH * scale > pw) {
-            scale = pw / DESIGN_WIDTH;
-        }
-
-        panel.setScaleX(scale);
-        panel.setScaleY(scale);
-        panel.setLayoutX((pw - DESIGN_WIDTH) / 2);
-        panel.setLayoutY((ph - DESIGN_HEIGHT) / 2);
     }
 
     private void validate() {
@@ -247,6 +186,7 @@ public class SettingsPanel {
         save("numberOfColors", colorsSpinner.getValue());
         save("minimalMatch", matchSpinner.getValue());
         save("newBallCount", newBallsSpinner.getValue());
+        PropertiesReader.setProperty("player.name", playerNameField.getText().strip());
 
         hide();
         onSave.run();
@@ -257,6 +197,7 @@ public class SettingsPanel {
         colorsSpinner.getValueFactory().setValue(origColors);
         matchSpinner.getValueFactory().setValue(origMatch);
         newBallsSpinner.getValueFactory().setValue(origNewBalls);
+        playerNameField.setText(origPlayerName);
         hide();
         onCancel.run();
     }
@@ -312,6 +253,20 @@ public class SettingsPanel {
         return vb;
     }
 
+    private static VBox row(Label l, TextField textField) {
+        l.getStyleClass().add("settings-field-label");
+        HBox hb = new HBox(8);
+        hb.setAlignment(Pos.CENTER_LEFT);
+        Region gap = new Region();
+        HBox.setHgrow(gap, Priority.ALWAYS);
+        hb.getChildren().addAll(l, gap, textField);
+        VBox vb = new VBox(2);
+        Label spacer = new Label();
+        spacer.setMinHeight(14);
+        vb.getChildren().addAll(hb, spacer);
+        return vb;
+    }
+
     private static VBox row(Label l, Spinner<Integer> spinner, Label warning) {
         l.getStyleClass().add("settings-field-label");
         HBox hb = new HBox(8);
@@ -330,5 +285,13 @@ public class SettingsPanel {
 
     private static int loadInt(String key) {
         return Integer.parseInt(PropertiesReader.getProperty(key));
+    }
+
+    private static String loadPlayerName() {
+        String name = PropertiesReader.getProperty("player.name");
+        if (name == null || name.isBlank()) {
+            return System.getProperty("user.name", "");
+        }
+        return name;
     }
 }

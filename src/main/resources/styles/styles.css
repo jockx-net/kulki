@@ -131,6 +131,30 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.4, 0, 3);
 }
 
+/* ======== Player Name Text Fields ======== */
+
+.player-name-field,
+.player-name-prompt-field {
+    -fx-font-family: "Nunito Black";
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #444444;
+    -fx-background-radius: 8px;
+    -fx-border-radius: 8px;
+    -fx-border-width: 2px;
+    -fx-border-color: #444444;
+    -fx-background-color: linear-gradient(to bottom, #f5f5f5, #e0e0e0);
+    -fx-padding: 4px 8px;
+}
+
+.player-name-field:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.25), 8, 0.3, 0, 2);
+}
+
+.player-name-field:focused {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0.4, 0, 3);
+}
+
 /* ======== Game Over Panel ======== */
 
 .gameover-panel {
@@ -141,6 +165,37 @@
     -fx-font-family: "Nunito Black";
     -fx-font-size: 22px;
     -fx-font-weight: bold;
+}
+
+/* ======== Score Board Panel ======== */
+
+.scoreboard-panel {
+    -fx-spacing: 8px;
+}
+
+.scoreboard-grid {
+    -fx-padding: 8px;
+}
+
+.scoreboard-rank {
+    -fx-font-family: "Nunito Black";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+.scoreboard-name {
+    -fx-font-family: "Nunito Black";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
+}
+
+.scoreboard-score {
+    -fx-font-family: "Nunito Black";
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333333;
 }
 
 /* ======== Game Menu Panel ======== */

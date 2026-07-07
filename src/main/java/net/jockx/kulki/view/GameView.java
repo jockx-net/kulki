@@ -35,6 +35,15 @@ public class GameView {
 
         ballRadius = CELL_SIZE * 0.45;
 
+        GridPane boardPane = createBoardGrid(bw, bh);
+        GridPane nextBallsPane = createNextBallsPanel(bw, newBallCount);
+        createLabels();
+        createMenuButton();
+
+        layout(bw, bh, newBallCount, boardPane, nextBallsPane);
+    }
+
+    private GridPane createBoardGrid(int bw, int bh) {
         GridPane boardPane = new GridPane();
         boardPane.setHgap(GAP);
         boardPane.setVgap(GAP);
@@ -46,7 +55,10 @@ public class GameView {
                 boardPane.add(cellNodes[j][i], j, i);
             }
         }
+        return boardPane;
+    }
 
+    private GridPane createNextBallsPanel(int bw, int newBallCount) {
         nextBallsPane = new GridPane();
         nextBallsPane.setHgap(GAP);
         nextBallsPane.setVgap(GAP);
@@ -56,7 +68,10 @@ public class GameView {
             nextCellNodes[i] = new CellNode(CELL_SIZE, CELL_SIZE);
             nextBallsPane.add(nextCellNodes[i], i % bw, i / bw);
         }
+        return nextBallsPane;
+    }
 
+    private void createLabels() {
         scoreTextLabel = new Label(Messages.get("gameView.score"));
         scoreTextLabel.getStyleClass().add("game-view-label");
 
@@ -66,7 +81,19 @@ public class GameView {
 
         nextLabel = new Label(Messages.get("gameView.next"));
         nextLabel.getStyleClass().add("game-view-label");
+    }
 
+    private void createMenuButton() {
+        double labelH = LABEL_FONT * 1.3;
+        menuButton = new Button("☰");
+        menuButton.getStyleClass().add("menu-button");
+        menuButton.setFocusTraversable(false);
+        menuButton.setPrefSize(labelH, labelH);
+        menuButton.setMinSize(labelH, labelH);
+        menuButton.setMaxSize(labelH, labelH);
+    }
+
+    private void layout(int bw, int bh, int newBallCount, GridPane boardPane, GridPane nextBallsPane) {
         double bwPx = bw * CELL_SIZE + (bw - 1) * GAP;
         double bhPx = bh * CELL_SIZE + (bh - 1) * GAP;
         int nextRows = (newBallCount + bw - 1) / bw;
@@ -79,23 +106,15 @@ public class GameView {
         double ox = PADDING;
         double sy = PADDING;
 
-        double menuBtnW = labelH;
-        menuButton = new Button("☰");
-        menuButton.getStyleClass().add("menu-button");
-        menuButton.setFocusTraversable(false);
-        menuButton.setPrefSize(menuBtnW, labelH);
-        menuButton.setMinSize(menuBtnW, labelH);
-        menuButton.setMaxSize(menuBtnW, labelH);
         menuButton.setLayoutX(ox);
         menuButton.setLayoutY(sy);
 
-        double scoreLx = ox + menuBtnW + GAP;
+        double scoreLx = ox + labelH + GAP;
         scoreTextLabel.setLayoutX(scoreLx);
         scoreTextLabel.setLayoutY(sy);
-
         scoreLabel.setLayoutX(scoreLx);
         scoreLabel.setLayoutY(sy);
-        scoreLabel.setPrefWidth(bwPx - menuBtnW - GAP);
+        scoreLabel.setPrefWidth(bwPx - labelH - GAP);
 
         double by = PADDING + labelH + GAP;
         boardPane.setLayoutX(ox);
@@ -103,8 +122,7 @@ public class GameView {
 
         for (int i = 0; i < bh; i++) {
             for (int j = 0; j < bw; j++) {
-                CellNode cn = cellNodes[j][i];
-                cn.setBoardOffset(ox, by);
+                cellNodes[j][i].setBoardOffset(ox, by);
             }
         }
 

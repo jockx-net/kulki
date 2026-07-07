@@ -26,19 +26,19 @@ import java.util.Map;
 public class BallShape extends Circle {
 
     private static final Map<BallColor, Color> FX_COLORS = Map.ofEntries(
-            Map.entry(BallColor.RED, Color.RED),
-            Map.entry(BallColor.GREEN, Color.GREEN),
-            Map.entry(BallColor.BLUE, Color.BLUE),
-            Map.entry(BallColor.YELLOW, Color.YELLOW),
-            Map.entry(BallColor.MAGENTA, Color.MAGENTA),
-            Map.entry(BallColor.CYAN, Color.CYAN),
-            Map.entry(BallColor.ORANGE, Color.ORANGE),
-            Map.entry(BallColor.PINK, Color.PINK),
-            Map.entry(BallColor.WHITE, Color.WHITE),
-            Map.entry(BallColor.BLACK, Color.BLACK),
-            Map.entry(BallColor.GRAY, Color.GRAY),
-            Map.entry(BallColor.BROWN, Color.BROWN),
-            Map.entry(BallColor.KHAKI, Color.KHAKI)
+        Map.entry(BallColor.RED, Color.RED),
+        Map.entry(BallColor.GREEN, Color.GREEN),
+        Map.entry(BallColor.BLUE, Color.BLUE),
+        Map.entry(BallColor.YELLOW, Color.YELLOW),
+        Map.entry(BallColor.MAGENTA, Color.MAGENTA),
+        Map.entry(BallColor.CYAN, Color.CYAN),
+        Map.entry(BallColor.ORANGE, Color.ORANGE),
+        Map.entry(BallColor.PINK, Color.PINK),
+        Map.entry(BallColor.WHITE, Color.WHITE),
+        Map.entry(BallColor.BLACK, Color.BLACK),
+        Map.entry(BallColor.GRAY, Color.GRAY),
+        Map.entry(BallColor.BROWN, Color.BROWN),
+        Map.entry(BallColor.KHAKI, Color.KHAKI)
     );
 
     private static Color toFx(BallColor ballColor) {
@@ -48,20 +48,19 @@ public class BallShape extends Circle {
     public BallShape(Ball ball, double radius) {
         super(radius);
         setFill(createGradient(ball, radius));
-        this.setMouseTransparent(true);
+        setMouseTransparent(true);
     }
 
     private static RadialGradient createGradient(Ball ball, double r) {
         Color fxColor = toFx(ball.getColor());
         return new RadialGradient(
-                0, 0.1, -r * 0.35, -r * 0.35, r * 1.2, false,
-                CycleMethod.NO_CYCLE,
-                new Stop(1, fxColor.darker().darker().darker()),
-                new Stop(0.7, fxColor.darker()),
-                new Stop(0.25, fxColor),
-                new Stop(0, Color.WHITE));
+            0, 0.1, -r * 0.35, -r * 0.35, r * 1.2, false,
+            CycleMethod.NO_CYCLE,
+            new Stop(1, fxColor.darker().darker().darker()),
+            new Stop(0.7, fxColor.darker()),
+            new Stop(0.25, fxColor),
+            new Stop(0, Color.WHITE));
     }
-
 
     public void moveTo(List<CellNode> cellsInPath, Runnable onFinished) {
         Path path = new Path();
@@ -75,13 +74,12 @@ public class BallShape extends Circle {
         path.getElements().add(start);
 
         for (CellNode cell : cellsInPath) {
-            LineTo relativeLine = new LineTo(cell.getBallCenterX() - getLayoutX(), cell.getBallCenterY() - getLayoutY());
-            path.getElements().add(relativeLine);
+            path.getElements().add(
+                new LineTo(cell.getBallCenterX() - getLayoutX(), cell.getBallCenterY() - getLayoutY()));
         }
 
         PathTransition pathTransition = new PathTransition();
-        int transitionDuration = 200 * cellsInPath.size();
-        pathTransition.setDuration(Duration.millis(transitionDuration));
+        pathTransition.setDuration(Duration.millis(200 * cellsInPath.size()));
         pathTransition.setPath(path);
         pathTransition.setNode(this);
         pathTransition.setOrientation(PathTransition.OrientationType.NONE);
@@ -93,54 +91,44 @@ public class BallShape extends Circle {
         pathTransition.play();
     }
 
-    public static void remove(Collection<BallShape> balls, boolean gameOver, Pane mainBoardPane, Runnable onFinished) {
-        int duration = 500;
+    public static void remove(Collection<BallShape> balls, Pane mainBoardPane, Runnable onFinished) {
         ParallelTransition parallelTransition = new ParallelTransition();
-        if (!gameOver && onFinished != null) {
+        if (onFinished != null) {
             parallelTransition.setOnFinished(_ -> onFinished.run());
         }
 
-        for (final BallShape ball : balls) {
-            ScaleTransition st = new ScaleTransition(Duration.millis(duration), ball);
+        for (BallShape ball : balls) {
+            ScaleTransition st = new ScaleTransition(Duration.millis(500), ball);
             st.setByX(-0.5f);
             st.setByY(-0.5f);
 
-            FadeTransition ft = new FadeTransition(Duration.millis(duration), ball);
+            FadeTransition ft = new FadeTransition(Duration.millis(500), ball);
             ft.setFromValue(1.0);
             ft.setToValue(0.0);
-            ft.setOnFinished(_ -> {
-                mainBoardPane.getChildren().remove(ball);
-            });
-            parallelTransition.getChildren().add(st);
-            parallelTransition.getChildren().add(ft);
+            ft.setOnFinished(_ -> mainBoardPane.getChildren().remove(ball));
+
+            parallelTransition.getChildren().addAll(st, ft);
         }
         parallelTransition.play();
     }
 
-    public static void appearNewBalls(List<BallShape> balls, int actuallyShown, Pane mainBoardPane, Runnable onFinished) {
-        int duration = 300;
+    public static void appearNewBalls(List<BallShape> balls, Pane mainBoardPane, Runnable onFinished) {
         SequentialTransition sequentialFade = new SequentialTransition();
         SequentialTransition sequentialScale = new SequentialTransition();
         if (onFinished != null) {
             sequentialFade.setOnFinished(_ -> onFinished.run());
         }
 
-        for (int i = 0; i < actuallyShown; i++) {
-            BallShape ball = balls.get(i);
+        for (BallShape ball : balls) {
             mainBoardPane.getChildren().add(ball);
             ball.setScaleX(0.01f);
             ball.setScaleY(0.01f);
 
-            FadeTransition hide = new FadeTransition(Duration.millis(0), ball);
-            hide.setFromValue(0.0);
-            hide.setToValue(0.0);
-            hide.play();
-
-            FadeTransition ft = new FadeTransition(Duration.millis(duration + 10), ball);
+            FadeTransition ft = new FadeTransition(Duration.millis(310), ball);
             ft.setFromValue(0.01);
             ft.setToValue(1.0);
 
-            ScaleTransition st = new ScaleTransition(Duration.millis(duration), ball);
+            ScaleTransition st = new ScaleTransition(Duration.millis(300), ball);
             st.setToX(1.0);
             st.setToY(1.0);
 
@@ -151,44 +139,37 @@ public class BallShape extends Circle {
         sequentialScale.play();
     }
 
-    public static void appearNext(List<BallShape> nextBalls, Pane nextBallsPane) {
-        int duration = 300;
+    public static void appearNext(List<BallShape> nextBalls, Pane nextBallsPane, int count) {
         SequentialTransition sequentialFade = new SequentialTransition();
         SequentialTransition sequentialScale = new SequentialTransition();
 
-        for (int i = 0; i < nextBallsPane.getChildren().size(); i++) {
-            final CellNode node = (CellNode) nextBallsPane.getChildren().get(i);
-
-            if (node.getChildren().size() < 2) {
-                continue;
-            }
+        int processed = 0;
+        for (Node child : nextBallsPane.getChildren()) {
+            if (processed >= count) break;
+            CellNode node = (CellNode) child;
+            if (node.getChildren().size() < 2) continue;
             Node ball = node.getChildren().get(1);
-            ScaleTransition st = new ScaleTransition(Duration.millis(duration), ball);
+            ScaleTransition st = new ScaleTransition(Duration.millis(300), ball);
             st.setByX(-0.5f);
             st.setByY(-0.5f);
 
-            FadeTransition ft = new FadeTransition(Duration.millis(duration), ball);
+            FadeTransition ft = new FadeTransition(Duration.millis(300), ball);
             ft.setFromValue(1.0);
             ft.setToValue(0.0);
 
             ft.setOnFinished(_ -> node.getChildren().remove(1));
             sequentialScale.getChildren().add(st);
             sequentialFade.getChildren().add(ft);
-            node.getChildren().removeAll();
+            processed++;
         }
 
-        for (int i = 0; i < nextBalls.size(); i++) {
+        for (int i = 0; i < Math.min(count, nextBalls.size()); i++) {
             BallShape ball = nextBalls.get(i);
             CellNode node = (CellNode) nextBallsPane.getChildren().get(i);
             node.getChildren().add(ball);
             ball.setVisible(true);
             ball.setScaleX(0.01f);
             ball.setScaleY(0.01f);
-
-            FadeTransition hide = new FadeTransition(Duration.millis(0), ball);
-            hide.setFromValue(0.0);
-            hide.setToValue(0.0);
-            hide.play();
 
             FadeTransition ft = new FadeTransition(Duration.millis(100), ball);
             ft.setFromValue(0.01);
