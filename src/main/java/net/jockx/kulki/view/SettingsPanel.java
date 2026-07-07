@@ -1,7 +1,9 @@
 package net.jockx.kulki.view;
 
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.Node;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -34,7 +36,6 @@ public class SettingsPanel extends OverlayPanel {
     private static final double SPINNER_WIDTH = 70;
 
     private final Runnable onSave, onCancel;
-    private final Consumer<Locale> onLanguageChange;
     private final Spinner<Integer> boardSizeSpinner;
     private final Spinner<Integer> colorsSpinner;
     private final Spinner<Integer> matchSpinner;
@@ -45,7 +46,7 @@ public class SettingsPanel extends OverlayPanel {
     private final int origBoardSize, origColors, origMatch, origNewBalls;
     private final String origPlayerName;
     private final Label title;
-    private final javafx.scene.control.Button saveButton, cancelButton, defaultsButton;
+    private final Button saveButton, cancelButton, defaultsButton;
     private final Label[] rowLabels = new Label[5];
 
     public SettingsPanel(Pane parent, Runnable onSave, Runnable onCancel, Consumer<Locale> onLanguageChange) {
@@ -53,7 +54,6 @@ public class SettingsPanel extends OverlayPanel {
 
         this.onSave = onSave;
         this.onCancel = onCancel;
-        this.onLanguageChange = onLanguageChange;
 
         panel.getStyleClass().add("settings-panel");
         panel.setAlignment(Pos.TOP_CENTER);
@@ -121,7 +121,7 @@ public class SettingsPanel extends OverlayPanel {
         buttons.setAlignment(Pos.CENTER);
         buttons.getChildren().addAll(row1, row2);
 
-        var flags = FlagSelector.createFlagSelector(this.onLanguageChange);
+        var flags = FlagSelector.createFlagSelector(onLanguageChange);
 
         Region spacer = new Region();
         spacer.setMinHeight(24);
@@ -216,7 +216,7 @@ public class SettingsPanel extends OverlayPanel {
                 defaults.load(is);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load size.properties", e);
         }
         return Integer.parseInt(defaults.getProperty(key));
     }
@@ -239,13 +239,13 @@ public class SettingsPanel extends OverlayPanel {
         return s;
     }
 
-    private static VBox row(Label l, Spinner<Integer> spinner) {
+    private static VBox row(Label l, Node input) {
         l.getStyleClass().add("settings-field-label");
         HBox hb = new HBox(8);
         hb.setAlignment(Pos.CENTER_LEFT);
         Region gap = new Region();
         HBox.setHgrow(gap, Priority.ALWAYS);
-        hb.getChildren().addAll(l, gap, spinner);
+        hb.getChildren().addAll(l, gap, input);
         VBox vb = new VBox(2);
         Label spacer = new Label();
         spacer.setMinHeight(14);
@@ -253,27 +253,13 @@ public class SettingsPanel extends OverlayPanel {
         return vb;
     }
 
-    private static VBox row(Label l, TextField textField) {
+    private static VBox row(Label l, Node input, Label warning) {
         l.getStyleClass().add("settings-field-label");
         HBox hb = new HBox(8);
         hb.setAlignment(Pos.CENTER_LEFT);
         Region gap = new Region();
         HBox.setHgrow(gap, Priority.ALWAYS);
-        hb.getChildren().addAll(l, gap, textField);
-        VBox vb = new VBox(2);
-        Label spacer = new Label();
-        spacer.setMinHeight(14);
-        vb.getChildren().addAll(hb, spacer);
-        return vb;
-    }
-
-    private static VBox row(Label l, Spinner<Integer> spinner, Label warning) {
-        l.getStyleClass().add("settings-field-label");
-        HBox hb = new HBox(8);
-        hb.setAlignment(Pos.CENTER_LEFT);
-        Region gap = new Region();
-        HBox.setHgrow(gap, Priority.ALWAYS);
-        hb.getChildren().addAll(l, gap, spinner);
+        hb.getChildren().addAll(l, gap, input);
         VBox vb = new VBox(2);
         vb.getChildren().addAll(hb, warning);
         return vb;

@@ -16,8 +16,8 @@ public class Board {
     private final PathFinder pathFinder;
     private final MatchFinder matchFinder;
 
-    private RuleSet ruleSet;
-    private Cell[][] cells;
+    private final RuleSet ruleSet;
+    private final Cell[][] cells;
 
 
     public Board () {
@@ -25,7 +25,7 @@ public class Board {
     }
 
     public Board (RuleSet ruleSet) {
-        this.ruleSet =ruleSet;
+        this.ruleSet = ruleSet;
         this.height = ruleSet.boardSize;
         this.width = ruleSet.boardSize;
         this.cells = Cell.createCellArray(width, height);
@@ -54,7 +54,7 @@ public class Board {
     }
 
     public List<Cell> getFreeCells() {
-        List<Cell> freeCells = new LinkedList<Cell>();
+        List<Cell> freeCells = new LinkedList<>();
         for (int i = 0; i < height; i++){
             for (int j = 0; j < width; j++){
                 Cell cell = getCell(j, i);
@@ -90,7 +90,7 @@ public class Board {
     }
 
     public List<Ball> getBalls() {
-        List<Ball> balls = new ArrayList<Ball>();
+        List<Ball> balls = new ArrayList<>();
         for (Cell c : getCells() ){
             Ball b = c.getBall();
             if ( b != null){
@@ -101,7 +101,7 @@ public class Board {
     }
 
     public List<Cell> getCells() {
-        List<Cell> cellList = new ArrayList<Cell>();
+        List<Cell> cellList = new ArrayList<>();
         for (int i = 0; i < height; i++){
             for (int j = 0; j < width; j++){
                 cellList.add(getCell(j, i));

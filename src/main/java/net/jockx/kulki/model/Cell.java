@@ -2,7 +2,7 @@ package net.jockx.kulki.model;
 
 /**
  * A Cell is a board field that can hold single Ball and
- * has links to neighbouring Cells
+ * has links to neighboring Cells
  */
 public class Cell {
     Cell up, down, left, right,
@@ -10,23 +10,23 @@ public class Cell {
 
     public final int x, y;
 
-    public Cell(int x, int y){
+    public Cell(int x, int y) {
         this.x = x;
         this.y = y;
     }
     private Ball ball;
 
-    static Cell createCells(int x, int y, Cell[][] grid){
+    static Cell createCells(int x, int y, Cell[][] grid) {
 
         Cell me;
         try {
-            if(grid[x][y] == null){
-                grid[x][y] = new Cell(x,y);
+            if (grid[x][y] == null) {
+                grid[x][y] = new Cell(x, y);
                 me = grid[x][y];
             } else {
                 return grid[x][y];
             }
-        } catch (ArrayIndexOutOfBoundsException e){
+        } catch (ArrayIndexOutOfBoundsException e) {
             return null;
         }
 
@@ -57,6 +57,6 @@ public class Cell {
     }
 
     public boolean isFree() {
-        return (getBall() == null);
+        return getBall() == null;
     }
 }

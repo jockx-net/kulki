@@ -1,6 +1,5 @@
 package net.jockx.kulki.model;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class RuleSet {
@@ -10,25 +9,10 @@ public class RuleSet {
     int newBallCount = 3;
     int numberOfColors = 6;
     int perBallScore = 20;
-    int perLineScoreModifier = 2;
 
     boolean isDiagonalMatchAllowed = true;
-    boolean isSimultaneousMatchAllowed = true;
 
-    final static List<BallColor> colorList = Arrays.asList(
-            BallColor.RED,
-            BallColor.GREEN,
-            BallColor.BLUE,
-            BallColor.YELLOW,
-            BallColor.MAGENTA,
-            BallColor.CYAN,
-            BallColor.ORANGE,
-            BallColor.PINK,
-            BallColor.WHITE,
-            BallColor.BLACK,
-            BallColor.GRAY,
-            BallColor.BROWN,
-            BallColor.KHAKI );
+    static final List<BallColor> colorList = List.of(BallColor.values());
 
     public RuleSet setBoardSize(int boardSize){
         this.boardSize = boardSize;
@@ -37,16 +21,6 @@ public class RuleSet {
 
     public RuleSet setMinimalMatch(int minimalMatch){
         this.minimalMatch = minimalMatch;
-        return this;
-    }
-
-    public RuleSet setDiagonalMatchAllowed (boolean allowed){
-        this.isDiagonalMatchAllowed = allowed;
-        return this;
-    }
-
-    public RuleSet setSimultaneousMatchAllowed(boolean allowed){
-        this.isSimultaneousMatchAllowed = allowed;
         return this;
     }
 
@@ -60,25 +34,12 @@ public class RuleSet {
         return this;
     }
 
-    public RuleSet setPerLineScoreModifier(int perLineScoreModifier) {
-        this.perLineScoreModifier = perLineScoreModifier;
-        return this;
-    }
-
     public RuleSet setPerBallScore(int perBallScore){
         this.perBallScore = perBallScore;
         return this;
     }
 
-    public static List<BallColor> getColorList() {
-        return colorList;
-    }
-
     public static BallColor getColor(int i) {
         return colorList.get(i);
-    }
-
-    public int getNewBallCount() {
-        return newBallCount;
     }
 }

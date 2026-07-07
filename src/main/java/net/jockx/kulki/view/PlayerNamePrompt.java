@@ -75,7 +75,7 @@ public class PlayerNamePrompt extends OverlayPanel {
     @Override
     public void show() {
         super.show();
-        Platform.runLater(() -> nameField.requestFocus());
+        Platform.runLater(nameField::requestFocus);
     }
 
     private void confirm() {

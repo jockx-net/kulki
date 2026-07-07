@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class MatchFinder {
 
-    static enum MatchDirection {
+    enum MatchDirection {
         HORIZONTAL, VERTICAL, MAIN_DIAGONAL, ANTI_DIAGONAL
     }
 
@@ -28,14 +28,12 @@ public class MatchFinder {
             matchedList.add(toMatch);
         }
 
-        BallColor color = matchedList.iterator().next().getBall().getColor();
-        if ( toMatch.getBall().getColor() != color ) {
+        BallColor color = matchedList.iterator().next().getBall().color();
+        if ( toMatch.getBall().color() != color ) {
             return matchedList;
         }
 
-        if(!matchedList.contains(toMatch)){
-            matchedList.add(toMatch);
-        }
+        matchedList.add(toMatch);
         switch (direction){
             case HORIZONTAL:
                 if(!matchedList.contains(toMatch.left)){

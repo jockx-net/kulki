@@ -30,9 +30,9 @@ public class MainApp extends Application {
         double height = Double.parseDouble(PropertiesReader.getProperty("scene.height"));
         Scene scene = new Scene(controller.getRootPane(), width, height);
 
-        scene.widthProperty().addListener((obs, oldVal, newVal) ->
+        scene.widthProperty().addListener((_, _, newVal) ->
                 PropertiesReader.setProperty("scene.width", Double.toString(newVal.doubleValue())));
-        scene.heightProperty().addListener((obs, oldVal, newVal) ->
+        scene.heightProperty().addListener((_, _, newVal) ->
                 PropertiesReader.setProperty("scene.height", Double.toString(newVal.doubleValue())));
 
         scene.getStylesheets().add(getClass().getResource("/styles/styles.css").toExternalForm());

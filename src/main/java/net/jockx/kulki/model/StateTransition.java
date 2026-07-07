@@ -22,10 +22,6 @@ public record StateTransition(
         return matchedCells != null && !matchedCells.isEmpty();
     }
 
-    public boolean hasPlacedBalls() {
-        return placedCells != null && !placedCells.isEmpty();
-    }
-
     public static StateTransition moveResult(Cell source, Cell target, List<Cell> path) {
         return new StateTransition(source, target, path, null, null, null, 0, false);
     }

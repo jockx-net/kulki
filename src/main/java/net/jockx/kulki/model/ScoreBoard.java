@@ -1,6 +1,8 @@
 package net.jockx.kulki.model;
 
 import net.jockx.kulki.util.AppConfigDir;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,9 +10,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ScoreBoard {
+    private static final Logger log = LoggerFactory.getLogger(ScoreBoard.class);
     private static final int MAX_ENTRIES = 10;
     private static final String SCORES_FILE = "kulki.scores";
 
@@ -36,7 +38,7 @@ public class ScoreBoard {
     }
 
     public boolean isHighScore(int score) {
-        return entries.size() < MAX_ENTRIES || score > entries.get(entries.size() - 1).score();
+        return entries.size() < MAX_ENTRIES || score > entries.getLast().score();
     }
 
     public void addAndHighlight(String name, int score) {
@@ -68,15 +70,6 @@ public class ScoreBoard {
         highlightedEntry = null;
     }
 
-    public void addEntry(String name, int score) {
-        entries.add(new Entry(name, score));
-        entries.sort(null);
-        if (entries.size() > MAX_ENTRIES) {
-            entries.subList(MAX_ENTRIES, entries.size()).clear();
-        }
-        save();
-    }
-
     private void load() {
         if (!Files.exists(scoresPath)) {
             createDefaults();
@@ -95,7 +88,7 @@ public class ScoreBoard {
             }
             entries.sort(null);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("Failed to load scores file, starting with empty board", e);
         }
     }
 
@@ -112,10 +105,10 @@ public class ScoreBoard {
             Files.createDirectories(scoresPath.getParent());
             List<String> lines = entries.stream()
                     .map(e -> e.name() + "|" + e.score())
-                    .collect(Collectors.toList());
+                    .toList();
             Files.write(scoresPath, lines);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("Failed to save scores file", e);
         }
     }
 

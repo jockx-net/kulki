@@ -15,10 +15,6 @@ public final class Messages {
 
     private Messages() {}
 
-    public static Locale getCurrentLocale() {
-        return currentLocale;
-    }
-
     public static String get(String key) {
         if (!loaded) {
             load();

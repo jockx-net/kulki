@@ -17,11 +17,8 @@ public class ScoreBoardPanel extends OverlayPanel {
     private static final double DESIGN_HEIGHT = 440;
     private static final double PANEL_HEIGHT_RATIO = 0.8;
 
-    private final Runnable onClose;
-
     public ScoreBoardPanel(Pane parent, ScoreBoard scoreBoard, Runnable onClose) {
         super(parent, DESIGN_WIDTH, DESIGN_HEIGHT, PANEL_HEIGHT_RATIO);
-        this.onClose = onClose;
 
         panel.getStyleClass().add("scoreboard-panel");
         panel.setAlignment(Pos.TOP_CENTER);

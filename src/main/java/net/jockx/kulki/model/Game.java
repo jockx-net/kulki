@@ -12,7 +12,6 @@ public class Game implements GameEngine {
     RuleSet ruleSet;
     Board board;
     int score;
-    int highScore;
 
     List<Cell> nextCells;
     List<Ball> nextBalls;
@@ -134,31 +133,6 @@ public class Game implements GameEngine {
         createNextBalls();
     }
 
-    public void setRuleSet(RuleSet ruleSet) {
-        this.ruleSet = ruleSet;
-    }
-
-    public void setBoard(Board board) {
-        this.board = board;
-    }
-
-    @Override
-    public int getScore() {
-        return score;
-    }
-
-    public void setScore(int score) {
-        this.score = score;
-    }
-
-    public int getHighScore() {
-        return highScore;
-    }
-
-    public void setHighScore(int highScore) {
-        this.highScore = highScore;
-    }
-
     @Override
     public boolean isGameOver() {
         return board.getFreeCells().isEmpty();
@@ -170,12 +144,8 @@ public class Game implements GameEngine {
     }
 
     @Override
-    public List<Cell> getNextCells() {
-        return nextCells;
-    }
-
-    public List<BallColor> getColorList() {
-        return colorList;
+    public int getScore() {
+        return score;
     }
 
     @Override
@@ -183,12 +153,4 @@ public class Game implements GameEngine {
         return board;
     }
 
-    @Override
-    public RuleSet getRuleSet() {
-        return ruleSet;
-    }
-
-    public Set<Cell> getBallsToRemove() {
-        return cellsToRemove;
-    }
 }

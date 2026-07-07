@@ -1,6 +1,8 @@
 package net.jockx.kulki.controller;
 
 import net.jockx.kulki.util.AppConfigDir;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +11,7 @@ import java.nio.file.Path;
 import java.util.Properties;
 
 public class PropertiesReader {
+    private static final Logger log = LoggerFactory.getLogger(PropertiesReader.class);
     private final Properties properties;
     private static PropertiesReader instance;
     private static final String CONFIG_FILE_NAME = "kulki.properties";
@@ -27,7 +30,7 @@ public class PropertiesReader {
                 properties.load(is);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load size.properties from classpath", e);
         }
 
         Path configFile = AppConfigDir.get().resolve(CONFIG_FILE_NAME);
@@ -35,7 +38,7 @@ public class PropertiesReader {
             try (InputStream is = Files.newInputStream(configFile)) {
                 properties.load(is);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.warn("Failed to read user config, using defaults", e);
             }
         }
     }
@@ -48,16 +51,12 @@ public class PropertiesReader {
                 properties.store(os, "Kulki Game Configuration");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("Failed to save user config", e);
         }
     }
 
     public static int getInt(String propertyName) {
         return Integer.parseInt(getInstance().properties.getProperty(propertyName));
-    }
-
-    public static double getDouble(String propertyName) {
-        return Double.parseDouble(getInstance().properties.getProperty(propertyName));
     }
 
     public static String getProperty(String propertyName) {

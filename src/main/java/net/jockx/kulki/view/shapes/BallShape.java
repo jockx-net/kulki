@@ -52,7 +52,7 @@ public class BallShape extends Circle {
     }
 
     private static RadialGradient createGradient(Ball ball, double r) {
-        Color fxColor = toFx(ball.getColor());
+        Color fxColor = toFx(ball.color());
         return new RadialGradient(
             0, 0.1, -r * 0.35, -r * 0.35, r * 1.2, false,
             CycleMethod.NO_CYCLE,
@@ -64,7 +64,7 @@ public class BallShape extends Circle {
 
     public void moveTo(List<CellNode> cellsInPath, Runnable onFinished) {
         Path path = new Path();
-        CellNode lastNode = cellsInPath.get(cellsInPath.size() - 1);
+        CellNode lastNode = cellsInPath.getLast();
         double oldLayoutX = getLayoutX();
         double oldLayoutY = getLayoutY();
         setLayoutX(lastNode.getBallCenterX());

@@ -13,8 +13,8 @@ public class BoardTest {
     @Test
     public void testCreateCellArray() {
         Cell[][] cells = Cell.createCellArray(10, 10);
-        for (int i = 0; i < 10; i++){
-            for (int j = 0; j < 10; j++){
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
                 Assertions.assertNotNull(cells[i][j], "Cell at x:" + i + " y: " + j);
             }
         }
@@ -22,17 +22,17 @@ public class BoardTest {
 
     @Test void testRuleSetDefaultConstructor() {
         RuleSet ruleSet = new RuleSet();
-        Assertions.assertNotNull (ruleSet);
-        Assertions.assertEquals(ruleSet.boardSize, 9, "Wrong default Board size");
-        Assertions.assertEquals(ruleSet.minimalMatch, 5, "Wrong default Board minimalMatch");
+        Assertions.assertNotNull(ruleSet);
+        Assertions.assertEquals(9, ruleSet.boardSize, "Wrong default Board size");
+        Assertions.assertEquals(5, ruleSet.minimalMatch, "Wrong default Board minimalMatch");
     }
 
     @Test void testBoardConstructor() {
         Board board = new Board();
-        Assertions.assertNotNull (board);
+        Assertions.assertNotNull(board);
         Assertions.assertNotNull(board.getRuleSet());
-        Assertions.assertEquals(board.height, 9, "Wrong default Board height");
-        Assertions.assertEquals(board.width, 9, "Wrong default Board width");
+        Assertions.assertEquals(9, board.height, "Wrong default Board height");
+        Assertions.assertEquals(9, board.width, "Wrong default Board width");
     }
 
     @Test
@@ -67,14 +67,14 @@ public class BoardTest {
         printSet("\\ [1:1]", noneMainDiagonal);
         printSet("/ [1:1]", noneAntiDiagonal);
 
-        Assertions.assertEquals(horizontal.size(), 4, "Horizontal [1:0] didn't match");
-        Assertions.assertEquals(vertical.size(), 3, "Diagonal [0:2] didn't match");
-        Assertions.assertEquals(mainDiagonal.size(), 4, "Vertical [2:2] didn't match");
-        Assertions.assertEquals(antiDiagonal.size(), 3, "Anti-diagonal  [2:1] didn't match");
-        Assertions.assertEquals(noneHorizontal.size(), 1, "Horizontal [1:1] is not Empty");
-        Assertions.assertEquals(noneVertical.size(), 2, "Vertical [1:1] is not Empty");
-        Assertions.assertEquals(noneMainDiagonal.size(), 4, "Main-Diagonal [1:1] is not Empty");
-        Assertions.assertEquals(noneAntiDiagonal.size(), 2, "Anti-Diagonal [1:1] is not Empty");
+        Assertions.assertEquals(4, horizontal.size(), "Horizontal [1:0] didn't match");
+        Assertions.assertEquals(3, vertical.size(), "Diagonal [0:2] didn't match");
+        Assertions.assertEquals(4, mainDiagonal.size(), "Vertical [2:2] didn't match");
+        Assertions.assertEquals(3, antiDiagonal.size(), "Anti-diagonal  [2:1] didn't match");
+        Assertions.assertEquals(1, noneHorizontal.size(), "Horizontal [1:1] is not Empty");
+        Assertions.assertEquals(2, noneVertical.size(), "Vertical [1:1] is not Empty");
+        Assertions.assertEquals(4, noneMainDiagonal.size(), "Main-Diagonal [1:1] is not Empty");
+        Assertions.assertEquals(2, noneAntiDiagonal.size(), "Anti-Diagonal [1:1] is not Empty");
     }
 
     @Test
@@ -93,12 +93,12 @@ public class BoardTest {
         printSet("2:1", match2_1);
         printSet("1:3", match1_3);
         printSet("3:1", match3_1);
-        Assertions.assertEquals(match0_0.size(), 7, "Horizontal + diagonal [0:0] didn't match");
-        Assertions.assertEquals(match1_1.size(), 4, "Diagonal [1:1] didn't match");
-        Assertions.assertEquals(match0_2.size(), 3, "Vertical [0:2] didn't match");
-        Assertions.assertEquals(match2_1.size(), 3, "Anti-diagonal  [2:1] didn't match");
-        Assertions.assertEquals(match1_3.size(), 3, "Horizontal [1:3] didn't match");
-        Assertions.assertEquals(match3_1.size(), 0, "Empty [3:1] didn't match");
+        Assertions.assertEquals(7, match0_0.size(), "Horizontal + diagonal [0:0] didn't match");
+        Assertions.assertEquals(4, match1_1.size(), "Diagonal [1:1] didn't match");
+        Assertions.assertEquals(3, match0_2.size(), "Vertical [0:2] didn't match");
+        Assertions.assertEquals(3, match2_1.size(), "Anti-diagonal  [2:1] didn't match");
+        Assertions.assertEquals(3, match1_3.size(), "Horizontal [1:3] didn't match");
+        Assertions.assertEquals(0, match3_1.size(), "Empty [3:1] didn't match");
     }
 
     @Test
@@ -179,13 +179,13 @@ public class BoardTest {
 
     public void printCell(Cell c){
         String color = " ";
-        if (c.getBall() != null && c.getBall().getColor().equals(BallColor.BLUE)){
+        if (c.getBall() != null && c.getBall().color().equals(BallColor.BLUE)){
             color = "B";
         }
-        if(c.getBall() != null && c.getBall().getColor().equals(BallColor.GREEN)){
+        if(c.getBall() != null && c.getBall().color().equals(BallColor.GREEN)){
             color = "G";
         }
-        if(c.getBall() != null && c.getBall().getColor().equals(BallColor.WHITE)){
+        if(c.getBall() != null && c.getBall().color().equals(BallColor.WHITE)){
             color = "W";
         }
         System.out.print("|" + c.x + ":" + c.y + ":" + color + "|");
@@ -194,25 +194,25 @@ public class BoardTest {
     public Board getSmallBoard(){
         Board board = new Board(new RuleSet().setBoardSize(4).setMinimalMatch(3));
 
-        board.placeBall(new Ball(BallColor.GREEN), 0,0);
-        board.placeBall(new Ball(BallColor.GREEN), 1,0);
-        board.placeBall(new Ball(BallColor.GREEN), 2,0);
-        board.placeBall(new Ball(BallColor.GREEN), 3,0);
+        board.placeBall(new Ball(BallColor.GREEN), 0, 0);
+        board.placeBall(new Ball(BallColor.GREEN), 1, 0);
+        board.placeBall(new Ball(BallColor.GREEN), 2, 0);
+        board.placeBall(new Ball(BallColor.GREEN), 3, 0);
 
-        board.placeBall(new Ball(BallColor.BLUE), 0,1);
-        board.placeBall(new Ball(BallColor.GREEN), 1,1);
-        board.placeBall(new Ball(BallColor.BLUE), 2,1);
-        board.placeBall(new Ball(BallColor.BLUE), 3,1);
+        board.placeBall(new Ball(BallColor.BLUE), 0, 1);
+        board.placeBall(new Ball(BallColor.GREEN), 1, 1);
+        board.placeBall(new Ball(BallColor.BLUE), 2, 1);
+        board.placeBall(new Ball(BallColor.BLUE), 3, 1);
 
-        board.placeBall(new Ball(BallColor.BLUE), 0,2);
-        board.placeBall(new Ball(BallColor.BLUE), 1,2);
-        board.placeBall(new Ball(BallColor.GREEN), 2,2);
-        board.placeBall(new Ball(BallColor.BLUE), 3,2);
+        board.placeBall(new Ball(BallColor.BLUE), 0, 2);
+        board.placeBall(new Ball(BallColor.BLUE), 1, 2);
+        board.placeBall(new Ball(BallColor.GREEN), 2, 2);
+        board.placeBall(new Ball(BallColor.BLUE), 3, 2);
 
-        board.placeBall(new Ball(BallColor.BLUE), 0,3);
-        board.placeBall(new Ball(BallColor.BLUE), 1,3);
-        board.placeBall(new Ball(BallColor.BLUE), 2,3);
-        board.placeBall(new Ball(BallColor.GREEN), 3,3);
+        board.placeBall(new Ball(BallColor.BLUE), 0, 3);
+        board.placeBall(new Ball(BallColor.BLUE), 1, 3);
+        board.placeBall(new Ball(BallColor.BLUE), 2, 3);
+        board.placeBall(new Ball(BallColor.GREEN), 3, 3);
 
         printBoard(board);
         return board;
@@ -224,30 +224,34 @@ public class BoardTest {
         board.placeBall(new Ball(), 0,1);
         board.placeBall(new Ball(), 1,1);
 
-        board.placeBall(new Ball(), 4, 2 );
-        board.placeBall(new Ball(), 5, 2 );
-        board.placeBall(new Ball(), 6, 2 );
-        board.placeBall(new Ball(), 4, 3 );
-        board.placeBall(new Ball(), 6, 3 );
+        board.placeBall(new Ball(), 2, 0);
+        board.placeBall(new Ball(), 0, 1);
+        board.placeBall(new Ball(), 1, 1);
 
-        board.placeBall(new Ball(), 1, 4 );
-        board.placeBall(new Ball(), 1, 5 );
-        board.placeBall(new Ball(), 3, 5 );
-        board.placeBall(new Ball(), 1, 6 );
-        board.placeBall(new Ball(), 2, 6 );
-        board.placeBall(new Ball(), 3, 6 );
+        board.placeBall(new Ball(), 4, 2);
+        board.placeBall(new Ball(), 5, 2);
+        board.placeBall(new Ball(), 6, 2);
+        board.placeBall(new Ball(), 4, 3);
+        board.placeBall(new Ball(), 6, 3);
 
-        board.placeBall(new Ball(), 7, 5 );
-        board.placeBall(new Ball(), 8, 5 );
-        board.placeBall(new Ball(), 6, 6 );
-        board.placeBall(new Ball(), 6, 7 );
+        board.placeBall(new Ball(), 1, 4);
+        board.placeBall(new Ball(), 1, 5);
+        board.placeBall(new Ball(), 3, 5);
+        board.placeBall(new Ball(), 1, 6);
+        board.placeBall(new Ball(), 2, 6);
+        board.placeBall(new Ball(), 3, 6);
+
+        board.placeBall(new Ball(), 7, 5);
+        board.placeBall(new Ball(), 8, 5);
+        board.placeBall(new Ball(), 6, 6);
+        board.placeBall(new Ball(), 6, 7);
 
         return board;
     }
 
-    public void printPath(LinkedList<Cell> path, Board board){
+    public void printPath(LinkedList<Cell> path, Board board) {
         System.out.println("\nPath: ");
-        if(path == null)
+        if (path == null)
             return;
         for (int i = 0; i < board.height; i++){
             for (int j = 0; j < board.width; j++){

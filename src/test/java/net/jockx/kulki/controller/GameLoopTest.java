@@ -332,9 +332,6 @@ public class GameLoopTest {
         public List<Ball> getNextBalls() { return null; }
 
         @Override
-        public List<Cell> getNextCells() { return null; }
-
-        @Override
         public boolean isGameOver() {
             isGameOverCalled = true;
             return isGameOverValue;
@@ -352,7 +349,5 @@ public class GameLoopTest {
             return board;
         }
 
-        @Override
-        public RuleSet getRuleSet() { return null; }
     }
 }
