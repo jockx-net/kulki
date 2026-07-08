@@ -10,6 +10,10 @@ import net.jockx.kulki.i18n.Messages;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Locale;
 
 public class MainApp extends Application {
@@ -18,8 +22,7 @@ public class MainApp extends Application {
 
     public void start(Stage stage) {
 
-        Font.loadFont(getClass().getResourceAsStream("/fonts/ZenMaruGothic-Black.ttf"), 14);
-        Font.loadFont(getClass().getResourceAsStream("/fonts/Nunito-Black.ttf"), 14);
+        loadFont("/fonts/UnboundedSans-Regular.ttf");
         log.debug("Showing JFX scene");
 
         applySavedLocale();
@@ -48,6 +51,24 @@ public class MainApp extends Application {
             controller.showPlayerNamePrompt(controller::showGameMenu);
         } else {
             controller.showGameMenu();
+        }
+    }
+
+    private static void loadFont(String path) {
+        try (var is = MainApp.class.getResourceAsStream(path)) {
+            if (is == null) {
+                log.warn("Font resource not found: {}", path);
+                return;
+            }
+            var tempFile = File.createTempFile("kulki-", ".ttf");
+            tempFile.deleteOnExit();
+            Files.copy(is, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            var loaded = Font.loadFont(tempFile.toURI().toURL().toExternalForm(), 14);
+            if (loaded == null) {
+                log.warn("Failed to load font: {}", path);
+            }
+        } catch (IOException e) {
+            log.warn("Failed to load font {}: {}", path, e.getMessage());
         }
     }
 

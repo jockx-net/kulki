@@ -44,7 +44,7 @@ public class PlayerNamePrompt extends OverlayPanel {
         nameField.getStyleClass().add("player-name-prompt-field");
         nameField.setPromptText(Messages.get("playerName.prompt"));
         nameField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() > 20) {
+            if (change.getControlNewText().length() > 10) {
                 return null;
             }
             return change;

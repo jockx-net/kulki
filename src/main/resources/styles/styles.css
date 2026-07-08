@@ -4,7 +4,7 @@
 }
 
 .label {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
     -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
@@ -12,7 +12,7 @@
 
 .button {
     -fx-text-fill: white;
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-weight: bold;
     -fx-background-color: #61a2b1;
     /*-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );*/
@@ -43,7 +43,7 @@
 }
 
 .settings-title {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-size: 22px;
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
@@ -51,15 +51,15 @@
 }
 
 .settings-field-label {
-    -fx-font-family: "Nunito Black";
-    -fx-font-size: 13px;
+    -fx-font-family:  "Unbounded Sans";
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-text-fill: #444444;
     -fx-padding: 6px 0 0 0;
 }
 
 .settings-warning {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-size: 11px;
     -fx-text-fill: #cc0000;
 }
@@ -97,7 +97,7 @@
 }
 
 .settings-spinner .text-field {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-alignment: center;
@@ -135,7 +135,7 @@
 
 .player-name-field,
 .player-name-prompt-field {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-size: 12px;
     -fx-font-weight: bold;
     -fx-text-fill: #444444;
@@ -162,7 +162,7 @@
 }
 
 .gameover-title {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-size: 22px;
     -fx-font-weight: bold;
 }
@@ -178,21 +178,21 @@
 }
 
 .scoreboard-rank {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
 }
 
 .scoreboard-name {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
 }
 
 .scoreboard-score {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
@@ -206,7 +206,7 @@
 }
 
 .menu-title {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-size: 28px;
     -fx-font-weight: bold;
     -fx-text-fill: #333333;
@@ -244,7 +244,7 @@
 }
 
 .game-menu-button {
-    -fx-font-family: "Nunito Black";
+    -fx-font-family:  "Unbounded Sans";
     -fx-font-size: 14px;
     -fx-padding: 10px 32px;
     -fx-background-radius: 6px;
@@ -265,8 +265,8 @@
 /* ======== Game View ======== */
 
 .game-view-label {
-    -fx-font-family: "Nunito Black";
-    -fx-font-size: 18px;
+    -fx-font-family:  "Unbounded Sans";
+    -fx-font-size: 12px;
 }
 
 /* ======== Cell States ======== */

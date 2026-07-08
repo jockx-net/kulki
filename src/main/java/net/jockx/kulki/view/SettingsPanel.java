@@ -76,9 +76,9 @@ public class SettingsPanel extends OverlayPanel {
         playerNameField.setAlignment(Pos.CENTER);
         playerNameField.getStyleClass().add("player-name-field");
         playerNameField.setPromptText(Messages.get("playerName.prompt"));
-        playerNameField.setMaxWidth(180);
+        playerNameField.setMaxWidth(140);
         playerNameField.setTextFormatter(new TextFormatter<String>(change -> {
-            if (change.getControlNewText().length() > 20) {
+            if (change.getControlNewText().length() > 10) {
                 return null;
             }
             return change;
@@ -124,7 +124,7 @@ public class SettingsPanel extends OverlayPanel {
         var flags = FlagSelector.createFlagSelector(onLanguageChange);
 
         Region spacer = new Region();
-        spacer.setMinHeight(24);
+        spacer.setMinHeight(8);
 
         rowLabels[0] = new Label(Messages.get("settings.boardSize"));
         rowLabels[1] = new Label(Messages.get("settings.colors"));
@@ -139,8 +139,8 @@ public class SettingsPanel extends OverlayPanel {
             row(rowLabels[2], matchSpinner, matchWarning),
             row(rowLabels[3], newBallsSpinner, newBallsWarning),
             row(rowLabels[4], playerNameField),
-            spacer,
             buttons,
+            spacer,
             flags
         );
     }
