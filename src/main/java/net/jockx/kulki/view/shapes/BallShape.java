@@ -64,7 +64,7 @@ public class BallShape extends Circle {
 
     public void moveTo(List<CellNode> cellsInPath, Runnable onFinished) {
         Path path = new Path();
-        CellNode lastNode = cellsInPath.getLast();
+        CellNode lastNode = cellsInPath.get(cellsInPath.size() - 1);
         double oldLayoutX = getLayoutX();
         double oldLayoutY = getLayoutY();
         setLayoutX(lastNode.getBallCenterX());
@@ -83,7 +83,7 @@ public class BallShape extends Circle {
         pathTransition.setPath(path);
         pathTransition.setNode(this);
         pathTransition.setOrientation(PathTransition.OrientationType.NONE);
-        pathTransition.setOnFinished(_ -> {
+        pathTransition.setOnFinished(e -> {
             if (onFinished != null) {
                 onFinished.run();
             }
@@ -94,7 +94,7 @@ public class BallShape extends Circle {
     public static void remove(Collection<BallShape> balls, Pane mainBoardPane, Runnable onFinished) {
         ParallelTransition parallelTransition = new ParallelTransition();
         if (onFinished != null) {
-            parallelTransition.setOnFinished(_ -> onFinished.run());
+            parallelTransition.setOnFinished(e -> onFinished.run());
         }
 
         for (BallShape ball : balls) {
@@ -105,7 +105,7 @@ public class BallShape extends Circle {
             FadeTransition ft = new FadeTransition(Duration.millis(500), ball);
             ft.setFromValue(1.0);
             ft.setToValue(0.0);
-            ft.setOnFinished(_ -> mainBoardPane.getChildren().remove(ball));
+            ft.setOnFinished(e -> mainBoardPane.getChildren().remove(ball));
 
             parallelTransition.getChildren().addAll(st, ft);
         }
@@ -116,7 +116,7 @@ public class BallShape extends Circle {
         SequentialTransition sequentialFade = new SequentialTransition();
         SequentialTransition sequentialScale = new SequentialTransition();
         if (onFinished != null) {
-            sequentialFade.setOnFinished(_ -> onFinished.run());
+            sequentialFade.setOnFinished(e -> onFinished.run());
         }
 
         for (BallShape ball : balls) {
@@ -157,7 +157,7 @@ public class BallShape extends Circle {
             ft.setFromValue(1.0);
             ft.setToValue(0.0);
 
-            ft.setOnFinished(_ -> node.getChildren().remove(1));
+            ft.setOnFinished(e -> node.getChildren().remove(1));
             sequentialScale.getChildren().add(st);
             sequentialFade.getChildren().add(ft);
             processed++;

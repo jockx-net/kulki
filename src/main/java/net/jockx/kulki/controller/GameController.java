@@ -67,8 +67,8 @@ public class GameController {
         rootPane.getChildren().add(gameView.getRoot());
         scoreBoard = new ScoreBoard();
 
-        rootPane.widthProperty().addListener((_, _, _) -> repositionView());
-        rootPane.heightProperty().addListener((_, _, _) -> repositionView());
+        rootPane.widthProperty().addListener((obs, oldVal, newVal) -> repositionView());
+        rootPane.heightProperty().addListener((obs, oldVal, newVal) -> repositionView());
 
         rootPane.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
             KeyCode code = event.getCode();
@@ -115,7 +115,7 @@ public class GameController {
         prefillNextBallsPanel();
         gameLoop.submitInitialPlacement();
 
-        gameView.getMenuButton().setOnAction(_ -> onGameMenuRequested());
+        gameView.getMenuButton().setOnAction(e -> onGameMenuRequested());
         gameView.getMenuButton().setVisible(true);
         Platform.runLater(rootPane::requestFocus);
     }
@@ -513,7 +513,7 @@ public class GameController {
                 CellNode c = gameView.getCellNode(j, i);
                 if (c.equals(targetCell) && !reachable) {
                     c.markAsInvalidTarget();
-                } else if (path.contains(c) && !path.getFirst().equals(c)) {
+                } else if (path.contains(c) && !path.get(0).equals(c)) {
                     c.markHovered();
                 } else if (!c.equals(sourceCell)) {
                     c.unMarkHovered();

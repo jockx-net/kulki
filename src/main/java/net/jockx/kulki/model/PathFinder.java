@@ -44,7 +44,7 @@ public class PathFinder {
                     LinkedList<Cell> path = new LinkedList<>();
                     Cell step = to;
                     while (step != null) {
-                        path.addFirst(step);
+                        path.add(0, step);
                         step = parent.get(step);
                     }
                     return path;

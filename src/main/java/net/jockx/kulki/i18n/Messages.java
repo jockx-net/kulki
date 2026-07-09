@@ -65,9 +65,12 @@ public final class Messages {
             is = Messages.class.getClassLoader().getResourceAsStream(name);
         }
         if (is == null) {
+            is = ClassLoader.getSystemResourceAsStream(name);
+        }
+        if (is == null) {
             try {
-                is = Messages.class.getModule().getResourceAsStream(name);
-            } catch (IOException e) {
+                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
+            } catch (SecurityException e) {
                 // ignore
             }
         }

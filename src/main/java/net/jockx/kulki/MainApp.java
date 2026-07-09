@@ -20,6 +20,10 @@ public class MainApp extends Application {
 
     private static final Logger log = LoggerFactory.getLogger(MainApp.class);
 
+    public static void main(String[] args) {
+        launch(args);
+    }
+
     public void start(Stage stage) {
 
         loadFont("/fonts/UnboundedSans-Regular.ttf");
@@ -29,13 +33,19 @@ public class MainApp extends Application {
 
         GameController controller = new GameController();
 
-        double width = Double.parseDouble(PropertiesReader.getProperty("scene.width"));
-        double height = Double.parseDouble(PropertiesReader.getProperty("scene.height"));
+        double width = 800;
+        double height = 1000;
+        try {
+            width = Double.parseDouble(PropertiesReader.getProperty("scene.width"));
+            height = Double.parseDouble(PropertiesReader.getProperty("scene.height"));
+        } catch (NullPointerException e) {
+            log.warn("Properties not found, using default scene size");
+        }
         Scene scene = new Scene(controller.getRootPane(), width, height);
 
-        scene.widthProperty().addListener((_, _, newVal) ->
+        scene.widthProperty().addListener((obs, oldVal, newVal) ->
                 PropertiesReader.setProperty("scene.width", Double.toString(newVal.doubleValue())));
-        scene.heightProperty().addListener((_, _, newVal) ->
+        scene.heightProperty().addListener((obs, oldVal, newVal) ->
                 PropertiesReader.setProperty("scene.height", Double.toString(newVal.doubleValue())));
 
         scene.getStylesheets().add(getClass().getResource("/styles/styles.css").toExternalForm());
@@ -77,8 +87,8 @@ public class MainApp extends Application {
         if (localeStr != null && !localeStr.isBlank()) {
             String[] parts = localeStr.split("_");
             Locale locale = parts.length == 2
-                ? Locale.of(parts[0], parts[1])
-                : Locale.of(parts[0]);
+                ? new Locale(parts[0], parts[1])
+                : new Locale(parts[0]);
             Messages.setLocale(locale);
         }
     }

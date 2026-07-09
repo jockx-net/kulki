@@ -89,9 +89,9 @@ public class SettingsPanel extends OverlayPanel {
         newBallsWarning = new Label();
         newBallsWarning.getStyleClass().add("settings-warning");
 
-        boardSizeSpinner.valueProperty().addListener((_, _, _) -> validate());
-        matchSpinner.valueProperty().addListener((_, _, _) -> validate());
-        newBallsSpinner.valueProperty().addListener((_, _, _) -> validate());
+        boardSizeSpinner.valueProperty().addListener((obs, oldVal, newVal) -> validate());
+        matchSpinner.valueProperty().addListener((obs, oldVal, newVal) -> validate());
+        newBallsSpinner.valueProperty().addListener((obs, oldVal, newVal) -> validate());
         validate();
 
         title = new Label(Messages.get("settings.title"));
@@ -131,6 +131,17 @@ public class SettingsPanel extends OverlayPanel {
         rowLabels[2] = new Label(Messages.get("settings.matchSize"));
         rowLabels[3] = new Label(Messages.get("settings.newBalls"));
         rowLabels[4] = new Label(Messages.get("settings.playerName"));
+
+        overlay.setOnMouseClicked(e -> {
+            if (e.getTarget() == overlay) {
+                parent.requestFocus();
+            }
+        });
+        panel.setOnMouseClicked(e -> {
+            if (e.getTarget() == panel) {
+                parent.requestFocus();
+            }
+        });
 
         panel.getChildren().addAll(
             title,
@@ -235,6 +246,19 @@ public class SettingsPanel extends OverlayPanel {
                 s.decrement();
             }
             e.consume();
+        });
+        s.getEditor().focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (!isNowFocused) {
+                String text = s.getEditor().getText().trim();
+                try {
+                    int val = Integer.parseInt(text);
+                    if (val >= min && val <= max) {
+                        s.getValueFactory().setValue(val);
+                        return;
+                    }
+                } catch (NumberFormatException ignored) {}
+                s.getEditor().setText(String.valueOf(s.getValue()));
+            }
         });
         return s;
     }

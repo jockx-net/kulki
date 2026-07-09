@@ -49,7 +49,7 @@ public class PlayerNamePrompt extends OverlayPanel {
             }
             return change;
         }));
-        nameField.setOnAction(_ -> confirm());
+        nameField.setOnAction(e -> confirm());
 
         okButton = createButton(Messages.get("playerName.ok"), this::confirm,
             "settings-button", "button-save");

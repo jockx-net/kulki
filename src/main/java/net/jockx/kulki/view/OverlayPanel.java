@@ -33,8 +33,8 @@ public abstract class OverlayPanel {
 
         overlay.getChildren().add(panel);
 
-        parent.widthProperty().addListener((_, _, _) -> reposition());
-        parent.heightProperty().addListener((_, _, _) -> reposition());
+        parent.widthProperty().addListener((obs, oldVal, newVal) -> reposition());
+        parent.heightProperty().addListener((obs, oldVal, newVal) -> reposition());
     }
 
     public Pane getOverlay() {
@@ -45,7 +45,11 @@ public abstract class OverlayPanel {
         if (!parent.getChildren().contains(overlay)) {
             parent.getChildren().add(overlay);
         }
-        Platform.runLater(this::reposition);
+        overlay.setVisible(false);
+        Platform.runLater(() -> {
+            reposition();
+            overlay.setVisible(true);
+        });
     }
 
     public void hide() {
@@ -79,7 +83,7 @@ public abstract class OverlayPanel {
         btn.setFocusTraversable(false);
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.getStyleClass().addAll(styleClasses);
-        btn.setOnAction(_ -> action.run());
+        btn.setOnAction(e -> action.run());
         return btn;
     }
 }

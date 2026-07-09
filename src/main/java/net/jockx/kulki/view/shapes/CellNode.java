@@ -16,7 +16,6 @@ public class CellNode extends Group {
 
     private final Rectangle cellShape;
     double centerX, centerY;
-    private double boardOffsetX, boardOffsetY;
     private BallShape ball;
     private boolean selected;
 
@@ -28,9 +27,9 @@ public class CellNode extends Group {
         this.column = x;
         this.row = y;
 
-        boundsInParentProperty().addListener((_, _, newBounds) -> {
-            centerX = boardOffsetX + newBounds.getCenterX();
-            centerY = boardOffsetY + newBounds.getCenterY();
+        boundsInParentProperty().addListener((obs, oldVal, newBounds) -> {
+            centerX = newBounds.getCenterX();
+            centerY = newBounds.getCenterY();
             if (ball != null) {
                 ball.setLayoutX(centerX);
                 ball.setLayoutY(centerY);
@@ -125,19 +124,17 @@ public class CellNode extends Group {
     }
 
     public void setBallFirstTime(BallShape ball) {
-        ball.setLayoutX(boardOffsetX + getBoundsInParent().getCenterX());
-        ball.setLayoutY(boardOffsetY + getBoundsInParent().getCenterY());
+        ball.setLayoutX(getBoundsInParent().getCenterX());
+        ball.setLayoutY(getBoundsInParent().getCenterY());
         setBall(ball);
     }
 
-    public void setBoardOffset(double x, double y) {
-        boardOffsetX = x;
-        boardOffsetY = y;
+    public void setBoardOffset() {
         if (column >= 0 && row >= 0) {
             double cw = cellShape.getWidth();
             double ch = cellShape.getHeight();
-            centerX = x + column * (cw + CELL_GAP) + cw / 2;
-            centerY = y + row * (ch + CELL_GAP) + ch / 2;
+            centerX = column * (cw + CELL_GAP) + cw / 2;
+            centerY = row * (ch + CELL_GAP) + ch / 2;
         }
     }
 

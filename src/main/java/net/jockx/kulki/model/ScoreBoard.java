@@ -38,7 +38,7 @@ public class ScoreBoard {
     }
 
     public boolean isHighScore(int score) {
-        return entries.size() < MAX_ENTRIES || score > entries.getLast().score();
+        return entries.size() < MAX_ENTRIES || score > entries.get(entries.size() - 1).score();
     }
 
     public void addAndHighlight(String name, int score) {

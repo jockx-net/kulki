@@ -25,18 +25,18 @@ public class PropertiesReader {
 
     private PropertiesReader() {
         properties = new Properties();
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("size.properties")) {
+        try (InputStream is = openResource("size.properties")) {
             if (is != null) {
                 properties.load(is);
             }
         } catch (IOException e) {
-            throw new RuntimeException("Failed to load size.properties from classpath", e);
+            log.warn("Failed to load size.properties, using empty defaults", e);
         }
 
         Path configFile = AppConfigDir.get().resolve(CONFIG_FILE_NAME);
         if (Files.exists(configFile)) {
-            try (InputStream is = Files.newInputStream(configFile)) {
-                properties.load(is);
+            try (InputStream in = Files.newInputStream(configFile)) {
+                properties.load(in);
             } catch (IOException e) {
                 log.warn("Failed to read user config, using defaults", e);
             }
@@ -57,6 +57,24 @@ public class PropertiesReader {
 
     public static int getInt(String propertyName) {
         return Integer.parseInt(getInstance().properties.getProperty(propertyName));
+    }
+
+    private static InputStream openResource(String name) {
+        InputStream is = PropertiesReader.class.getResourceAsStream("/" + name);
+        if (is == null) {
+            is = PropertiesReader.class.getClassLoader().getResourceAsStream(name);
+        }
+        if (is == null) {
+            is = ClassLoader.getSystemResourceAsStream(name);
+        }
+        if (is == null) {
+            try {
+                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
+            } catch (SecurityException e) {
+                // ignore
+            }
+        }
+        return is;
     }
 
     public static String getProperty(String propertyName) {
