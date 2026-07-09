@@ -40,7 +40,7 @@
   </branding>
 
   <releases>
-    <release version="1.1.0" date="2026-07-08">
+    <release version="1.1.1" date="2026-07-10">
       <description>
         <p>Some quality-of-life improvements</p>
         <ul>
