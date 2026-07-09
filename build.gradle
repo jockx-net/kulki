@@ -1,6 +1,7 @@
 plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.gluonhq.gluonfx-gradle-plugin' version '1.0.29'
     id 'org.beryx.jlink' version '4.0.2'
 }
 
@@ -9,7 +10,7 @@ repositories {
 }
 
 javafx {
-    version = "25"
+    version = "17"
     modules = [ 'javafx.controls' ]
 }
 
@@ -24,8 +25,6 @@ version = '1.1.0'
 description = """Kulki"""
 
 dependencies {
-    implementation 'org.openjfx:javafx-controls:25'
-    implementation 'org.apache.commons:commons-lang3:3.20.0'
     implementation 'org.slf4j:slf4j-simple:2.0.18'
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.4'
@@ -38,12 +37,30 @@ test {
 
 compileJava {
     options.encoding = 'UTF-8'
-    sourceCompatibility = '25'
-    targetCompatibility = '25'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
+
+gluonfx {
+    target = 'android'
+
+    release {
+        appLabel = 'Kulki'
+        versionName = project.version
+        versionCode = '1'
+    }
+
+    resourcesList = [
+        '.*[.]properties$',
+        '.*[.]ttf$'
+    ]
+
+    bundlesList = []
 }
 
 jlink {
-    options = ['--strip-debug', '--no-header-files', '--no-man-pages']
+    options = ['--strip-debug', '--no-header-files', '--no-man-pages',
+               '--strip-native-commands', '--vm=server']
     addExtraDependencies('org.slf4j')
     launcher {
         name = 'Kulki'
@@ -51,15 +68,28 @@ jlink {
 
     jpackage {
         skipInstaller = true
-        icon = 'flatpak/Kulki.png'
-        imageOptions.addAll('--app-content', 'flatpak/Kulki.desktop', '--app-content', 'flatpak/Kulki.metainfo.xml')
+        icon = 'src/flatpak/Kulki.png'
     }
+}
+
+// ── Flatpak tasks ──────────────────────────────────────────────────────────
+
+tasks.register('prepareJpackageImage', Copy) {
+    dependsOn 'jpackageImage'
+    group = 'Distribution'
+    description = 'Copies Flatpak metadata into the jpackage image.'
+    from('src/flatpak') {
+        include 'Kulki.desktop'
+        include 'Kulki.png'
+        include 'Kulki.metainfo.xml'
+    }
+    into { layout.buildDirectory.dir('jpackage/Kulki/lib').get().asFile }
 }
 
 tasks.register('packageTarGz', Tar) {
     group = 'Distribution'
     description = 'Creates a tar.gz archive of the jpackage image for Flatpak builds.'
-    dependsOn 'jpackageImage'
+    dependsOn 'prepareJpackageImage'
 
     from layout.buildDirectory.dir('jpackage/Kulki')
     into 'Kulki'
@@ -89,7 +119,7 @@ tasks.register('copyDistToFlatpak', Copy) {
 
 tasks.register('copyManifestToFlatpak', Copy) {
     dependsOn cleanFlatpakDir
-    from('flatpak/') { include 'net.jockx.Kulki.yml' }
+    from('src/flatpak/') { include 'net.jockx.Kulki.yml' }
     into(flatpakDir)
 }
 
@@ -103,7 +133,7 @@ tasks.register('flatpakRemoteAdd', Exec) {
 tasks.register('flatpakEnsureBuilder', Exec) {
     dependsOn flatpakRemoteAdd
     workingDir = flatpakDir.get().asFile
-    commandLine 'flatpak', 'install', '--user', 'org.flatpak.Builder'
+    commandLine 'flatpak', 'install', '--user', '-y', 'flathub', 'org.flatpak.Builder'
 }
 
 tasks.register('flatpakBuilderRun', Exec) {

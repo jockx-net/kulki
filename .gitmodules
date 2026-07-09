@@ -1,4 +1,4 @@
 [submodule "flatpak/flathub"]
-	path = flatpak/flathub
+	path = src/flatpak/flathub
 	url = https://github.com/flathub/net.jockx.Kulki.git
 	branch = next

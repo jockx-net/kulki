@@ -470,6 +470,7 @@ public class GameController {
 
     private void onExitFromMenu() {
         Platform.exit();
+        System.exit(0);
     }
 
     private void onResignFromMenu() {

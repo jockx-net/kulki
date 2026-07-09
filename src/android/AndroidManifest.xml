@@ -4,10 +4,8 @@
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-	<uses-sdk android:minSdkVersion="4" android:targetSdkVersion="27"/>
-	<application android:label="Kulki" android:icon="@drawable/icon"
-				 android:name="android.support.multidex.MultiDexApplication">
-		<activity android:name="javafxports.android.FXActivity" android:label="Kulki" android:configChanges="orientation|screenSize">
+	<application android:label="Kulki" android:icon="@drawable/icon">
+		<activity android:name="com.gluonhq.helloandroid.MainActivity" android:label="Kulki" android:configChanges="orientation|screenSize" android:exported="true">
 			<meta-data android:name="main.class" android:value="net.jockx.kulki.MainApp"/>
 			<meta-data android:name="debug.port" android:value="0"/>
 			<intent-filter>
@@ -15,5 +13,6 @@
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
+		<activity android:name="com.gluonhq.helloandroid.PermissionRequestActivity" android:exported="true"/>
 	</application>
 </manifest>

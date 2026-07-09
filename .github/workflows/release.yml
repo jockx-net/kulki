@@ -19,7 +19,7 @@ jobs:
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          java-version: '25'
+          java-version: '17'
           distribution: 'temurin'
 
       - name: Setup Gradle
@@ -48,7 +48,7 @@ jobs:
           python3 << 'EOF'
           import xml.etree.ElementTree as ET
 
-          tree = ET.parse('flatpak/Kulki.metainfo.xml')
+          tree = ET.parse('src/flatpak/Kulki.metainfo.xml')
           root = tree.getroot()
           ns = {'m': 'https://freedesktop.org/standards/metainfo/1.0'}
           release = root.find('.//m:releases/m:release', ns)
