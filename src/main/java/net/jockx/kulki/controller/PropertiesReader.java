@@ -1,6 +1,6 @@
 package net.jockx.kulki.controller;
 
-import net.jockx.kulki.util.AppConfigDir;
+import net.jockx.kulki.util.PlatformUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public class PropertiesReader {
             log.warn("Failed to load size.properties, using empty defaults", e);
         }
 
-        Path configFile = AppConfigDir.get().resolve(CONFIG_FILE_NAME);
+        Path configFile = PlatformUtil.getAppConfigDir().resolve(CONFIG_FILE_NAME);
         if (Files.exists(configFile)) {
             try (InputStream in = Files.newInputStream(configFile)) {
                 properties.load(in);
@@ -44,7 +44,7 @@ public class PropertiesReader {
     }
 
     public void save() {
-        Path configFile = AppConfigDir.get().resolve(CONFIG_FILE_NAME);
+        Path configFile = PlatformUtil.getAppConfigDir().resolve(CONFIG_FILE_NAME);
         try {
             Files.createDirectories(configFile.getParent());
             try (var os = Files.newOutputStream(configFile)) {

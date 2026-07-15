@@ -12,6 +12,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import net.jockx.kulki.controller.GameController;
 import net.jockx.kulki.controller.PropertiesReader;
 import net.jockx.kulki.i18n.Messages;
 import net.jockx.kulki.model.BallColor;
@@ -70,7 +71,7 @@ public class SettingsPanel extends OverlayPanel {
         matchSpinner = spinner(MATCH_MIN, MATCH_MAX, loadInt("minimalMatch"));
         newBallsSpinner = spinner(NEW_BALLS_MIN, NEW_BALLS_MAX, loadInt("newBallCount"));
 
-        origPlayerName = loadPlayerName();
+        origPlayerName = GameController.getPlayerName();
         playerNameField = new TextField();
         playerNameField.setText(origPlayerName);
         playerNameField.setAlignment(Pos.CENTER);
@@ -294,14 +295,6 @@ public class SettingsPanel extends OverlayPanel {
     }
 
     private static int loadInt(String key) {
-        return Integer.parseInt(PropertiesReader.getProperty(key));
-    }
-
-    private static String loadPlayerName() {
-        String name = PropertiesReader.getProperty("player.name");
-        if (name == null || name.isBlank()) {
-            return System.getProperty("user.name", "");
-        }
-        return name;
+        return PropertiesReader.getInt(key);
     }
 }

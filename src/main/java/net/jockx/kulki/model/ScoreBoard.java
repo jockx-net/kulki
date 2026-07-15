@@ -1,6 +1,6 @@
 package net.jockx.kulki.model;
 
-import net.jockx.kulki.util.AppConfigDir;
+import net.jockx.kulki.util.PlatformUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ public class ScoreBoard {
 
     public ScoreBoard() {
         entries = new ArrayList<>();
-        scoresPath = AppConfigDir.get().resolve(SCORES_FILE);
+        scoresPath = PlatformUtil.getAppConfigDir().resolve(SCORES_FILE);
         load();
     }
 

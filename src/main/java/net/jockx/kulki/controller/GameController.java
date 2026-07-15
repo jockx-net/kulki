@@ -13,6 +13,7 @@ import net.jockx.kulki.model.GameEngine;
 import net.jockx.kulki.model.GameEvent;
 import net.jockx.kulki.model.GameEventBus;
 import net.jockx.kulki.model.RuleSet;
+import net.jockx.kulki.util.PlatformUtil;
 import net.jockx.kulki.model.ScoreBoard;
 import net.jockx.kulki.model.StateTransition;
 import net.jockx.kulki.view.GameMenuPanel;
@@ -394,7 +395,7 @@ public class GameController {
     }
 
     public void showPlayerNamePrompt(Runnable onDone) {
-        String prefill = System.getProperty("user.name", "");
+        String prefill = PlatformUtil.getDefaultPlayerName();
         playerNamePrompt = new PlayerNamePrompt(rootPane, prefill,
             () -> {
                 playerNamePrompt = null;
@@ -416,7 +417,7 @@ public class GameController {
     public static String getPlayerName() {
         String name = PropertiesReader.getProperty("player.name");
         if (name == null || name.isBlank()) {
-            return System.getProperty("user.name", "Player");
+            return PlatformUtil.getDefaultPlayerName();
         }
         return name;
     }
