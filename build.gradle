@@ -47,7 +47,11 @@ gluonfx {
     release {
         appLabel = 'Kulki'
         versionName = project.version
-        versionCode = '1'
+        versionCode = 2
+        providedKeyStorePath = "${rootDir}/dev/kulki-release.jks"
+        providedKeyStorePassword = System.getenv('APK_SIGNING_PASSWORD') ?: ''
+        providedKeyAlias = 'kulki-release'
+        providedKeyAliasPassword = System.getenv('APK_SIGNING_PASSWORD') ?: ''
     }
 
     resourcesList = [
